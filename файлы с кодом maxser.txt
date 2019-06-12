@@ -1,0 +1,13 @@
+ColorSection.h
+ImageProcess.cpp
+FindingDoors.h - вообще весь мой
+ColorVision.cpp	- основной код
+ColorVision.h
+ViewImageVw.cpp - рисование
+ViewImageVw.h
+ChildFrm.cpp - подгонка форм приложения
+GlobalObjectsFrame.cpp - подгонка форм приложения
+GlobalObjectsView.cpp -	подгонка, защита от переполнения
+GlobalObjectsView.h - защита от переполнения
+ViewImageDoc - удаление окна
+	memset (BaseBanch,-1,sizeof(int) * 95);	//maxser
