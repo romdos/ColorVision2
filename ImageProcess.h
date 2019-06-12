@@ -1,6 +1,9 @@
-/*
-	Segmentation function.
-*/
+/**
+ * Segmentation function.
+ * 
+ * 
+ * 
+ */ 
 
 
 

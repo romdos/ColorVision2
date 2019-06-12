@@ -29,9 +29,7 @@
 #include "VideoImageInputFrame.h"
 #include "VideoImageInputView.h"
 
-#include "ChParam.h"
-#include "ImageProcess.h"
-#include ".\colorvision.h" 
+#include "ChParam.h" 
 
 
 

@@ -28,14 +28,13 @@ static char THIS_FILE[]=__FILE__;
 
 CStrip::CStrip()
 {
-	left_bound_of_color_resolution=21;
-	right_bound_of_color_resolution=46;
+	left_bound_of_color_resolution = 21;
+	right_bound_of_color_resolution = 46;
    
 	left_shift1[0]=1;
 	left_shift1[1]=1;
 	left_shift1[2]=2;
-	left_shift1[3]=3;
-
+	left_shift1[3]=3; 
 	left_shift1[4]=4;
 	left_shift1[5]=5;
 	left_shift1[6]=6;
@@ -233,12 +232,16 @@ delete[] IntAllInformGray;
 
 
 
-
-//This program performs geometric description of intensities in a particular strip
+/**************************************************************************************************
+* @Description:
+*		This program performs geometric description of intensities in a particular strip
+**************************************************************************************************/
 void CStrip::Loc_stat_geom_double(BOOL NumPair)
 {
 	 int ncoor2; 
+
 	 long point_start;
+
 	 register int ncoor1;
 	 unsigned char inten_red, inten_green, inten_blue;
 	 int max_intensity;
@@ -248,27 +251,27 @@ void CStrip::Loc_stat_geom_double(BOOL NumPair)
 	 int actual_inten_opponent1; 
 	 int interm;
 	 long int entry_point;
+
 	 int last_end[NUM_INTEN];
 	 int first_pix[NUM_INTEN];
 	 int last_pix[NUM_INTEN];
-	 int last_endg[NUM_INTEN1];
-	 int first_pixg[NUM_INTEN1];
-	 int last_pixg[NUM_INTEN1]; 
+	 int last_endg[NUM_INTEN1]; 
+
+	 std::uint16_t last_pixg[NUM_INTEN1];
+
 	 int* inten_count1;
 	 int fine_color_balance; 
 	 float satur;
 	 int incr1, incr2;
-	 int residual;
-	 int scale_pos;//last_cor02.04.15
-	 int res_scale_pos;
+	 int residual;  
 	 int redgreen;
 	 int redblue;
 	 int randg;
 	 int randb;
 	 int point_sat;
 
-	 scale_pos = 0;
-	 res_scale_pos = 0; 
+	 int scale_pos = 0;
+	 int res_scale_pos = 0;
 
 	 int* frequency_of_color_differ = new int[NUM_INTEN*(DimDifference1)];
 	 memset(last_end, (int) '\0', sizeof(int)*NUM_INTEN);
@@ -293,6 +296,7 @@ void CStrip::Loc_stat_geom_double(BOOL NumPair)
 
 				 max_intensity = max(inten_blue, max(inten_green, inten_red));
 				 min_intensity = min(inten_blue, min(inten_green, inten_red));
+
 				 satur = ((float)(max_intensity - min_intensity) / ((float)max_intensity));
 				 point_sat = (int)(15 * satur);
 				 entry_point = entry_point + con_Dim - 2;
@@ -307,9 +311,9 @@ void CStrip::Loc_stat_geom_double(BOOL NumPair)
 						 scale_pos += 1;
 					 }
 				 }
-				 if (num_of_intg[gray_scale]<MAX_INT_NUMBER - 1)
+				 if (num_of_intg[gray_scale] < MAX_INT_NUMBER - 1)
 				 {
-					 StripCharacteristicsFindingGray(gray_scale, ncoor2, first_pixg, last_pixg, last_endg);
+					 StripCharacteristicsFindingGray(gray_scale, ncoor2, last_pixg, last_endg);
 				 }
 				 if ((max_intensity >= LOW_INTENSITY) || ((gray_scale <= 3) && (inten_blue <= 6)))
 				 {//11
@@ -1107,8 +1111,7 @@ void CStrip::Loc_stat_geom_double(BOOL NumPair)
 						 thick_prev_end, thick_prev_stat, thick_break_beg, thick_break_end,
 						 thick_break_stat, 0, fine_color_balance,point_sat);
 
-				 }
-				 //StripCharacteristicsFindingGray(gray_scale,ncoor2,first_pixg,last_pixg,last_endg);
+				 } 
 
 			 }
 		 } 
@@ -1145,7 +1148,7 @@ void CStrip::Loc_stat_geom_double(BOOL NumPair)
 				 if (num_of_intg[gray_scale]<MAX_INT_NUMBER - 1)
 				 {
 
-					 StripCharacteristicsFindingGray(gray_scale, ncoor1, first_pixg, last_pixg, last_endg);
+					 StripCharacteristicsFindingGray(gray_scale, ncoor1, last_pixg, last_endg);
 				 }
 				 if (max_intensity >= LOW_INTENSITY)
 				 {//11
@@ -1811,10 +1814,7 @@ void CStrip::Loc_stat_geom_double(BOOL NumPair)
 						 bright_consistency, thick_beg, thick_end, thick_stat, thick_prev_beg,
 						 thick_prev_end, thick_prev_stat, thick_break_beg, thick_break_end,
 						 thick_break_stat, 0, fine_color_balance,point_sat);
-				 }
-				 //StripCharacteristicsFindingGray(gray_scale,ncoor1,first_pixg,last_pixg,last_endg);
-
-
+				 }  
 			 }
 		 }
 		 FinalCorrection(thick_last, gray_min, gray_max, gray_mean, opponent1_min, opponent1_max, opponent1_mean,
@@ -2344,9 +2344,9 @@ void CStrip::StripCharacteristicsFinding(unsigned char inten,
  
  
 //An auxiliary program determining chief intensities, input parameters
-//determine an intensity and its interval
-
-void CStrip::Strip_value_painting(unsigned char intens,int beg_int, int end_int,int intens_consist,unsigned char* valuable_inten,int* bright_consist)
+//determine an intensity and its interval 
+void CStrip::Strip_value_painting(unsigned char intens,int beg_int, int end_int, int intens_consist, 
+						unsigned char* valuable_inten,int* bright_consist)
 {
 	int paint_coun;
 	int current_inhabitant;
@@ -2756,9 +2756,7 @@ void CStrip::OpponentIntensityFinding(int* inten_opp_count,int start1,
   int sum_zero1;
   int sum_zero2;
   int remaining;
-  int new_signif;
- /* int color_lead;
-  int color_second; */
+  int new_signif; 
   int first_second_ratio;
   int zero_fraction;
   int zero_fraction1;
@@ -2796,14 +2794,7 @@ void CStrip::OpponentIntensityFinding(int* inten_opp_count,int start1,
   int current_neighbor1;
   float center;
 
-  remaining=signif/16;
- /* color_lead=-100;
-  color_second=-100;*/
-
- /*if((num_opp==0)||((int)inten_first<59))
-  {
-  return;
-  }*/
+  remaining=signif/16; 
 	 optimal_inten_value=0;
 	 optimal_inten=-1;
 	 nonneg_optimal_inten=-1;
@@ -3115,108 +3106,101 @@ IntAllInform[inten_first].CenterOfMass1[num_int]=Center_of_mass1;
 		
 	}
   }
-//=====================================================
-void
-	CStrip::StripCharacteristicsFindingGray(unsigned char inten,int coor1,int* first_pi,
-	int* last_pi,int* last_en)
+
+
+
+/**************************************************************************************************
+* @Description:
+*      Calculates the outermost left and right points of intesities in the strip.
+*      Calculates how often intesity occurs and vertical lines of occurences.
+*-------------------------------------------------------------------------------------------------
+* @Parameters:
+*      @In:
+*        inten -- intenstity of pixel
+*        coord -- current coordinate of pixel with intensity (inten)
+*      @Out:
+*        last_pi -- right outermost position of pixel with intensity (inten)
+*        last_en --
+*-------------------------------------------------------------------------------------------------
+* @Notes: todo: rename function
+**************************************************************************************************/
+void CStrip::StripCharacteristicsFindingGray(std::uint8_t inten,
+											 std::uint16_t coord,
+											 std::uint16_t* last_pi,
+											 int* last_en)
+{
+	if (hist_sumg[inten] != 0)
 	{
-	int ncoor1;
-	int jump_coor,jump_pare,save_beg_pare;
-	int intens_signif;
-	int hole;
-	int intensity_cons;
-  
-	
-	ncoor1=coor1;
-			 if(hist_sumg[inten]==0)
-			  {
-				first_pi[inten]=ncoor1;
-				last_pi[inten]=ncoor1;
-				hist_sumg[inten]++;
-				return;
-			  }
-		 jump_coor=ncoor1-last_pi[inten];
-			save_beg_pare=end_pointg[inten];
-		  if(save_beg_pare)
-			 {
-		 jump_pare=ncoor1-save_beg_pare;
-		 if(jump_pare==0)
-				 {
-				  hist_sumg[inten]++;
-			 	  return;
-				 }
-			  }
-			last_pi[inten]=ncoor1;
-			if(jump_coor==0)
-		  {
-		  return;
-			}
-	if(jump_coor<=2)
-		  {
-			hist_fung[inten]++;
-			end_pointg[inten]=ncoor1;
-			
+		std::int16_t save_beg_pare = end_pointg[inten];
+
+		std::int16_t jump_pare = coord - save_beg_pare;
+
+		if ((save_beg_pare != 0) && (jump_pare == 0))
+		{
+			hist_sumg[inten]++;
+		}
+		else
+		{
+			std::int16_t jump_coor = coord - last_pi[inten];
+			last_pi[inten] = coord;
+
+			// tolerant gap
+			if ((jump_coor == 1) || (jump_coor == 2))
+			{
+				hist_fung[inten]++;
+				end_pointg[inten] = coord;
 			}
 			else
-		  {
-		  return;
+			{
+				return;
 			}
-		  if(hist_fung[inten]==1)
-		{
-		  beg_pointg[inten]=ncoor1-jump_coor;
-		  return;
-		}
-		  if(jump_pare<=5)
-		  {
-				  if(!thick_lastg[inten])
-				  {
-		  thick_firstg[inten]=save_beg_pare-1;
-          thick_stat_inputg[inten]=hist_fung[inten]+hist_sumg[inten]-4;
-		  
-				  }
-		  	import_endg[inten]=ncoor1;
-			thick_lastg[inten]=ncoor1;
-     		 return;
-		  }
-			 if(thick_lastg[inten])
-			  {
 
-				 if(last_en[inten])
-				 {
+			if (hist_fung[inten] == 1)
+			{
+				return;
+			}
 
-		hole=thick_firstg[inten]-last_en[inten]-1;
-		if(hole>jump_leng[inten])
-		{
-		jump_leng[inten]=hole;
-		jump_endg[inten]=thick_firstg[inten]-1;
-		}
-				 }
- intens_signif=hist_fung[inten]+hist_sumg[inten]-thick_stat_inputg[inten];
-intensity_cons=((intens_signif)<<1)/
-  (thick_lastg[inten]-thick_firstg[inten]+1);
-  if(intensity_cons>0)
-  {
-	 
-  Strip_value_painting1(inten,thick_firstg[inten],thick_lastg[inten],
-intensity_cons);
-  Important_interval1(thick_firstg[inten],thick_lastg[inten],inten,intens_signif);
-	
-				  last_en[inten]=thick_lastg[inten];
-  }
-				  if(num_of_intg[inten]==1)
-				  {
-				  import_begg[inten]=thick_firstg[inten];
-					}
-					 thick_lastg[inten]=0;
+			if (jump_pare <= 5) // if gap is not so big
+			{
+				if (0 == thick_lastg[inten])
+				{
+					thick_firstg[inten] = save_beg_pare - 1;
+					thick_stat_inputg[inten] = hist_fung[inten] + hist_sumg[inten] - 4;
 				}
+				thick_lastg[inten] = coord;
+			}
+			else if (thick_lastg[inten] != 0) // form segment
+			{
+				int intens_signif = hist_fung[inten] + hist_sumg[inten] - thick_stat_inputg[inten];
+
+				int consistency = (2 * intens_signif) / (thick_lastg[inten] - thick_firstg[inten] + 1);
+
+				if (consistency > 0)
+				{
+					Strip_value_painting1(inten, thick_firstg[inten], thick_lastg[inten], consistency);
+
+					Important_interval1(thick_firstg[inten], thick_lastg[inten], inten, intens_signif);
+
+					last_en[inten] = thick_lastg[inten];
+				}
+				thick_lastg[inten] = 0;
+			}
+		}
 	}
+	else // hist_sumg[inten] == 0
+	{
+		hist_sumg[inten] = 1;
+		last_pi[inten] = coord;
+	}
+}
 
 
-/*
+
+/**************************************************************************************************
  * @Description:
  *      When we gained all geometrical information about intensities (arrays thick_lastg),
  *      we can go over each intensity and form segments. 
- */
+ **************************************************************************************************/
 void CStrip::FinalCorrectionGray()
 {
 	int intensity_cons;
@@ -3357,22 +3341,25 @@ ahead:
 
 
 
-/*
+/**************************************************************************************************
  * @Description:
  *      Writes the most significant grayscale intensity and corresponding segment
  *      at every point between beg and end.
+ *-------------------------------------------------------------------------------------------------
  * @Parameters:
  *      @In:
  *          intens -- analysed intensity,
  *          beg -- beginning of  segment
  *          end -- ending of segment
  *          consistency -- (number of points) / length. Shows significance of segment.
+ *-------------------------------------------------------------------------------------------------
  * @Notes:
  *      todo: rename function. Emphasize dealing only with gray intensities.
- */
+ **************************************************************************************************/
 void CStrip::Strip_value_painting1(std::uint8_t intens,
-	std::int16_t beg, std::int16_t end,
-	int consistency)
+								   std::int16_t beg, 
+								   std::int16_t end,
+								   int consistency)
 {
 	int limit = NUM_INTEN1 / 4;
 

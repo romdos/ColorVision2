@@ -1,10 +1,7 @@
-/*	
- *	Clusters of grayscale intensity segments.
- */
-
-
-
-
+/**************************************************************************************************
+*	Clusters of grayscale intensity segments.
+*	
+**************************************************************************************************/
 
 
 
@@ -13,12 +10,14 @@
 #pragma once
 
 
+
 class CBunchGray
 {
 public:
 	CBunchGray();
 	~CBunchGray();
 
+public:
 	int DimX;
 	int DimY;
 	int HorizontalVertical;

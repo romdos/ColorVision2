@@ -17,9 +17,7 @@
 #ifndef __AFXWIN_H__
 #error include 'stdafx.h' before including this file for PCH
 #endif
-static int CoorHuPoints[16] = { 7, 23, 39, 55, 71, 87, 103, 119, 135, 151, 167, 183,
-199, 215, 231, 247
-};
+
 
 #include "resource.h"       // main symbols
 #include "Dib.h"
@@ -29,6 +27,12 @@ static int CoorHuPoints[16] = { 7, 23, 39, 55, 71, 87, 103, 119, 135, 151, 167, 
 #include "BunchNumDialog.h"
 #include "olorSectionDialog.h"
 #include "Camera.h"// модуль камеры 
+
+
+
+static int CoorHuPoints[16] = { 7, 23, 39, 55, 71, 87, 103, 119, 135, 151, 167, 183,
+199, 215, 231, 247
+};
 
 
 /////////////////////////////////////////////////////////////////////////////

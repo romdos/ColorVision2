@@ -1,12 +1,8 @@
 /*
-
+*  Segmentation routines are here.
+* 
 */
-
-
-
-
-
-
+ 
 
 
 
@@ -16,16 +12,10 @@
 #include "ImageProcess.h"
 
 
+ 
+#include <iostream> 
 
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
-#include <iostream>
-#include <fstream> // работа с файлами
-
-
-
-
+ 
 
 using namespace std;
 
@@ -36,6 +26,9 @@ using namespace std;
 static char THIS_FILE[] = __FILE__;
 #define new DEBUG_NEW
 #endif
+
+
+
 static  int hue_zones[NUM_HUES] = { 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3,
 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5,
 5, 1, 1, 1, 1, 1 };
@@ -51,11 +44,12 @@ static  int gray_zones[NUM_INTEN1] = { 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2,
 //0. 0-6, 1. 7-12, 2. 13-21, 3. 22-30, 4. 31-39, 5. 40-49, 6. 50-57, 7. 58-63
 static  int dev_mean[8] = { 5, 8, 8, 10, 10, 10, 12, 8 };
 static  int imp_dev_mean[8] = { 14, 16, 18, 18, 16, 16, 14, 12 };
+ 
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
+ 
+/* 
+* Initializes ImageProcess Class. 
+*/
 CImageProcess::CImageProcess(int TotalNumberofFrames)
 {
 	int i_count;
@@ -64,12 +58,10 @@ CImageProcess::CImageProcess(int TotalNumberofFrames)
 	int sec;
 	int residual;
 	int value;
-
-	clock_t start1;
+	 
 	clock_t end1;
 
-	TotalNumFrame = TotalNumberofFrames;
-	//printf("\n $%d",TotalNumFrame);
+	TotalNumFrame = TotalNumberofFrames; 
 	CurStrip = NULL;
 	ColorInt = NULL;
 	IntegratedColorlessBackIntervals = NULL;
@@ -124,36 +116,18 @@ CImageProcess::CImageProcess(int TotalNumberofFrames)
 	RightGreenBoundarySection = NULL;
 	RightAdjacentNonGreenSectionMax = NULL;
 	RightAdjacentGreenSectionMax = NULL;//last_cor09.12.16
-	LeftRightSectionNumberOfRightGreenBoundaryPoints = NULL;
-	//LeftBounSecTrace=NULL;
-	//RightBounSecTrace=NULL;
-	VideoCameraIsLoaded = FALSE;
-	//SkyFinding=TRUE;
+	LeftRightSectionNumberOfRightGreenBoundaryPoints = NULL; 
+	VideoCameraIsLoaded = FALSE;  
 
+	CColorVisionApp *pApp = (CColorVisionApp *)AfxGetApp(); 
 
-	CColorVisionApp *pApp;
-	pApp = (CColorVisionApp *)AfxGetApp();
-	/*ImageRepresentationType=pApp->ImageRepresentationType;
-	if(ImageRepresentationType==2)
-	{
-	DimX=pApp->m_BitmapApp.bmWidth;
-	DimY=pApp->m_BitmapApp.bmHeight;
-	BitsPerPix=pApp->m_BitmapApp.bmBitsPixel;
-	}
-	else
-	{
-	DimX=pApp->pm_BitmapApp->bmWidth;
-	DimY=pApp->pm_BitmapApp->bmHeight;
-	BitsPerPix=pApp->pm_BitmapApp->bmBitsPixel;
-
-	}*/
 	DimX = pApp->pm_BitmapApp->bmWidth;
 	DimY = pApp->pm_BitmapApp->bmHeight;
+
 	BitsPerPix = pApp->pm_BitmapApp->bmBitsPixel;
 	FindLabels = pApp->m_FindLabels;
 	SkyFinding = pApp->m_FindSky;
-	GreenFinding = pApp->m_FindGreen;
-	//Im=(unsigned char *)pApp->pm_BitmapApp->bmBits;
+	GreenFinding = pApp->m_FindGreen; 
 	NumStrips = pApp->NumberOfStrips;
 	HorizontalVertical = pApp->HorizontalVertical;
 	GGBorGGR = pApp->PermuteRatios;
@@ -164,11 +138,8 @@ CImageProcess::CImageProcess(int TotalNumberofFrames)
 	Residual = 0;
 	StripWidth1 = 0;
 	LengthofMotionAnalysisInterval = 0;
-	start1 = clock();
-	/*left_shift1=new int[12];
-	left_shift2=new int[12];
-	right_shift1=new int[12];
-	right_shift2=new int[12];*/
+	  
+	clock_t start1 = clock();
 
 	left_shift1[0] = 3;
 	left_shift1[1] = 3;
@@ -223,19 +194,13 @@ CImageProcess::CImageProcess(int TotalNumberofFrames)
 	right_shift2[9] = 7;
 	right_shift2[10] = 7;
 	right_shift2[11] = 7;
-
-
-
+	 
 	for (i_count = 0; i_count<238; i_count++)
-	{
-		//residual=i_count%4;
-		value = i_count / 4;
-		/*if(residual>=1)
-		{
-		value+=1;
-		}*/
+	{ 
+		value = i_count / 4; 
 		correct_intence[i_count] = value;
 	}
+
 	correct_intence[238] = 237 >> 2;
 	correct_intence[239] = 238 >> 2;
 	correct_intence[240] = 238 >> 2;
@@ -311,27 +276,26 @@ CImageProcess::CImageProcess(int TotalNumberofFrames)
 
 	NumLevels = NUM_INTEN;
 
-	if ((TotalNumFrame>1) && (VideoCameraIsLoaded))
+	if ((TotalNumFrame > 1) && (VideoCameraIsLoaded))
 	{
 		MotionAnalysis = new CMotion;
-		MotionAnalysis->NumberofFrames = 2;
-		//MotionAnalysis->NumberofFramesforMotionAnalysis=4;
-		LengthofMotionAnalysisInterval = MotionAnalysis->NumberofFrames;
-		//number_of_motion_analysis_intervals=MotionAnalysis->NumberofFramesforMotionAnalysis;
+		MotionAnalysis->NumberofFrames = 2; 
+		LengthofMotionAnalysisInterval = MotionAnalysis->NumberofFrames; 
 	}
 
 	CurStrip = new CStrip[NumStrips];
+
 	if (HorizontalVertical == 0)
 	{
 		Dimension = DimX;
 		StripWidth = DimY / NumStrips;
 		Residual = DimY - StripWidth*NumStrips;
 		StripLength = DimX;
-		if (Residual>0)
+		if (Residual > 0)
 		{
 			StripWidth1 = DimY / (NumStrips - 1);
 			Residual1 = DimY - StripWidth1*(NumStrips - 1);
-			if (Residual1>0)
+			if (Residual1 > 0)
 			{
 				StripWidth = StripWidth1;
 			}
@@ -366,15 +330,16 @@ CImageProcess::CImageProcess(int TotalNumberofFrames)
 		}
 
 	}
+
 	PressedLength = ((Dimension + 2) >> PRESSING); //think of the second summands
-	GrayBunches = new CBunchGray[NumStrips];
+	GrayBunches = new CBunchGray[NumStrips]; 
 
-
-	if ((VideoCameraIsLoaded) && (TotalNumFrame>1))
+	if (VideoCameraIsLoaded && (TotalNumFrame > 1))
 	{
 		IntegratedColorIntervals = new TIntColored[LengthofMotionAnalysisInterval*NumStrips];
 		IntegratedColorBunchesCharacteristics = new TIntColoredCharacteristics[LengthofMotionAnalysisInterval*NumStrips];
 		MotionAnalysis->SeveralIntervalsMotion = new TMotionShifts[NumStrips];
+		
 		LabelFoundNumberOfFrame = -1;
 		LastLabelFoundNumberOfFrame = -1;
 		FirstLabelCoordinate = -1;
@@ -385,18 +350,18 @@ CImageProcess::CImageProcess(int TotalNumberofFrames)
 	{
 		IntegratedColorIntervals = new TIntColored[NumStrips];
 	}
-
-	//IntegratedColorlessBackIntervals=new TIntColorLessBack[NumStrips];
+	 
 	ColorInt = new CColorIntervalSelect[NumStrips];
 	ColorDescrSect = new ColorSectionDescr[NUM_SECT1];
 	ColorSection = new CColorSection(NumStrips, ColorDescrSect, CurStrip, ColorInt);
+	
 	if (!HorizontalVertical)
 	{//horvert
-	if (SkyFinding)
-	{
-		SkyPixelsOfBoundaryPoints = new int[DimX];
-		SkyVisualization = new int[DimX];
-	}
+		if (SkyFinding)
+		{
+			SkyPixelsOfBoundaryPoints = new int[DimX];
+			SkyVisualization = new int[DimX];
+		}
 	
 		if (GreenFinding)
 		{
@@ -431,14 +396,10 @@ CImageProcess::CImageProcess(int TotalNumberofFrames)
 	execution_time = +sec;
 }
 
-CImageProcess::~CImageProcess()
-{
-	//int strip_coun;
 
-	/*delete[] left_shift1;
-	delete[] left_shift2;
-	delete[] right_shift1;
-	delete[] right_shift2;*/
+
+CImageProcess::~CImageProcess()
+{ 
 	delete[] opponent_color_difference;
 	opponent_color_difference = NULL;
 	delete[] invert_color_difference1;
@@ -474,9 +435,8 @@ CImageProcess::~CImageProcess()
 	{
 		delete[] IntegratedColorIntervals;//last_cor05.09.17
 		IntegratedColorIntervals = NULL;
-	}
-	//delete[] IntegratedColorlessBackIntervals;
-	//IntegratedColorlessBackIntervals=NULL;
+	} 
+	
 	if (ColorInt != NULL)
 	{
 		delete[] ColorInt;
@@ -491,12 +451,7 @@ CImageProcess::~CImageProcess()
 	{
 		delete[] SectionTraceRight;
 		SectionTraceRight = NULL;
-	}
-	/*if(LineVertTrace!=NULL)
-	{
-	delete[] LineVertTrace;
-	LineVertTrace=NULL;
-	}*/
+	} 
 	if (StripSignals != NULL)
 	{
 		delete[] StripSignals;
@@ -771,21 +726,21 @@ CImageProcess::~CImageProcess()
 		ColorSection = NULL;
 	}
 }
-//////////////////////////////////////////////////////////////////////
-void
 
-CImageProcess::DeleteTemporal()
+
+
+void CImageProcess::DeleteTemporal()
 {
-	for (int i = 0; i<NumStrips; i++)
+	for (int i = 0; i < NumStrips; i++)
 	{
 		if (ColorInt[i].NumInterestingIntensities != 0)
 		{
 			delete[] ColorInt[i].ColorInform;
 			ColorInt[i].ColorInform = NULL;
 		}
-		if (ColorInt[i].NumberOfColoredIntervals>0)
+		if (ColorInt[i].NumberOfColoredIntervals > 0)
 		{
-			if ((VideoCameraIsLoaded) && (TotalNumFrame>1))
+			if (VideoCameraIsLoaded && (TotalNumFrame > 1))
 			{
 				delete[] ColorInt[i].bunches_occurred;
 				ColorInt[i].bunches_occurred = NULL;
@@ -872,22 +827,18 @@ CImageProcess::DeleteTemporal()
 		ColorOfBasicBunches = NULL;
 	}
 }
-//////////////////////////////////////////////////////////////////////
-void
 
-CImageProcess::InitialConstructions()
-{
 
+
+void CImageProcess::InitialConstructions()
+{ 
 	int Res_Width;
-	int Cor_Width;
-	clock_t start;
+	int Cor_Width; 
 	clock_t end;
 	int sec;
-	int count_frames;
-	//int DimDifference;
+	int count_frames; 
 
-
-	start = clock();
+	clock_t start = clock();
 
 	//DimDifference=NUM_INTEN1>>1;
 	Res_Width = (3 * DimX) % 4;
@@ -1143,19 +1094,18 @@ CImageProcess::InitialConstructions()
 	sec = ((1000 * (end - start)) / CLK_TCK);
 	execution_time = +sec;
 }
-//////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////
-void
 
-CImageProcess::SegmentImage(int CurrentFrameNumber)
-{
-	//BOOL NumCompIm;
-	clock_t start1;
+
+
+/**
+ *	 Segments image.
+ */
+void CImageProcess::SegmentImage(int CurrentFrameNumber)
+{  
 	clock_t end1;
 	int sec;
-	int Reduced_Current_Image_Number;
-	//int* frequency_of_color_differ;
+	int Reduced_Current_Image_Number; 
 	int array_dimen;
 	int right_connected_proc;
 	int line_testing;
@@ -1200,11 +1150,10 @@ CImageProcess::SegmentImage(int CurrentFrameNumber)
 	int f_line;
 	int l_line;
 	int vert_curve_matching;
+	 
+	clock_t start1 = clock();
+	CColorVisionApp *pApp = (CColorVisionApp *)AfxGetApp();
 
-
-	start1 = clock();
-	CColorVisionApp *pApp;
-	pApp = (CColorVisionApp *)AfxGetApp();
 	GGBorGGR = pApp->PermuteRatios;
 	NumberOfCurrentFrame = CurrentFrameNumber;
 	vert_curve_matching= -1;//last_cor15.10.18
@@ -1246,14 +1195,16 @@ CImageProcess::SegmentImage(int CurrentFrameNumber)
 	TotalUpWeight = 0;
 	TotalDisOrdering = 0;
 	max_length = NumStrips;
+	
 	if (LengthofMotionAnalysisInterval != 0)
 	{
-		RedNumberOfCurrentFrame = NumberOfCurrentFrame%LengthofMotionAnalysisInterval;
+		RedNumberOfCurrentFrame = NumberOfCurrentFrame % LengthofMotionAnalysisInterval;
 	}
 
 	Im = (unsigned char *)pApp->pm_BitmapApp->bmBits;
-	array_dimen = NUM_INTEN*(DimDifference / 2);
-	//frequency_of_color_differ=new int[array_dimen];
+	
+	array_dimen = NUM_INTEN*(DimDifference / 2); 
+
 	if (!NumberOfCurrentFrame)
 	{
 		LabelCenterCoordinate = -1;
@@ -1264,10 +1215,11 @@ CImageProcess::SegmentImage(int CurrentFrameNumber)
 		LabelCenterSaturation = -1;
 		LabelCenterGray = -1;
 	}
+
 	MaximumNumberOfCoveringElements = 0;
-	for (int i = 0; i<NumStrips; i++)
-	{
-		//memset(frequency_of_color_differ,(int) '\0',sizeof(int)*array_dimen);
+
+	for (size_t i = 0; i < NumStrips; i++)
+	{ 
 		CurStrip[i].intensi = Im;
 		memset(CurStrip[i].valuable_intensity, (char) '\0', PressedLength);
 		memset(CurStrip[i].quantity_of_intensities, (int) '\0', sizeof(int)*(PressedLength));
@@ -1301,14 +1253,10 @@ CImageProcess::SegmentImage(int CurrentFrameNumber)
 		memset(CurStrip[i].num_of_intg, (int) '\0', sizeof(int)*NUM_INTEN1);
 		memset(ColorInt[i].painted_strip_saturation, (int) '\0', sizeof(int)*(3 * PressedLength));
 		memset(ColorInt[i].painted_strip_colored, (int) '\0', sizeof(int)*(PressedLength));
+		 
+		CurStrip[i].Loc_stat_geom_double(GGBorGGR); 
 
-
-
-		//CurStrip[i].Loc_stat_geom_double(NumCompIm,frequency_of_color_differ);
-		CurStrip[i].Loc_stat_geom_double(GGBorGGR);
-		//GrayBunches[i].IntervalInteraction();
-
-		if ((VideoCameraIsLoaded) && (TotalNumFrame>1) && (LengthofMotionAnalysisInterval))
+		if (VideoCameraIsLoaded && (TotalNumFrame > 1) && (0 != LengthofMotionAnalysisInterval))
 		{
 			ColorInt[i].ColoredIntervalsStructure = &IntegratedColorIntervals[i + RedNumberOfCurrentFrame*NumStrips];
 			ColorInt[i].ColorBunchesCharacteristics = &IntegratedColorBunchesCharacteristics[i + RedNumberOfCurrentFrame*NumStrips];
@@ -1757,15 +1705,15 @@ CImageProcess::SegmentImage(int CurrentFrameNumber)
 	 sign_f_open=0;
 	 ofstream fout("testoutput1.txt", ios_base::out | ios_base::trunc);
 
-	 if (!fout.is_open()) // если файл небыл открыт
+	 if (!fout.is_open()) // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 	 {
 	 sign_f_open=1;
-	 // cout << "Файл не может быть открыт или создан\n"; // напечатать соответствующее сообщение
-	 //return 1; // выполнить выход из программы
+	 // cout << "пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n"; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+	 //return 1; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	 }
 
 	 fout.write((char *) &SkyBoundaries,sizeof(SkyBoundaries));
-	 fout.close(); // программа больше не использует файл, поэтому его нужно закрыть*/
+	 fout.close(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ*/
 	if (!HorizontalVertical)
 	{//horvert
 		if (GreenFinding)
@@ -1876,10 +1824,11 @@ vertical_success = VerticalLinesConstruct(f_strip, l_strip, f_line, l_line);//la
 	//}
 	execution_time = +sec;
 }
-//=====================================================
-void
 
-CImageProcess::ContrastBunchesMotion(int num_strips, int* bunches_location)
+
+
+
+void CImageProcess::ContrastBunchesMotion(int num_strips, int* bunches_location)
 {
 	int cycle_bunch;
 	int number_of_color_bunches_previous;
@@ -1963,10 +1912,11 @@ CImageProcess::ContrastBunchesMotion(int num_strips, int* bunches_location)
 	}
 
 }
-//=====================================================
-int
 
-CImageProcess::ExtensionOfLeftContrast(int number_of_strip, int bunch_number, int bunch_beg, int bunch_end, int bunch_hue, int bunch_lower_hue,
+
+
+
+int CImageProcess::ExtensionOfLeftContrast(int number_of_strip, int bunch_number, int bunch_beg, int bunch_end, int bunch_hue, int bunch_lower_hue,
 	int bunch_upper_hue, int bunch_gray, int bunch_lower_gray, int bunch_upper_gray, int bunch_saturation,
 	int bunch_lower_saturation, int bunch_upper_saturation)
 {
@@ -16400,8 +16350,10 @@ TIntColorLessBack::TIntColorLessBack(void)
 	Significance = new int[MAX_COLLESS_INT];
 	Cardinality = new int[MAX_COLLESS_INT];
 }
-//=====================================================
-TIntColorLessBack::~TIntColorLessBack(void)
+
+
+
+TIntColorLessBack::~TIntColorLessBack()
 {
 	delete[] BegInterv;
 	delete[] EndInterv;
@@ -16416,8 +16368,10 @@ TIntColorLessBack::~TIntColorLessBack(void)
 	delete[] Significance;
 	delete[] Cardinality;
 }
-//=====================================================
-TIntColoredCharacteristics::TIntColoredCharacteristics(void)
+
+
+
+TIntColoredCharacteristics::TIntColoredCharacteristics()
 {
 	bunch_blocking = new int[MAX_COL_INT];
 	left_continuation = new int[MAX_COL_INT];

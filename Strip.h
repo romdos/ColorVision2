@@ -370,7 +370,7 @@ public:
 			int* thick_prev_sta, int* thick_break_be, int* thick_break_en,
 			int* thick_break_sta, int Coun, int color_balance,int saturation);
 
-	void StripCharacteristicsFindingGray(unsigned char inten, int coor1, int* first_pi, int* last_pi, int* last_en);
+	void StripCharacteristicsFindingGray(std::uint8_t inten, std::uint16_t coord, std::uint16_t* last_pi, int* last_en);
 
 	void FinalCorrectionGray();
 
