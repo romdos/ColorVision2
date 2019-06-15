@@ -232,9 +232,9 @@ delete[] IntAllInformGray;
 
 
 
-/**************************************************************************************************
-* @Description:
-*		This program performs geometric description of intensities in a particular strip
+/*-------------------------------------------------------------------------------------------------
+----@Description:
+--------This program performs geometric description of intensities in a particular strip.
 **************************************************************************************************/
 void CStrip::Loc_stat_geom_double(BOOL NumPair)
 {

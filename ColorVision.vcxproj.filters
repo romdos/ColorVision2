@@ -48,15 +48,6 @@
     <ClCompile Include="DibTga.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GlobalObjectsDoc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GlobalObjectsFrame.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GlobalObjectsView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ImageProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -70,15 +61,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Strip.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VideoImageInputDoc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VideoImageInputFrame.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VideoImageInputView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ViewImageDoc.cpp">
@@ -145,15 +127,6 @@
     <ClInclude Include="DibTga.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GlobalObjectsDoc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GlobalObjectsFrame.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GlobalObjectsView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ImageProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -170,15 +143,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Strip.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VideoImageInputDoc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VideoImageInputFrame.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VideoImageInputView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ViewImageDoc.h">
@@ -223,8 +187,5 @@
     </None>
     <None Include="ClassDiagram1.cd" />
     <None Include="ColorVision.reg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="ReadMe.txt" />
   </ItemGroup>
 </Project>

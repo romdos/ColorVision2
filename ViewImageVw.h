@@ -50,14 +50,6 @@ public:
 		CViewImageVw::Calculate(CPoint point, unsigned char *RedComp, unsigned char *GreenComp,
 			unsigned char *BlueComp, int *HueComp, int *GrayComp, float *SaturComp);
 
-	void
-
-		CViewImageVw::CalculateBrush(int side_triangle, int side_hue, int BunAverSat, int BunAverGr,
-			int* scoor1, int* scoor2, int* scoor3, int* nscoor1, int* nscoor2, int* nscoor3);
-
-	BOOL
-
-		CViewImageVw::CameraInputDraw(CDC* pDC);
 	//}
 
 	// Operations

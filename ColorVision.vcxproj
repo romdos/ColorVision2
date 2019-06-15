@@ -204,24 +204,6 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="Geometry.cpp" />
-    <ClCompile Include="GlobalObjectsDoc.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="GlobalObjectsFrame.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-    </ClCompile>
-    <ClCompile Include="GlobalObjectsView.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-    </ClCompile>
     <ClCompile Include="ImageProcess.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
@@ -257,9 +239,6 @@
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="VideoImageInputDoc.cpp" />
-    <ClCompile Include="VideoImageInputFrame.cpp" />
-    <ClCompile Include="VideoImageInputView.cpp" />
     <ClCompile Include="ViewImageDoc.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
@@ -308,18 +287,12 @@
     <ClInclude Include="DibTga.h" />
     <ClInclude Include="FindingDoors.h" />
     <ClInclude Include="Geometry.h" />
-    <ClInclude Include="GlobalObjectsDoc.h" />
-    <ClInclude Include="GlobalObjectsFrame.h" />
-    <ClInclude Include="GlobalObjectsView.h" />
     <ClInclude Include="ImageProcess.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="olorSectionDialog.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="Strip.h" />
-    <ClInclude Include="VideoImageInputDoc.h" />
-    <ClInclude Include="VideoImageInputFrame.h" />
-    <ClInclude Include="VideoImageInputView.h" />
     <ClInclude Include="ViewImageDoc.h" />
     <ClInclude Include="ViewImageVw.h" />
     <ClInclude Include="VizStripDoc.h" />
@@ -335,9 +308,6 @@
     <None Include="res\ColorVision.rc2" />
     <None Include="ClassDiagram1.cd" />
     <None Include="ColorVision.reg" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -42,30 +42,7 @@ public:
 	int LengthofMotionAnalysisInterval;
 	int TotalDisOrdering;
 	
-	bool FindLabels;
-	
-	int LabelCenterCoordinate;
-	int LabelLeftCoordinate;
-	int LabelRightCoordinate;
-	int LabelCenterHue;
-	int LabelHueZone;
-	int LabelCenterSaturation;
-	int LabelFirstStrip;
-	int    LabelLastStrip;
-	int    LabelCenterGray;
-	int    LabelCenterOXTrajectory[16];
-	int    LabelCenterOYTrajectory[16];
-	int    LabelOXPermutation[16];
-	int    LabelDeviation;
-	int    LabelVelocity;
-	int    LabelIsFound;
-	int    LabelPresence;
-	int    LabelFoundNumberOfFrame;
-	int    FirstLabelCoordinate;
-	int    LastLabelFoundNumberOfFrame;
-	int    LastLabelCoordinate;
-	int    NumberOflabels;
-	int    LabelCost;
+ 
 	int NumberOfCurrentFrame;
 	int RedNumberOfCurrentFrame;
 	int RedNumberOfPreviousFrame;
@@ -238,6 +215,10 @@ public:
 
 	void SegmentImage(int CurrentNumofFrame);      // segments the image
 	
+	void detect_sky();
+	
+	void detect_green();
+
 	void DeleteTemporal();      // delete intermediate arrays;
 	
 	void ContrastBunchesMotion(int num_strips, int* bunches_location);
@@ -250,19 +231,13 @@ public:
 	int ExtensionOfRightContrast(int number_of_strip, int bunch_number, int bunch_beg, int bunch_end, int bunch_hue, int bunch_lower_hue,
 			int bunch_upper_hue, int bunch_gray, int bunch_lower_gray, int bunch_upper_gray, int bunch_saturation,
 			int bunch_lower_saturation, int bunch_upper_saturation);
-
-	int LabelCoordinatesFinding(void);
-
+	 
 	int FindingRightConectedSection(void);
 
 	void PermutationFinding(int FrameNumber);
 
 	void AnalyzingArray();
-
-	int Finding_Best_Label(void);
-
-	int LabelFiltering(void);
-
+	 
 	int StraightLineHighObjectsTesting(void);
 
 	int ConnectedSections(int* initial_matrix);

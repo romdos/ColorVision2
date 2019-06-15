@@ -124,8 +124,7 @@ CImageProcess::CImageProcess(int TotalNumberofFrames)
 	DimX = pApp->pm_BitmapApp->bmWidth;
 	DimY = pApp->pm_BitmapApp->bmHeight;
 
-	BitsPerPix = pApp->pm_BitmapApp->bmBitsPixel;
-	FindLabels = pApp->m_FindLabels;
+	BitsPerPix = pApp->pm_BitmapApp->bmBitsPixel; 
 	SkyFinding = pApp->m_FindSky;
 	GreenFinding = pApp->m_FindGreen; 
 	NumStrips = pApp->NumberOfStrips;
@@ -339,12 +338,7 @@ CImageProcess::CImageProcess(int TotalNumberofFrames)
 		IntegratedColorIntervals = new TIntColored[LengthofMotionAnalysisInterval*NumStrips];
 		IntegratedColorBunchesCharacteristics = new TIntColoredCharacteristics[LengthofMotionAnalysisInterval*NumStrips];
 		MotionAnalysis->SeveralIntervalsMotion = new TMotionShifts[NumStrips];
-		
-		LabelFoundNumberOfFrame = -1;
-		LastLabelFoundNumberOfFrame = -1;
-		FirstLabelCoordinate = -1;
-		LastLabelCoordinate = -1;
-		LabelIsFound = 0;
+ 
 	}
 	else
 	{
@@ -390,10 +384,7 @@ CImageProcess::CImageProcess(int TotalNumberofFrames)
 		StripNewNumber = new int[NumStrips];
 		StripSignalsAdditional = new int[NumStrips];
 		StripNewNumberAdditional = new int[NumStrips];
-	}
-	end1 = clock();
-	sec = ((1000 * (end1 - start1)) / CLK_TCK);
-	execution_time = +sec;
+	} 
 }
 
 
@@ -850,9 +841,7 @@ void CImageProcess::InitialConstructions()
 	{
 		Cor_Width = 0;
 	}
-	memset(LabelCenterOXTrajectory, (int) '\0', (sizeof(int)) * 16);
-	memset(LabelCenterOYTrajectory, (int) '\0', (sizeof(int)) * 16);
-	LabelOXPermutation[0] = -1;
+
 	for (int i = 0; i<NumStrips; i++)
 	{
 		CurStrip[i].NumLevels = NumLevels;
@@ -1098,129 +1087,48 @@ void CImageProcess::InitialConstructions()
 
 
 
-/**
- *	 Segments image.
- */
+/**************************************************************************************************
+* @Description:
+*	Segments image.
+**************************************************************************************************/
 void CImageProcess::SegmentImage(int CurrentFrameNumber)
-{  
-	clock_t end1;
-	int sec;
-	int Reduced_Current_Image_Number; 
-	int array_dimen;
-	int right_connected_proc;
-	int line_testing;
-	int connections_found;
-	int sky_hist[64];
-	int sect_weight[64];
-	int sky_hist_right[64];
-	int sect_weight_right[64];
-	int last_intensity_value;
-	int last_intensity_value_right;
-	int sky_main_left_hue;//last_cor15.06.15
-	int sky_main_left_hue_zone;
-	int sky_main_left_satur;
-	int sky_main_left_intens;
-	int sky_main_right_hue;//last_cor15.06.15
-	int sky_main_right_hue_zone;
-	int sky_main_right_satur;
-	int sky_main_right_intens;
-	int sky_saturated_left;
-	int sky_saturated_right;
-	int left_right_connection;
-	int sky_height;
-	int covering_number;
-	int max_length;
-	int bound_result;
-	int green_success_left;
-	int green_success_right;
-	int final_right_inv;
-	int last_left_sec;
-	int trans_success;
-	int strip_disordering;
-	int number_ordered;
-	int success_find;//last_cor20.10.18
-	int vertical_success;
-	int connected_vert;
-	int intersec_vert;
-	int breaking_vert;
-	int vert_signal_connected;
-	int vert_line_bound_index;
-	int f_strip;
-	int l_strip;
-	int f_line;
-	int l_line;
-	int vert_curve_matching;
-	 
-	clock_t start1 = clock();
-	CColorVisionApp *pApp = (CColorVisionApp *)AfxGetApp();
+{                
+	int number_ordered; // todo: initialize! 
+	          
+	CColorVisionApp* pApp = (CColorVisionApp *)AfxGetApp();
 
 	GGBorGGR = pApp->PermuteRatios;
-	NumberOfCurrentFrame = CurrentFrameNumber;
-	vert_curve_matching= -1;//last_cor15.10.18
-	vert_line_bound_index = -1;//last_cor05.11.17
-	vert_signal_connected = -1;//last_cor24.10.17
-	breaking_vert = -1;//last_cor20.10.18
-	intersec_vert;
-	connected_vert = -1;
-	success_find = -1;
-	vertical_success = -1;
-	trans_success = -1;
-	final_right_inv = -1;
-	last_left_sec = -1;
-	bound_result = -1;
-	sky_saturated_left = -1;//last_cor29.06.15
-	sky_saturated_right = -1;
-	sky_main_left_hue = -1;//last_cor15.06.15
-	sky_main_left_hue_zone = -1;
-	sky_main_left_satur = -1;
-	sky_main_left_intens = -1;
-	sky_main_right_hue = -1;//last_cor15.06.15
-	sky_main_right_hue_zone = -1;
-	sky_main_right_satur = -1;
-	sky_main_right_intens = -1;
+
+	NumberOfCurrentFrame = CurrentFrameNumber;  
+	
 	RedNumberOfCurrentFrame = 0;
+	
 	number_of_section_left = 0;
 	number_of_section_right = 0;
-	number_of_sections = 0;
-	right_connected_proc = -1;
-	line_testing = -1;
-	connections_found = -1;
-	last_intensity_value = -1;
-	last_intensity_value_right = -1;
-	LabelPresence = 0;
+	number_of_sections = 0;      
+	
 	MassiveGray = -1;//last_cor01.06.15
 	MassiveGrayLow = -1;
 	MassiveGrayTop = -1;
 	MassiveGrayTopSection = -1;
+	
 	TotalUpWeight = 0;
-	TotalDisOrdering = 0;
-	max_length = NumStrips;
+	TotalDisOrdering = 0; 
 	
 	if (LengthofMotionAnalysisInterval != 0)
 	{
 		RedNumberOfCurrentFrame = NumberOfCurrentFrame % LengthofMotionAnalysisInterval;
 	}
 
-	Im = (unsigned char *)pApp->pm_BitmapApp->bmBits;
-	
-	array_dimen = NUM_INTEN*(DimDifference / 2); 
-
-	if (!NumberOfCurrentFrame)
-	{
-		LabelCenterCoordinate = -1;
-		LabelLeftCoordinate = -1;
-		LabelRightCoordinate = -1;
-		LabelCenterHue = -1;
-		LabelHueZone = -1;
-		LabelCenterSaturation = -1;
-		LabelCenterGray = -1;
-	}
+	Im = (std::uint8_t* ) pApp->pm_BitmapApp->bmBits;
+ 
 
 	MaximumNumberOfCoveringElements = 0;
 
 	for (size_t i = 0; i < NumStrips; i++)
 	{ 
 		CurStrip[i].intensi = Im;
+
 		memset(CurStrip[i].valuable_intensity, (char) '\0', PressedLength);
 		memset(CurStrip[i].quantity_of_intensities, (int) '\0', sizeof(int)*(PressedLength));
 		memset(CurStrip[i].bright_consistency, (int) '\0', sizeof(int)*(PressedLength));
@@ -1231,26 +1139,34 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 		memset(CurStrip[i].hist_fun, (int) '\0', sizeof(int)*NUM_INTEN);
 		memset(CurStrip[i].hist_sum, (int) '\0', sizeof(int)*NUM_INTEN);
 		memset(CurStrip[i].end_point, (int) '\0', sizeof(int)*NUM_INTEN);
+		
 		memset(CurStrip[i].jump_len, (int) '\0', sizeof(int)*NUM_INTEN);
 		memset(CurStrip[i].jump_end, (int) '\0', sizeof(int)*NUM_INTEN);
+		
 		memset(CurStrip[i].thick_beg, (int) '\0', sizeof(int)*NUM_INTEN);
 		memset(CurStrip[i].thick_end, (int) '\0', sizeof(int)*NUM_INTEN);
 		memset(CurStrip[i].thick_break_end, (int) '\0', sizeof(int)*NUM_INTEN);
 		memset(CurStrip[i].thick_prev_end, (int) '\0', sizeof(int)*NUM_INTEN);
 		memset(CurStrip[i].thick_last, (int) '\0', sizeof(int)*NUM_INTEN);
+		
 		memset(CurStrip[i].num_of_int, (int) '\0', sizeof(int)*NUM_INTEN);
 
 		memset(CurStrip[i].hist_fung, (int) '\0', sizeof(int)*NUM_INTEN1);
 		memset(CurStrip[i].hist_sumg, (int) '\0', sizeof(int)*NUM_INTEN1);
+		
 		memset(CurStrip[i].end_pointg, (int) '\0', sizeof(int)*NUM_INTEN1);
+		
 		memset(CurStrip[i].jump_leng, (int) '\0', sizeof(int)*NUM_INTEN1);
 		memset(CurStrip[i].jump_endg, (int) '\0', sizeof(int)*NUM_INTEN1);
+		
 		memset(CurStrip[i].thick_begg, (int) '\0', sizeof(int)*NUM_INTEN1);
 		memset(CurStrip[i].thick_endg, (int) '\0', sizeof(int)*NUM_INTEN1);
 		memset(CurStrip[i].thick_break_endg, (int) '\0', sizeof(int)*NUM_INTEN1);
 		memset(CurStrip[i].thick_prev_endg, (int) '\0', sizeof(int)*NUM_INTEN1);
 		memset(CurStrip[i].thick_lastg, (int) '\0', sizeof(int)*NUM_INTEN1);
+		
 		memset(CurStrip[i].num_of_intg, (int) '\0', sizeof(int)*NUM_INTEN1);
+
 		memset(ColorInt[i].painted_strip_saturation, (int) '\0', sizeof(int)*(3 * PressedLength));
 		memset(ColorInt[i].painted_strip_colored, (int) '\0', sizeof(int)*(PressedLength));
 		 
@@ -1261,7 +1177,7 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 			ColorInt[i].ColoredIntervalsStructure = &IntegratedColorIntervals[i + RedNumberOfCurrentFrame*NumStrips];
 			ColorInt[i].ColorBunchesCharacteristics = &IntegratedColorBunchesCharacteristics[i + RedNumberOfCurrentFrame*NumStrips];
 
-			if (NumberOfCurrentFrame>1)
+			if (NumberOfCurrentFrame > 1)
 			{
 				memset(IntegratedColorBunchesCharacteristics[i + NumStrips*RedNumberOfCurrentFrame].length_of_trajectory, (int) '\0', sizeof(int)*(MAX_COL_INT));
 				memset(IntegratedColorBunchesCharacteristics[i + NumStrips*RedNumberOfCurrentFrame].right_length_of_trajectory, (int) '\0', sizeof(int)*(MAX_COL_INT));
@@ -1270,22 +1186,25 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 		else
 		{
 			ColorInt[i].ColoredIntervalsStructure = &IntegratedColorIntervals[i];
-		}
-		//ColorInt[i].ColorLessIntervalsStructure=&IntegratedColorlessBackIntervals[i];
+		} 
+
 		ColorInt[i].StripCurrent = &CurStrip[i];
 		ColorInt[i].PressedLength = PressedLength;
 
 		ColorInt[i].FindingStructureParametrs(CurStrip[i].num_of_int,
 			ColorInt[i].intensities_with_colored_int, ColorInt[i].OldNumbers,
 			&ColorInt[i].NumInterestingIntensities);
-		covering_number = ColorInt[i].NumberOfIntervalsInCovering;
+		 
+
+		int covering_number = ColorInt[i].NumberOfIntervalsInCovering;
 		TotalDisOrdering += ColorInt[i].Disordering;
-		if (covering_number>MaximumNumberOfCoveringElements)
+		
+		if (covering_number > MaximumNumberOfCoveringElements)
 		{
 			MaximumNumberOfCoveringElements = covering_number;
-		}
-		//printf("\n $%d",i);
-		if ((VideoCameraIsLoaded) && (TotalNumFrame>1) && (LengthofMotionAnalysisInterval))
+		} 
+		 
+		if (VideoCameraIsLoaded && (TotalNumFrame > 1) && (LengthofMotionAnalysisInterval))
 		{
 			IntegratedColorBunchesCharacteristics[i + NumStrips*RedNumberOfCurrentFrame].num_of_bunches =
 				ColorInt[i].NumberOfColoredIntervals;
@@ -1302,27 +1221,33 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 		}
 
 	}
+	
 	maximum_number_of_ordered_bunches = 0;
+	
 	for (int count_bunch_ord = 0; count_bunch_ord<NumStrips; count_bunch_ord++)
 	{
-		strip_disordering = ColorInt[count_bunch_ord].Disordering;
-		if (!strip_disordering)
+		int strip_disordering = ColorInt[count_bunch_ord].Disordering;
+		if (0 == strip_disordering)
 			number_ordered = ColorInt[count_bunch_ord].NumberOfIntervalsInCovering;
-		if (number_ordered>maximum_number_of_ordered_bunches)
+		if (number_ordered > maximum_number_of_ordered_bunches)
 		{
 			maximum_number_of_ordered_bunches = number_ordered;
 		}
-	}
-	//delete[] frequency_of_color_differ;
-	//if(!pApp->m_ParamHaveBeenChanged)
-	//{
+	} 
+	
 	memset(InclineCurve, (int) '\0', sizeof(int)*NUM_SECT1);
+	
 	ColorSection->SectionTracking(0, SectionTraceLeft);
+	
 	number_of_section_left = ColorSection->Number_of_sections_left;
+	
 	ColorSection->SectionTracking(1, SectionTraceRight);
+	
 	number_of_section_right = ColorSection->Number_of_sections_right;
 	number_of_sections = ColorSection->Number_of_sections;
-	if ((number_of_section_left>0) && (number_of_section_right>0))
+	
+	
+	if ((number_of_section_left > 0) && (number_of_section_right > 0))
 	{
 
 		memset(NumberOfConnectionsLeftRight, (int) '\0', sizeof(int)*(NUM_SECT1 / 2));
@@ -1343,9 +1268,9 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 		memset(BestVertComponentBeg, (int) '\0', sizeof(int)*NUM_SECT1);
 		memset(BestVertComponentEnd, (int) '\0', sizeof(int)*NUM_SECT1);
 
-		right_connected_proc = FindingRightConectedSection();
-		line_testing = StraightLineHighObjectsTesting();
-		connections_found = ConnectedSections(SectionNeighborsLeftRight);
+		FindingRightConectedSection();
+		StraightLineHighObjectsTesting();
+		ConnectedSections(SectionNeighborsLeftRight);
 		if (MaximumNumberOfCoveringElements>0)
 		{//last_cor13.12.16
 			ColorOfBasicBunches = new int[MaximumNumberOfCoveringElements*NumStrips];//last_cor12.12.16
@@ -1355,411 +1280,13 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 	else
 	{
 		ColorOfBasicBunches = NULL;
-	}
-	if (FindLabels)
-	{//fl
+	}  
 
-		NumberOflabels = 0;
-		LabelPresence = LabelFiltering();
-		//LabelCenterCoordinate=LabelCoordinatesFinding();
+	detect_sky();
 
-		if ((VideoCameraIsLoaded) && (TotalNumFrame>1))
-		{//video
-			if (LabelCenterCoordinate>0)
-			{
-				if (!LabelIsFound)
-				{
-					if (!NumberOfCurrentFrame)
-					{
-						LabelIsFound = 2;
-					}
-					else
-					{
-						LabelIsFound = 1;
-					}
-					LabelFoundNumberOfFrame = NumberOfCurrentFrame;
-					FirstLabelCoordinate = LabelCenterCoordinate;
-				}
-				LastLabelFoundNumberOfFrame = NumberOfCurrentFrame;
-				LastLabelCoordinate = LabelCenterCoordinate;
-			}
-
-			if (LabelIsFound>0)
-			{//lfound
-				if (LabelIsFound == 1)
-				{
-					Reduced_Current_Image_Number = (NumberOfCurrentFrame - LabelFoundNumberOfFrame);
-					if (Reduced_Current_Image_Number<16)
-					{
-						*(LabelCenterOXTrajectory + Reduced_Current_Image_Number) = LabelCenterCoordinate;
-					}
-				}
-				else
-				{
-					Reduced_Current_Image_Number = NumberOfCurrentFrame % 16;
-					*(LabelCenterOXTrajectory + Reduced_Current_Image_Number) = LabelCenterCoordinate;
-				}
-
-
-				if (NumberOfCurrentFrame >= 16)
-				{
-					PermutationFinding(NumberOfCurrentFrame);
-				}
-				/*if(NumberOfCurrentFrame>=1)
-				{
-
-				if(NumberOfCurrentFrame>=8)
-				{
-				if(!(NumberOfCurrentFrame%8))
-				{
-				AnalyzingArray();
-				}
-				}
-				}*/
-			}//lfound
-		}//video
-	}//fl
-	if ((SkyFinding)&&(!HorizontalVertical))
-	{//skf
-		SkyLeftHueZone = -1;
-		SkyRightHueZone = -1;
-		LowerSkyFiber = NumStrips + 1;
-		UpperSkyFiber = -1;
-		UpperMeanGray = 0;
-		LowerMeanGray = NUM_INTEN1;
-		if (!HorizontalVertical)
-		{//horvert
-			memset(SkyVisualization, (int) '\0', sizeof(int)*DimX);
-			//memset(SkyBoundPoints,(int) '\0',sizeof(int)*NumStrips);
-			memset(SkyBoundaries, (int) '\0', sizeof(int) * 1920);
-			memset(SkyComponents, (int) '\0', sizeof(int) * 32);
-			memset(SkyGreenComponents, (int) '\0', sizeof(int)*NUM_SECT1);
-			memset(sky_hist, (int) '\0', sizeof(int) * 64);
-			SkyIntencitiesDistributionFinding(sky_hist, sect_weight, 0);
-			SkyMainLeft = -1;
-			SkySaturatedLeft = -1;
-			NumberLeftSkyComp = 0;
-			NumberRightSkyComp = 0;
-			SkyMainLeft = MaximumSky(sky_hist, sect_weight, &last_intensity_value, &sky_saturated_left);
-			SkySaturatedLeft = sky_saturated_left;
-
-			if (SkyMainLeft >= 0)
-			{
-				NumberLeftSkyComp++;
-				*(SkyGreenComponents + SkyMainLeft) = 1;
-				sky_main_left_hue = ColorSection->section_mean_hue[SkyMainLeft];//last_cor15.06.15
-				sky_main_left_hue_zone = hue_zones[sky_main_left_hue];
-				sky_main_left_satur = ColorSection->section_mean_saturation[SkyMainLeft];
-				sky_main_left_intens = ColorSection->section_mean_gray[SkyMainLeft];
-				SkyLeftHueZone = sky_main_left_hue_zone;
-			}
-			memset(sky_hist_right, (int) '\0', sizeof(int) * 64);
-			SkyIntencitiesDistributionFinding(sky_hist_right, sect_weight_right, 1);
-			SkyMainRight = -1;
-			SkySaturatedRight = -1;
-			SkyMainRight = MaximumSky(sky_hist_right, sect_weight_right, &last_intensity_value_right,
-				&sky_saturated_right);
-			SkySaturatedRight = sky_saturated_right;
-			if (SkyMainRight >= 0)
-			{//skmr
-				*(SkyGreenComponents + SkyMainRight) = 1;
-				NumberRightSkyComp++;
-				sky_main_right_hue = ColorSection->section_mean_hue[SkyMainRight];//last_cor15.06.15
-				sky_main_right_hue_zone = hue_zones[sky_main_right_hue];
-				sky_main_right_satur = ColorSection->section_mean_saturation[SkyMainRight];
-				sky_main_right_intens = ColorSection->section_mean_gray[SkyMainRight];
-				SkyRightHueZone = sky_main_right_hue_zone;
-			}//skmr
-			if (SkyMainLeft >= 0)
-			{//skml			
-				if (number_of_section_left>0)
-				{
-					LeftSkyComp = new int[number_of_section_left];
-					BelongsSkyTo(sky_hist, 0, number_of_section_left);
-				}
-			}//skml
-			if (SkyMainRight >= 0)
-			{
-				if (number_of_section_right>0)
-				{
-					RightSkyComp = new int[number_of_section_right];
-					BelongsSkyTo(sky_hist_right, number_of_section_left, number_of_sections);
-				}
-			}
-		}//horvert
-		else
-		{
-			memset(sky_hist, (int) '\0', sizeof(int) * 64);
-		}
-
-		if ((SkyMainLeft >= 0) && (SkyMainRight >= 0))
-		{
-			left_right_connection = SectionNeighborsLeftRight[SkyMainLeft*(NUM_SECT1 / 2) + SkyMainRight - number_of_section_left];
-			/*if(left_right_connection)
-			{
-			//BoundaryConstruction(SkyBoundPoints,0);
-			// BoundaryConstruction(SkyBoundPoints,1);
-			}*/
-		}
-		if ((UpperSkyFiber>0) && (LowerSkyFiber >= 0) && (UpperSkyFiber>LowerSkyFiber))
-		{//last_cor03.11.15
-			sky_height = UpperSkyFiber - LowerSkyFiber + 1;
-			max_length = sky_height * 8;
-		}
-		else
-		{
-			sky_height = 0;
-			max_length = 0;
-		}//last_cor03.11.15
-		NumberOfSkyBoundaryPoints = 0;
-		//SkyColumnsOfBoundaryPoints= new int [max_length];
-		//SkyStripsOfBoundaryPoints= new int [max_length];
-		if ((NumberLeftSkyComp>0) || (NumberRightSkyComp>0))
-		{
-			if (MaximumNumberOfCoveringElements>0)
-			{
-				if (NumberLeftSkyComp>0)
-				{
-					LeftBunchesInTheSky = new int[MaximumNumberOfCoveringElements*NumStrips];
-					memset(LeftBunchesInTheSky, (int) '\0', sizeof(int)*(MaximumNumberOfCoveringElements*NumStrips));
-
-					//WriteBunchArray(LowerSkyFiber,UpperSkyFiber);
-				}
-				if (NumberRightSkyComp>0)
-				{
-					RightBunchesInTheSky = new int[MaximumNumberOfCoveringElements*NumStrips];
-					memset(RightBunchesInTheSky, (int) '\0', sizeof(int)*(MaximumNumberOfCoveringElements*NumStrips));
-
-				}
-				if ((NumberLeftSkyComp) || (NumberRightSkyComp))
-				{
-					LeftRightSkyAddition();
-					if (NumberRightSkyComp>0)
-					{
-						LabelingSkyBunches(RightBunchesInTheSky, RightSkyComp, NumberRightSkyComp);
-					}
-					if (NumberLeftSkyComp>0)
-					{
-						LabelingSkyBunches(LeftBunchesInTheSky, LeftSkyComp, NumberLeftSkyComp);
-					}
-					//SkyPixelsOfBoundaryPoints= new int[DimX];
-					memset(SkyPixelsOfBoundaryPoints, (int) '\0', sizeof(int)*DimX);
-					/*bound_result=FindingBoundaryChainsLeft(UpperSkyFiber,LowerSkyFiber,0,max_length,
-					SkyBunchesOfBoundaryPoints,&final_right_inv,&last_left_sec);*/
-					FindingBoundaryChains();
-					TranslationIntoBigDimension();
-					//trans_success=TransitionToRightSection(bound_result,last_left_sec,final_right_inv);
-				}
-			}
-
-
-		}
-		/*char* TextBoundaries;
-		int num_of_mem;
-		int bound_value;
-		int div1;
-		int div2;
-		int div3;
-		int rest1;
-		int rest2;
-		int rest3;
-		int ch_number;
-		char space_val;
-
-		num_of_mem = 0;
-		ch_number = 0;
-		rest1 = 0;
-		rest2 = 0;
-		rest3 = 0;
-
-		char str[] = "0123456789This is a test";
-
-		space_val = str[14];
-		TextBoundaries = new char[1920 * 8];
-		for (int cycle_ch = 0; cycle_ch<1920; cycle_ch++)
-		{
-			bound_value = *(SkyBoundaries + cycle_ch);
-			div1 = bound_value / 1000;
-			if (!div1)
-			{//10
-				div2 = bound_value / 100;
-				if (!div2)
-				{//20
-					div3 = bound_value / 10;
-					if (!div3)
-					{//30
-					 //*(TextBoundaries+ch_number)=(char)bound_value;
-						*(TextBoundaries + ch_number) = 48 + bound_value;
-						ch_number++;
-						*(TextBoundaries + ch_number) = space_val;
-						ch_number++;
-
-					}//30
-					else
-					{//e30
-						rest1 = bound_value % 10;
-						//*(TextBoundaries+ch_number)=(char)div3;
-						*(TextBoundaries + ch_number) = 48 + div3;
-						ch_number++;
-						//*(TextBoundaries+ch_number)=(char)rest1;
-						*(TextBoundaries + ch_number) = 48 + rest1;
-						ch_number++;
-						*(TextBoundaries + ch_number) = space_val;
-						ch_number++;
-					}//e30
-				}//20
-				else
-				{//e20
-					rest1 = bound_value % 10;
-					rest2 = ((bound_value - rest1) / 10);
-					rest2 = (rest2 % 10);
-					*(TextBoundaries + ch_number) = 48 + div2;
-					ch_number++;
-					*(TextBoundaries + ch_number) = 48 + rest2;
-					ch_number++;
-					*(TextBoundaries + ch_number) = 48 + rest1;
-					ch_number++;
-					*(TextBoundaries + ch_number) = space_val;
-					ch_number++;
-				}//e20
-			}//10
-			else
-			{//e10
-				rest1 = bound_value % 10;
-				rest2 = ((bound_value - rest1) / 10);
-				rest2 = (rest2 % 10);
-				rest3 = (bound_value - rest1) / 10;
-				rest3 = (rest3 - rest2) / 10;
-				rest3 = (rest3 % 10);
-				*(TextBoundaries + ch_number) = 48 + div1;
-				ch_number++;
-				*(TextBoundaries + ch_number) = 48 + rest3;
-				ch_number++;
-				*(TextBoundaries + ch_number) = 48 + rest2;
-				ch_number++;
-				*(TextBoundaries + ch_number) = 48 + rest1;
-				ch_number++;
-				*(TextBoundaries + ch_number) = space_val;
-				ch_number++;
-			}//e10
-
-		}
-		int sign_open;
-		ofstream out("testboundaries.txt");
-
-		sign_open = 0;
-		ch_number--;
-		if (!out)
-		{
-			sign_open = 1;
-		}
-
-
-		if (!sign_open)
-		{
-			out.write((char *)TextBoundaries, ch_number);
-		}
-		out.close();
-
-		delete[] TextBoundaries;*/
-
-	}//skf
-	 /*FILE* f1;
-	 int outopen;
-	 int outclose;
-	 unsigned elem_size;
-	 int number_of_members;
-	 int readfile[1920];
-	 int num_read;
-
-	 outopen=0;
-	 elem_size=sizeof(int);
-	 f1=fopen("testoutput1.txt","w+t");
-	 if(!f1)
-	 {
-	 outopen=1;
-	 }
-	 number_of_members=fwrite(SkyBoundaries,elem_size,1920,f1);
-	 outclose=fclose(f1);
-	 if(!outclose)
-	 {
-	 outclose=10;
-	 }
-	 f1=fopen( "testoutput1.txt", "r+t" );
-	 num_read=fread( readfile, sizeof( int ), 1920, f1 );
-
-	 outclose=fclose(f1);
-	 if(!outclose)
-	 {
-	 outclose=10;
-	 }
-
-	 f2=lookupfile( "testfile.dta",&new );
-	 writefile(f2,1920*sizeof(int),SkyBoundaries);
-	 ofstream out("test");
-	 if(!out)
-	 {
-	 cout << "Impossible to open the file\n";
-	 }
-	 int sign_f_open;
-	 sign_f_open=0;
-	 ofstream fout("testoutput1.txt", ios_base::out | ios_base::trunc);
-
-	 if (!fout.is_open()) // ���� ���� ����� ������
-	 {
-	 sign_f_open=1;
-	 // cout << "���� �� ����� ���� ������ ��� ������\n"; // ���������� ��������������� ���������
-	 //return 1; // ��������� ����� �� ���������
-	 }
-
-	 fout.write((char *) &SkyBoundaries,sizeof(SkyBoundaries));
-	 fout.close(); // ��������� ������ �� ���������� ����, ������� ��� ����� �������*/
 	if (!HorizontalVertical)
-	{//horvert
-		if (GreenFinding)
-		{//grf
-			UpperGreenBoundaryLeft = -1;
-			UpperGreenBoundaryRight = -1;
-			FinalGreenStripNearRoad = NumStrips;
-			GreenMainLeft = -1;
-			GreenMainLeftLb = -1;
-			GreenMainLeftRb = -1;
-			GreenMainRight = -1;
-			GreenMainRightLb = -1;
-			GreenMainRightRb = -1;
-			memset(LeftGreenBoundary, (int) '\0', sizeof(int)*DimX);
-			memset(LeftGreenBoundaryBunch, (int) '\0', sizeof(int)*NumStrips);
-			memset(LeftGreenBoundaryVert, (int) '\0', sizeof(int)*NumStrips);//last_cor05.11.17
-			memset(LeftGreenBoundarySection, (int) '\0', sizeof(int)*NumStrips);
-			memset(LeftAdjacentNonGreenSectionMax, (int) '\0', sizeof(int)*NumStrips);
-			memset(LeftAdjacentGreenSectionMax, (int) '\0', sizeof(int)*NumStrips);
-			//last_cor09.12.16
-			if (number_of_sections > 0)
-			{
-				LeftRightSectionNumberOfRightGreenBoundaryPoints = new int[number_of_sections];
-				memset(LeftRightSectionNumberOfRightGreenBoundaryPoints, (int) '\0', sizeof(int)*number_of_sections);
-			}
-			memset(RightGreenBoundary, (int) '\0', sizeof(int)*DimX);
-			memset(RightGreenBoundaryBunch, (int) '\0', sizeof(int)*NumStrips);
-			memset(RightGreenBoundarySection, (int) '\0', sizeof(int)*NumStrips);
-			memset(RightAdjacentNonGreenSectionMax, (int) '\0', sizeof(int)*NumStrips);
-			memset(RightAdjacentGreenSectionMax, (int) '\0', sizeof(int)*NumStrips);//last_cor09.12.16
-
-																					/*if(maximum_number_of_ordered_bunches>0)
-																					{
-																					LeftBounSecTrace= new int[(maximum_number_of_ordered_bunches*NumStrips)];
-																					memset(LeftBounSecTrace,(int) '\0',sizeof(int)*(maximum_number_of_ordered_bunches*NumStrips));
-																					RightBounSecTrace= new int[(maximum_number_of_ordered_bunches*NumStrips)];
-																					memset(RightBounSecTrace,(int) '\0',sizeof(int)*(maximum_number_of_ordered_bunches*NumStrips));
-																					}*/
-			ColorShapeSectionClassification();
-			UpperGreenBoundaryLeft = 0;//last_cor02.11.16
-			UpperGreenBoundaryRight = 0;
-			green_success_left = MaximumGreenComp(1);
-			green_success_right = MaximumGreenComp(0);
-			vert_line_bound_index = VerticalPartsofGreenBoundary();//last_cor05.11.17
-		}//grf
-	}//horizvert
+		detect_green();
+	 
 	memset(VerticalContrastCurves, (int) '\0', sizeof(int)*(1536));
 	memset(VerticalLinesLength, (int) '\0', sizeof(int)*(64));
 	memset(VertLineFirstStrip, (int) '\0', sizeof(int)*(64));
@@ -1780,52 +1307,236 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 	memset(StripNewNumber, (int) '\0', sizeof(int)*(NumStrips));
 	memset(StripSignalsAdditional, (int) '\0', sizeof(int)*(NumStrips));
 	memset(StripNewNumberAdditional, (int) '\0', sizeof(int)*(NumStrips));
+	
 	NumberOfVertLines = 0;
 	NumberOfVertLinesCloseToSignals = 0;
 	NumberOfVertLinesCloseToSignals1 = 0;
-	if (maximum_number_of_ordered_bunches>0)
-	{
-		//VertFinding=TRUE;
+	
+	if (maximum_number_of_ordered_bunches > 0)
+	{ 
 		memset(SignalNumber, (int) '\0', sizeof(int)*(256));
 		memset(SignalNumberAdditional, (int) '\0', sizeof(int)*(256));
+		
 		if (!HorizontalVertical)
 		{//horvertlast_cor02.08.18
-			success_find = FindSignalZones();
+			FindSignalZones();
 		}//horvertlast_cor02.08.18
-		LineVertTrace = new int[maximum_number_of_ordered_bunches*NumStrips];
-		memset(LineVertTrace, (int) '\0', sizeof(int)*(maximum_number_of_ordered_bunches*NumStrips));
-		/*f_strip = 0;//last_cor07.06.18
-		l_strip = ((3 * NumStrips) / 4);
-		f_line = 0;
-		l_line = DimX - 1;*/
-		f_strip = 0;//last_cor07.06.18
-		l_strip = NumStrips - 1;
-		f_line = 0;
-		l_line = DimX - 1;
-vertical_success = VerticalLinesConstruct(f_strip, l_strip, f_line, l_line);//last_cor07.06.18
-       if (!HorizontalVertical)
-       {//horvertlast_cor02.08.18
-		vert_signal_connected = VerticalLinesSignalsConnected();
+
+		LineVertTrace = new int[maximum_number_of_ordered_bunches*NumStrips](); 
+     
+		int f_strip = 0;//last_cor07.06.18
+		int l_strip = NumStrips - 1;
+		int f_line = 0;
+		int l_line = DimX - 1;
+
+		int vertical_success = VerticalLinesConstruct(f_strip, l_strip, f_line, l_line);//last_cor07.06.18
+		if (!HorizontalVertical)
+		{//horvertlast_cor02.08.18
+			
+			int vert_signal_connected = VerticalLinesSignalsConnected();
 		
 			ConnectedVerticalLines();
-			intersec_vert = IntersectingVerticalLines();
+			int intersec_vert = IntersectingVerticalLines();
 			VerticalConnectedToBoundary();
-			breaking_vert = BreakingVerticalLines();
-			vert_curve_matching = LineSigConnnectedCorrection();//last_cor15.10.18
+			int breaking_vert = BreakingVerticalLines();
+			int vert_curve_matching = LineSigConnnectedCorrection();//last_cor15.10.18
 		}//horvertlast_cor02.08.18
 	}
-
-
-
-	end1 = clock();
-	sec = ((1000 * (end1 - start1)) / CLK_TCK);
-	ColorSection->TotalTime = sec;
-	RealColorNumSect = ColorSection->Number_of_sections;
-	//}
-	execution_time = +sec;
+	 
+	RealColorNumSect = ColorSection->Number_of_sections; 
 }
 
 
+
+
+/*
+ * @Description:
+ *
+ *
+ */
+void CImageProcess::detect_sky()
+{
+	int sky_hist[64];
+	int sect_weight[64];
+	int sky_hist_right[64];
+	int sect_weight_right[64];
+
+	SkyLeftHueZone = -1;
+	SkyRightHueZone = -1;
+
+	LowerSkyFiber = NumStrips + 1;
+	UpperSkyFiber = -1;
+
+	if (!HorizontalVertical)
+	{//horvert
+		memset(SkyVisualization, (int) '\0', sizeof(int) * DimX);
+		memset(SkyBoundaries, (int) '\0', sizeof(int) * 1920);
+		memset(SkyComponents, (int) '\0', sizeof(int) * 32);
+		memset(SkyGreenComponents, (int) '\0', sizeof(int) * NUM_SECT1);
+		memset(sky_hist, (int) '\0', sizeof(int) * 64);
+
+		SkyIntencitiesDistributionFinding(sky_hist, sect_weight, 0);
+
+		SkyMainLeft = -1;
+		SkySaturatedLeft = -1;
+
+		NumberLeftSkyComp = 0;
+		NumberRightSkyComp = 0;
+
+		int last_intensity_value = -1;
+		int sky_saturated_left = -1;
+
+		SkyMainLeft = MaximumSky(sky_hist, sect_weight, &last_intensity_value, &sky_saturated_left);
+
+		SkySaturatedLeft = sky_saturated_left;
+
+		if (SkyMainLeft >= 0)
+		{
+			NumberLeftSkyComp++;
+			SkyGreenComponents[SkyMainLeft] = 1;
+			int sky_main_left_hue = ColorSection->section_mean_hue[SkyMainLeft];//last_cor15.06.15
+			SkyLeftHueZone = hue_zones[sky_main_left_hue];
+		}
+
+		memset(sky_hist_right, (int) '\0', sizeof(int) * 64);
+
+		SkyIntencitiesDistributionFinding(sky_hist_right, sect_weight_right, 1);
+
+		SkyMainRight = -1;
+		SkySaturatedRight = -1;
+
+		int last_intensity_value_right = -1;
+		int sky_saturated_right = -1;
+
+		SkyMainRight = MaximumSky(sky_hist_right, sect_weight_right, &last_intensity_value_right,
+			&sky_saturated_right);
+
+		SkySaturatedRight = sky_saturated_right;
+
+		if (SkyMainRight >= 0)
+		{//skmr
+			SkyGreenComponents[SkyMainRight] = 1;
+			NumberRightSkyComp++;
+			int sky_main_right_hue = ColorSection->section_mean_hue[SkyMainRight];//last_cor15.06.15
+			SkyRightHueZone = hue_zones[sky_main_right_hue];
+		}//skmr
+
+		if (SkyMainLeft >= 0)
+		{//skml
+			if (number_of_section_left > 0)
+			{
+				LeftSkyComp = new int[number_of_section_left];
+				BelongsSkyTo(sky_hist, 0, number_of_section_left);
+			}
+		}//skml
+
+		if (SkyMainRight >= 0)
+		{
+			if (number_of_section_right > 0)
+			{
+				if (!RightSkyComp)
+				{
+					RightSkyComp = new int[number_of_section_right];
+				}
+				BelongsSkyTo(sky_hist_right, number_of_section_left, number_of_sections);
+			}
+		}
+	}//horvert
+	else
+	{
+		memset(sky_hist, (int) '\0', sizeof(int) * 64);
+	}
+
+	NumberOfSkyBoundaryPoints = 0;
+
+	if ((NumberLeftSkyComp > 0) || (NumberRightSkyComp > 0))
+	{
+		if (MaximumNumberOfCoveringElements > 0)
+		{
+			if (NumberLeftSkyComp > 0)
+			{
+				LeftBunchesInTheSky = new int[MaximumNumberOfCoveringElements * NumStrips];
+				memset(LeftBunchesInTheSky, (int) '\0', sizeof(int) * (MaximumNumberOfCoveringElements * NumStrips));
+			}
+
+			if (NumberRightSkyComp > 0)
+			{
+				RightBunchesInTheSky = new int[MaximumNumberOfCoveringElements * NumStrips];
+				memset(RightBunchesInTheSky, (int) '\0', sizeof(int) * (MaximumNumberOfCoveringElements * NumStrips));
+			}
+
+			if ((NumberLeftSkyComp) || (NumberRightSkyComp))
+			{
+				LeftRightSkyAddition();
+
+				if (NumberRightSkyComp > 0)
+				{
+					LabelingSkyBunches(RightBunchesInTheSky, RightSkyComp, NumberRightSkyComp);
+				}
+
+				if (NumberLeftSkyComp > 0)
+				{
+					LabelingSkyBunches(LeftBunchesInTheSky, LeftSkyComp, NumberLeftSkyComp);
+				}
+
+				if ((NumberLeftSkyComp > 0) || (NumberRightSkyComp))
+				{///correct this place in the original text!!!!
+					FindingBoundaryChains();
+					TranslationIntoBigDimension();
+				}
+			}
+		}
+	}
+
+}
+
+
+
+/*
+ *
+ *
+ *
+ */
+void CImageProcess::detect_green()
+{
+	UpperGreenBoundaryLeft = -1;
+	UpperGreenBoundaryRight = -1;
+
+	GreenMainLeft = -1;
+	GreenMainLeftLb = -1;
+	GreenMainLeftRb = -1;
+	GreenMainRight = -1;
+	GreenMainRightLb = -1;
+	GreenMainRightRb = -1;
+
+	memset(LeftGreenBoundary, (int) '\0', sizeof(int) * DimX);
+	LeftGreenBoundaryBunch = new int[NumStrips];
+	memset(LeftGreenBoundaryBunch, (int) '\0', sizeof(int) * NumStrips);
+	memset(LeftGreenBoundaryVert, (int) '\0', sizeof(int) * NumStrips);//last_cor05.11.17
+	memset(LeftGreenBoundarySection, (int) '\0', sizeof(int) * NumStrips);
+	memset(LeftAdjacentNonGreenSectionMax, (int) '\0', sizeof(int) * NumStrips);
+	memset(LeftAdjacentGreenSectionMax, (int) '\0', sizeof(int) * NumStrips);
+	memset(RightGreenBoundary, (int) '\0', sizeof(int) * DimX);
+	if (number_of_sections > 0)
+	{
+		LeftRightSectionNumberOfRightGreenBoundaryPoints = new int[number_of_sections];
+		memset(LeftRightSectionNumberOfRightGreenBoundaryPoints, (int) '\0', sizeof(int) * number_of_sections);
+	}
+	memset(RightGreenBoundaryBunch, (int) '\0', sizeof(int) * NumStrips);
+	memset(RightGreenBoundarySection, (int) '\0', sizeof(int) * NumStrips);
+	memset(RightAdjacentNonGreenSectionMax, (int) '\0', sizeof(int) * NumStrips);
+	memset(RightAdjacentGreenSectionMax, (int) '\0', sizeof(int) * NumStrips);//last_cor09.12.16
+
+	ColorShapeSectionClassification();
+
+	UpperGreenBoundaryLeft = 0;
+	UpperGreenBoundaryRight = 0;
+
+	MaximumGreenComp(1);
+	MaximumGreenComp(0);
+
+	VerticalPartsofGreenBoundary();
+}
 
 
 void CImageProcess::ContrastBunchesMotion(int num_strips, int* bunches_location)
@@ -6218,180 +5929,9 @@ CImageProcess::FindingRightConectedSection(void)
 	}//cs
 	return(prior);
 }
-//=====================================================
-int
-
-CImageProcess::LabelCoordinatesFinding(void)
-{
-	int coun_strip;
-	//int coun_bunch;
-	//int Number_of_bunches;
-	int Num_of_labels;
-	int label_number;
-	int bunch_suitability;
-	int central_bunch_number;
-	int label_suitability;
-	int left_neighbor;
-	int left_contrast;
-	int left_contrast_reduced;
-	int right_neighbor;
-	int right_contrast;
-	int right_contrast_reduced;
-	int beg_int;
-	int end_int;
-	int prior;
-	//int left_section_number;
-	//int right_section_number;
-	int left_trace_number;
-	int left_trace_number_reduced;
-	int right_trace_number;
-	int right_trace_number_reduced;
-	int first_left_section_strip;
-	int last_left_section_strip;
-	int first_right_section_strip;
-	int last_right_section_strip;
-	int number_of_sections_left;
-	int number_of_sections_right;
-	int left_section_length;
-	int right_section_length;
-	int coun_str;
-	int coun_leb;
-	int Num_leb;
-	int Max_suitability;
-	int Max_value;
-	int current_suit;
-	int current_val;
-	int centr_bunch_num;
-	int Max_leb_suit;
-	int Max_suit_str;
-	int Max_val_str;
-	int Max_label_val;
 
 
-
-	prior = -1;
-	Max_suitability = -1;
-	Max_value = -1;
-	Max_leb_suit = -1;
-	Max_label_val = -1;
-	Max_suit_str = -1;
-	Max_val_str = -1;
-	for (coun_str = 0; coun_str<NumStrips; coun_str++)
-	{//cycle_str
-		Num_leb = ColorInt[coun_str].NumberOfLabels;
-		if (Num_leb >= 1)
-		{//num_leb
-			for (coun_leb = 0; coun_leb<Num_leb; coun_leb++)
-			{//count_leb
-				centr_bunch_num = ColorInt[coun_str].Label_bunch_num[coun_leb];
-
-				current_suit = ColorInt[coun_str].center_bunch_suitability[centr_bunch_num];
-				current_val = ColorInt[coun_str].label_segments[centr_bunch_num];
-				if (current_suit>Max_suitability)
-				{
-					Max_suitability = current_suit;
-					Max_suit_str = coun_str;
-					Max_leb_suit = coun_leb;
-				}
-				if (current_val>Max_value)
-				{
-					Max_value = current_val;
-					Max_val_str = coun_str;
-					Max_label_val = coun_leb;
-				}
-			}//count_leb
-		}//num_leb
-	}//cycle_str
-	Num_of_labels = -1;
-	for (coun_strip = 0; coun_strip<NumStrips; coun_strip++)
-	{//cycle_strips
-	 //Number_of_bunches=ColorInt[coun_strip].NumberOfColoredIntervals;
-	 //for(coun_bunch=0;coun_bunch<Number_of_bunches;NumStrips++)
-	 //{
-		Num_of_labels = ColorInt[coun_strip].NumberOfLabels;
-		if (Num_of_labels>0)
-		{//nl>0
-			if (Num_of_labels == 1)
-			{
-				label_number = 0;
-				/*label1_suitability=ColorInt[coun_strip].center_bunch_suitability[0];
-				label_value=ColorInt[coun_strip].label_segments[0];*/
-			}
-			else
-			{
-				label_number = Finding_Best_Label();
-			}
-
-			if (label_number >= 0)
-			{//ln>=0
-				left_section_length = 0;
-				right_section_length = 0;
-				central_bunch_number = ColorInt[coun_strip].Label_bunch_num[label_number];
-
-				bunch_suitability = ColorInt[coun_strip].center_bunch_suitability[central_bunch_number];
-				label_suitability = ColorInt[coun_strip].label_segments[central_bunch_number];
-				if (label_suitability>0)
-				{//ls>0
-					beg_int = ColorInt[coun_strip].ColoredIntervalsStructure->BegInterv[central_bunch_number];
-					end_int = ColorInt[coun_strip].ColoredIntervalsStructure->EndInterv[central_bunch_number];
-					prior = beg_int + (end_int - beg_int) / 2;
-					LabelLeftCoordinate = beg_int;
-					LabelRightCoordinate = end_int;
-					left_trace_number = SectionTraceLeft[coun_strip*MAX_COL_INT + central_bunch_number];
-					left_neighbor = ColorInt[coun_strip].left_adjacent[central_bunch_number];
-					left_contrast = ColorInt[coun_strip].left_continuation[central_bunch_number];
-					if (left_contrast<0)
-					{
-						left_neighbor = -left_neighbor - 1;
-						left_contrast_reduced = -left_contrast - 1;
-						left_contrast_reduced = left_contrast_reduced % 10;
-					}
-					right_neighbor = ColorInt[coun_strip].right_adjacent[central_bunch_number];
-					right_contrast = ColorInt[coun_strip].right_continuation[central_bunch_number];
-					left_trace_number_reduced = left_trace_number % 1000;
-					if (left_trace_number_reduced>0)
-					{
-						left_trace_number_reduced -= 1;
-					}
-					else
-					{
-						goto K;
-					}
-					number_of_sections_left = ColorSection->Number_of_sections_left;
-					number_of_sections_right = ColorSection->Number_of_sections_right;
-					first_left_section_strip = ColorSection->section_fibre_first[left_trace_number_reduced];
-					last_left_section_strip = ColorSection->section_fibre_last[left_trace_number_reduced];
-					left_section_length = last_left_section_strip - first_left_section_strip + 1;
-					right_trace_number = SectionTraceRight[coun_strip*MAX_COL_INT + central_bunch_number];
-					right_trace_number_reduced = right_trace_number % 1000;
-					if (right_trace_number_reduced>0)
-					{
-						right_trace_number_reduced -= 1;
-					}
-					else
-					{
-						goto K;
-					}
-					first_right_section_strip = ColorSection->section_fibre_first[right_trace_number_reduced];
-					last_right_section_strip = ColorSection->section_fibre_last[right_trace_number_reduced];
-					right_section_length = last_right_section_strip - first_right_section_strip + 1;
-					if (right_contrast<0)
-					{
-						right_neighbor = -right_neighbor - 1;
-						right_contrast_reduced = -right_contrast - 1;
-						right_contrast_reduced = right_contrast_reduced % 10;
-					}
-					goto K;
-				}//ls>0
-			}//ln>=0	 
-		}//nl>0
-	K:
-		;
-	}//cycle_strips
-
-	return(prior);
-}
-//=====================================================
+ 
 void
 
 CImageProcess::PermutationFinding(int FrameNumber)
@@ -6404,22 +5944,13 @@ CImageProcess::PermutationFinding(int FrameNumber)
 
 	frame_number = FrameNumber;
 	reduced_frame_number = frame_number % 16;
-	//if(frame_number>=18)
-	//{
-	for (permut_number = 0; permut_number <= reduced_frame_number; permut_number++)
-	{
-		LabelOXPermutation[reduced_frame_number - permut_number] = 15 - permut_number;
-	}
-	for (permut_number1 = reduced_frame_number + 1; permut_number1 <= 15; permut_number1++)
-	{
-		LabelOXPermutation[permut_number1] = permut_number1 - (reduced_frame_number + 1);
-	}
-	//}
+ 
 }
-//=====================================================
-void
 
-CImageProcess::AnalyzingArray()
+
+
+
+void CImageProcess::AnalyzingArray()
 {
 	int count_array;
 	int monotone_interval_positive;
@@ -6448,15 +5979,11 @@ CImageProcess::AnalyzingArray()
 	monotone_interval_positive = 0;
 	monotone_interval_negative = 0;
 	continuous_plus = 1;
-	continuous_minus = 1;
-	permutation_value = LabelOXPermutation[15];
-	last_value = LabelCenterOXTrajectory[permutation_value];
+	continuous_minus = 1; 
 	last_deviation = last_value - (DimX / 2 - 1);
 	for (count_array = 0; count_array<8; count_array++)
 	{//cycle
-		point_of_array = 15 - count_array;
-		permutation_value = LabelOXPermutation[point_of_array];
-		current_array_element = LabelCenterOXTrajectory[permutation_value];
+		point_of_array = 15 - count_array; 
 
 		if (current_array_element>maximum_value)
 		{
@@ -6511,843 +6038,11 @@ CImageProcess::AnalyzingArray()
 	}
 
 }
-//=====================================================
-int
-
-CImageProcess::Finding_Best_Label(void)
-{
-	int prior;
-
-	prior = -1;
-	return(prior);
-}
-//=====================================================
-int
-
-CImageProcess::LabelFiltering(void)
-{
-	int coun_strip;
-	int coun_strip1;
-	int coun_strip2;
-	int Num_of_labels;
-	int bunch_suitability;
-	int central_bunch_number;
-	int label_suitability;
-	int left_neighbor;
-	int left_contrast;
-	int left_contrast_reduced;
-	int right_neighbor;
-	int right_contrast;
-	int right_contrast_reduced;
-	int beg_int;
-	int end_int;
-	int int_length;
-	int beg_int_next;
-	int end_int_next;
-	int another_beg_int;
-	int another_end_int;
-	int another_length;
-	int prior;
-	//int left_section_number;
-	//int right_section_number;
-	int left_trace_number;
-	int left_trace_number_reduced;
-	int right_trace_number;
-	int right_trace_number_reduced;
-	int first_left_section_strip;
-	int last_left_section_strip;
-	int first_right_section_strip;
-	int last_right_section_strip;
-	int number_of_sections_left;
-	int number_of_sections_right;
-	int left_section_length;
-	int right_section_length;
-	int central_int_length;
-	int next_central_int_length;
-	int coun_label;
-	//int coun_label1;
-	int coun_label2;
-	int another_bunch;
-	int length_ratio;
-	int length_ratio1;
-	int left_shift;
-	int right_shift;
-	int up_down;
-	int another_left_contrast;
-	int another_right_contrast;
-	int min_strip_number;
-	int max_strip_number;
-	int total_lebel_in_strips_number;
-	int total_number_of_labels;
-	int label_count;
-	int label_count1;
-	int label_height;
-	int cand_bunch_number;
-	int cand_strip_number;
-	int cand_bunch_number_next;
-	int cand_strip_number_next;
-	int bunch_center;
-	int next_bunch_center;
-	//int length_ratio;
-	int left_difference;
-	int right_difference;
-	int central_difference;
-	int new_number;
-	int Intersection;
-	int indic_length;
-	int ratio_length;
-	int ratio_length1;
-	int last_strip;
-	int label_count3;
-	int height_lab;
-	int number_of_targets;
-	int lab_num;
-	int hue_central;
-	int hue_zone_central;
-	int given_central_hue_zone;
-	int zone_diff;
-	int min_zone;
-	int min_zone_number;
-	int sat_central;
-	int gray_central;
-	int center_coordinate;
-	int new_lab_find;
-	int max_inters;
-	int max_inters_number;
-	int penalt_label;
-	int inter_sum;
-	int cost_label;
-	int current_cost;
-	int mean_label_cost;
-	int mean_inter_sum;
-	int max_cost;
-	int max_cost_number;
-	int penalt_label1;
-	int	inter_sum1;
-	int	cost_label1;
-	int label_height1;
-	int cand_strip_number1;
-	int central_bunch_number1;
-	int beg_int1;
-	int	end_int1;
-	int	int_length1;
-	int residual;
-	int len_rat;
-	int* candidate_strip_number;
-	int* candidate_number;
-	int* height_label;
-	int* last_str_number;
-	int* serial_label_number;
-	int* new_label_quality;
-	int* penalty_label;
-	int* intersection_sum;
-	int* label_blocked;
-	int* label_cost;
 
 
-	total_lebel_in_strips_number = 0;
-	Intersection = -1;
-	indic_length = -1;
-	ratio_length = -1;
-	ratio_length1 = -1;
-	last_strip = -1;
-	min_zone = 100;
-	min_zone_number = -1;
-	max_inters = 0;
-	max_inters_number = -1;
-	given_central_hue_zone = 1;
-	penalt_label = -1;
-	center_coordinate = -1;
-	inter_sum = -1;
-	mean_label_cost = 0;
-	penalt_label1 = -1;
-	inter_sum1 = -1;
-	cost_label1 = -1;
-	label_height1 = -1;
-	cand_strip_number1 = -1;
-	central_bunch_number1 = -1;
-	beg_int1 = -1;
-	end_int1 = -1;
-	int_length1 = -1;
-	residual = -1;
-	len_rat = -1;
-	if (HorizontalVertical)
-	{
-		min_strip_number = DimY;
-	}
-	else
-	{
-		min_strip_number = DimX;
-	}
-	max_strip_number = -1;
-	prior = -1;
-	up_down = -1;
-	Num_of_labels = -1;
-	total_number_of_labels = 0;
-	for (coun_strip1 = 0; coun_strip1<NumStrips; coun_strip1++)
-	{//cycle_strips1
-		Num_of_labels = ColorInt[coun_strip1].NumberOfLabels;
-		if (Num_of_labels>0)
-		{//nl>0
-			total_lebel_in_strips_number += Num_of_labels;
-			if (coun_strip1<min_strip_number)
-			{
-				min_strip_number = coun_strip1;
-			}
-			max_strip_number = coun_strip1;
-
-		}//nl>0
-	}//cycle_strips1
-	if (!total_lebel_in_strips_number)
-	{
-		LabelCenterCoordinate = -1;
-		return(prior);
-	}
-	if (total_lebel_in_strips_number>0)
-	{//tln>0
-		total_number_of_labels = total_lebel_in_strips_number;
-		candidate_strip_number = new int[total_lebel_in_strips_number + 1];
-		candidate_number = new int[total_lebel_in_strips_number + 1];
-		height_label = new int[total_lebel_in_strips_number + 1];
-		serial_label_number = new int[total_lebel_in_strips_number + 1];
-		new_label_quality = new int[total_lebel_in_strips_number + 1];
-		last_str_number = new int[total_lebel_in_strips_number + 1];
-		penalty_label = new int[total_lebel_in_strips_number + 1];
-		intersection_sum = new int[total_lebel_in_strips_number + 1];
-		label_blocked = new int[total_lebel_in_strips_number + 1];
-		label_cost = new int[total_lebel_in_strips_number + 1];
-		memset(height_label, (int) '\0', (sizeof(int))*(total_lebel_in_strips_number + 1));
-		memset(candidate_number, (int) '\0', (sizeof(int))*(total_lebel_in_strips_number + 1));
-		memset(penalty_label, (int) '\0', (sizeof(int))*(total_lebel_in_strips_number + 1));
-		memset(new_label_quality, (int) '\0', (sizeof(int))*(total_lebel_in_strips_number + 1));
-		memset(last_str_number, (int) '\0', (sizeof(int))*(total_lebel_in_strips_number + 1));
-		memset(intersection_sum, (int) '\0', (sizeof(int))*(total_lebel_in_strips_number + 1));
-		memset(label_blocked, (int) '\0', (sizeof(int))*(total_lebel_in_strips_number + 1));
-		memset(label_cost, (int) '\0', (sizeof(int))*(total_lebel_in_strips_number + 1));
-		new_number = 0;
-		for (coun_strip2 = min_strip_number; coun_strip2 <= max_strip_number; coun_strip2++)
-		{//cycle_strips2
-			Num_of_labels = ColorInt[coun_strip2].NumberOfLabels;
-			if (Num_of_labels>0)
-			{//nl>0
-				for (coun_label2 = 0; coun_label2<Num_of_labels; coun_label2++)
-				{//cycle_label1
-
-					central_bunch_number = ColorInt[coun_strip2].Label_bunch_num[coun_label2];
-					candidate_strip_number[new_number] = coun_strip2;
-					candidate_number[new_number] = central_bunch_number + 1;
-					new_number++;
-				}//cycle_label1
-			}//nl>0
-		}//cycle_strips2
-		last_strip = -1;
-		cost_label = 0;
-		current_cost = 0;
-		for (label_count = 0; label_count<total_lebel_in_strips_number; label_count++)
-		{//lab_c
-			cand_bunch_number = candidate_number[label_count];
-			if (cand_bunch_number>0)
-			{//cn>0
-				cand_bunch_number--;
-				cand_strip_number = candidate_strip_number[label_count];
-				last_strip = cand_strip_number;
-				beg_int = ColorInt[cand_strip_number].ColoredIntervalsStructure->BegInterv[cand_bunch_number];
-				end_int = ColorInt[cand_strip_number].ColoredIntervalsStructure->EndInterv[cand_bunch_number];
-				bunch_center = beg_int + (end_int - beg_int) / 2;
-				central_int_length = end_int - beg_int + 1;
-				label_height = 0;
-				cost_label = ColorInt[cand_strip_number].center_bunch_suitability[cand_bunch_number];
-				for (label_count1 = label_count + 1; label_count1<total_lebel_in_strips_number; label_count1++)
-				{//lab_c1
-					cand_bunch_number_next = candidate_number[label_count1];
-					cand_bunch_number_next--;
-					cand_strip_number_next = candidate_strip_number[label_count1];
-					beg_int_next =
-						ColorInt[cand_strip_number_next].ColoredIntervalsStructure->BegInterv[cand_bunch_number_next];
-					end_int_next =
-						ColorInt[cand_strip_number_next].ColoredIntervalsStructure->EndInterv[cand_bunch_number_next];
-					next_bunch_center = beg_int_next + (end_int_next - beg_int_next) / 2;
-					next_central_int_length = end_int_next - beg_int_next + 1;
-					length_ratio = (16 * central_int_length) / (central_int_length + next_central_int_length);
-					left_difference = beg_int - beg_int_next;
-					right_difference = end_int - end_int_next;
-					central_difference = bunch_center - next_bunch_center;
-					Intersection =
-						ColorInt[cand_strip_number_next].Intersection_measure_ratios(beg_int, end_int, beg_int_next,
-							end_int_next, &indic_length, &ratio_length, &ratio_length1);
-					if ((Intersection >= 0) && (Intersection <= 1))
-					{//int1
-						if ((length_ratio >= 6) && (length_ratio <= 10))
-						{//length
-
-							if (((abs(central_difference) <= StripWidth) || (abs(left_difference) <= StripWidth)
-								|| (abs(right_difference) <= StripWidth)) ||
-								(!Intersection))
-							{
-								last_strip = cand_strip_number_next;
-								label_height++;
-								candidate_number[label_count1] = -10 - label_count;
-								current_cost = ColorInt[cand_strip_number_next].center_bunch_suitability[cand_bunch_number_next];
-								cost_label += current_cost;
-								intersection_sum[label_count] += length_ratio;
-								if (length_ratio == 8)
-								{
-									cost_label += 5;
-								}
-								else
-								{
-									if ((length_ratio == 7) || (length_ratio == 9))
-									{
-										cost_label += 2;
-									}
-								}
-								total_number_of_labels--;
-							}
-						}//length
-					}//int1
-				}//lab_c1
-
-				height_label[label_count] = label_height + 1;
-				last_str_number[label_count] = last_strip;
-				if (last_strip <= (NumStrips - 3) && (cand_strip_number>3))
-				{
-					if (central_int_length>2 * StripWidth)
-					{
-						if (!label_height)
-						{
-							cost_label -= 5;
-						}
-					}
-					len_rat = central_int_length / StripWidth;
-					if (len_rat >= 2)
-					{
-						if (label_height >= (2 * len_rat - 2))
-						{
-							cost_label += (label_height * 3);
-						}
-					}
-				}
-				label_cost[label_count] = cost_label;
-			}//cn>0
-
-		}//lab_c
-		number_of_targets = 0;
-		for (label_count3 = 0; label_count3<total_lebel_in_strips_number; label_count3++)
-		{//lab_c3
-			if (candidate_number[label_count3]>0)
-			{
-				height_lab = height_label[label_count3];
-				if (height_lab>0)
-				{
-					serial_label_number[number_of_targets] = label_count3;
-					number_of_targets++;
-				}
-			}
-
-		}//lab_c3
-		if (number_of_targets>0)
-		{//nt>0
-			max_inters = 0;
-			max_inters_number = -1;
-			for (int label_cou = 0; label_cou<number_of_targets; label_cou++)
-			{//lab
-				lab_num = serial_label_number[label_cou];
-				cand_strip_number = candidate_strip_number[lab_num];
-				central_bunch_number = candidate_number[lab_num];
-				central_bunch_number--;
-				beg_int = ColorInt[cand_strip_number].ColoredIntervalsStructure->BegInterv[central_bunch_number];
-				end_int = ColorInt[cand_strip_number].ColoredIntervalsStructure->EndInterv[central_bunch_number];
-				int_length = end_int - beg_int + 1;
-				hue_central =
-					ColorInt[cand_strip_number].ColoredIntervalsStructure->AverageHue[central_bunch_number];
-				hue_zone_central = hue_zones[hue_central];
-				label_height = height_label[lab_num];
-				zone_diff = abs(hue_zone_central - given_central_hue_zone);
-				if (zone_diff>0)
-				{
-					penalty_label[label_cou] += 10;
-					if (int_length>5 * StripWidth)
-					{
-						if (label_height == 1)
-						{
-							label_blocked[lab_num] = 1;
-							//number_of_targets--;
-							ColorInt[cand_strip_number].label_segments[central_bunch_number] = 0;
-						}
-					}
-				}
-
-				if (zone_diff<min_zone)
-				{
-					min_zone = zone_diff;
-					min_zone_number = label_cou;
-				}
-				sat_central =
-					ColorInt[cand_strip_number].ColoredIntervalsStructure->AverageSat[central_bunch_number];
-				gray_central =
-					ColorInt[cand_strip_number].ColoredIntervalsStructure->AverageGray[central_bunch_number];
-
-				last_strip = last_str_number[lab_num];
-				/*if(LabelCenterCoordinate<0)
-				{
-				center_coordinate=beg_int+(end_int-beg_int)/2;
-				break;
-				}*/
-				if (LabelCenterCoordinate>0)
-				{//lc>0
-					if ((LabelLeftCoordinate>0) && (LabelRightCoordinate>0))
-					{//>>
-						Intersection =
-							ColorInt[cand_strip_number].Intersection_measure_ratios(beg_int, end_int, LabelLeftCoordinate,
-								LabelRightCoordinate, &indic_length, &ratio_length, &ratio_length1);
-						//}
-						if (Intersection == 3)
-						{
-							new_label_quality[label_cou] = -ratio_length;
-						}
-						else
-						{//e
-							if (!Intersection)
-							{
-								new_label_quality[label_cou] = ratio_length;
-							}
-
-							if (ratio_length>max_inters)
-							{
-								max_inters = ratio_length;
-								max_inters_number = label_cou;
-							}
-						}//e
-					}//>>
-				}//lc>0
-			}//lab
-			mean_label_cost = 0;
-			mean_inter_sum = 0;
-			if (number_of_targets == 1)
-			{//nt=1
-				cost_label = label_cost[0];
-				label_height = height_label[0];
-				penalt_label = penalty_label[0];
-				inter_sum = intersection_sum[0];
-				/*if(label_height>0)
-				{
-				mean_label_cost=cost_label/label_height;
-				}*/
-				if (label_height>1)
-				{
-					//residual=inter_sum%(label_height-1);
-					mean_inter_sum = inter_sum / (label_height - 1);
-					/*if(2*residual>=(label_height-1)
-					{
-					mean_inter_sum+=1;
-					}*/
-
-				}
-				if (LabelCenterCoordinate<0)
-				{//lc<0
-					if (label_height == 1)
-					{
-						if ((cost_label>12) && (!min_zone) && (!label_blocked[0]))
-						{//condh1
-							center_coordinate = beg_int + (end_int - beg_int) / 2;
-							NumberOflabels = 1;
-							LabelCenterCoordinate = center_coordinate;
-							LabelLeftCoordinate = beg_int;
-							LabelRightCoordinate = end_int;
-							LabelCenterHue = hue_central;
-							LabelHueZone = hue_zone_central;
-							LabelCenterSaturation = sat_central;
-							LabelFirstStrip = cand_strip_number;
-							LabelLastStrip = last_strip;
-							LabelCost =
-								prior = LabelCenterCoordinate;
-							goto N;
-						}//condh1
-						else
-						{
-							center_coordinate = -1;
-							NumberOflabels = 0;
-							LabelCenterCoordinate = center_coordinate;
-							goto N;
-						}
 
 
-					}
-					else
-					{//ec
-						if ((mean_label_cost>25) && (!min_zone) && (!label_blocked[0]))
-						{//cond
-							if (((mean_inter_sum >= 7) && (mean_inter_sum <= 9)) || (label_height == 1))
-							{//cond1
-								center_coordinate = beg_int + (end_int - beg_int) / 2;
-								NumberOflabels = 1;
-								LabelCenterCoordinate = center_coordinate;
-								LabelLeftCoordinate = beg_int;
-								LabelRightCoordinate = end_int;
-								LabelCenterHue = hue_central;
-								LabelHueZone = hue_zone_central;
-								LabelCenterSaturation = sat_central;
-								LabelFirstStrip = cand_strip_number;
-								LabelLastStrip = last_strip;
-								prior = LabelCenterCoordinate;
-								goto N;
-							}//cond1
-						}//cond
-					}//ec
-				}//lc<0
-				else
-				{//ec>0
-					if ((cand_strip_number<(NumStrips - 3)) && (last_strip>2) && (beg_int>StripWidth) &&
-						(end_int<(Dimension - StripWidth)))
-					{//loccon
-						Intersection =
-							ColorInt[cand_strip_number].Intersection_measure_ratios(beg_int, end_int, LabelLeftCoordinate,
-								LabelRightCoordinate, &indic_length, &ratio_length, &ratio_length1);
-						//if((Intersection>2)||((Intersection==3)&&(ratio_length>3*StripWidth)))
-						if (Intersection>2)
-						{
-							NumberOflabels = 0;
-							LabelCenterCoordinate = -1;
-							goto N;
-						}
-						Intersection =
-							ColorInt[cand_strip_number].Intersection_measure_ratios(cand_strip_number, last_strip,
-								LabelFirstStrip, LabelLastStrip, &indic_length, &ratio_length, &ratio_length1);
-						if ((Intersection == 3) && (ratio_length>4 * StripWidth))
-						{
-							NumberOflabels = 0;
-							LabelCenterCoordinate = -1;
-							goto N;
-							if ((mean_label_cost>15) && (!min_zone) && (!label_blocked[0]))
-							{//cond
-								if (((mean_inter_sum >= 7) && (mean_inter_sum <= 9)) || (label_height == 1))
-								{//cond1
-									center_coordinate = beg_int + (end_int - beg_int) / 2;
-									NumberOflabels = 1;
-									LabelCenterCoordinate = center_coordinate;
-									LabelLeftCoordinate = beg_int;
-									LabelRightCoordinate = end_int;
-									LabelCenterHue = hue_central;
-									LabelHueZone = hue_zone_central;
-									LabelCenterSaturation = sat_central;
-									LabelFirstStrip = cand_strip_number;
-									LabelLastStrip = last_strip;
-									prior = LabelCenterCoordinate;
-									goto N;
-								}//cond1
-								else
-								{
-									NumberOflabels = 0;
-									LabelCenterCoordinate = -1;
-									goto N;
-								}
-							}//cond
-							else
-							{
-								NumberOflabels = 0;
-								LabelCenterCoordinate = -1;
-								goto N;
-							}
-						}
-
-					}//loccon
-				}//ec>0
-			}//nt=1
-			if (number_of_targets>1)
-			{//nt>1
-				max_cost = 0;
-				max_cost_number = -1;
-				for (int label_cou1 = 0; label_cou1<number_of_targets; label_cou1++)
-				{//lab1
-					lab_num = serial_label_number[label_cou1];
-					new_lab_find = new_label_quality[label_cou1];
-					if (new_lab_find >= 0)
-					{//nlf>=0
-						penalt_label = penalty_label[label_cou1];
-						inter_sum = intersection_sum[lab_num];
-						cost_label = label_cost[lab_num];
-						label_height = height_label[lab_num];
-						/*if(label_height>1)
-						{
-						mean_label_cost=cost_label/label_height;
-						}
-						else
-						{
-						mean_label_cost=cost_label;
-						}*/
-						mean_label_cost = cost_label;
-						if (mean_label_cost>max_cost)
-						{
-							max_cost = mean_label_cost;
-							max_cost_number = label_cou1;
-						}
-						cand_strip_number = candidate_strip_number[lab_num];
-						central_bunch_number = candidate_number[lab_num];
-						central_bunch_number--;
-						beg_int = ColorInt[cand_strip_number].ColoredIntervalsStructure->BegInterv[central_bunch_number];
-						end_int = ColorInt[cand_strip_number].ColoredIntervalsStructure->EndInterv[central_bunch_number];
-						int_length = end_int - beg_int + 1;
-						hue_central =
-							ColorInt[cand_strip_number].ColoredIntervalsStructure->AverageHue[central_bunch_number];
-						sat_central =
-							ColorInt[cand_strip_number].ColoredIntervalsStructure->AverageSat[central_bunch_number];
-						gray_central =
-							ColorInt[cand_strip_number].ColoredIntervalsStructure->AverageGray[central_bunch_number];
-						label_height = height_label[lab_num];
-						last_strip = last_str_number[lab_num];
-						center_coordinate = beg_int + (end_int - beg_int) / 2;
-						//break;
-					}//nlf>=0
-				}//lab1
-			}//nt>1
-			else
-			{
-				if (number_of_targets == 2)
-				{//nt=1
-					NumberOflabels = 2;
-					penalt_label = penalty_label[0];
-					cost_label = label_cost[0];
-					label_height = height_label[lab_num];
-					inter_sum = intersection_sum[0];
-					cand_strip_number = candidate_strip_number[0];
-					central_bunch_number = candidate_number[0];
-					beg_int = ColorInt[cand_strip_number].ColoredIntervalsStructure->BegInterv[central_bunch_number];
-					end_int = ColorInt[cand_strip_number].ColoredIntervalsStructure->EndInterv[central_bunch_number];
-					int_length = end_int - beg_int + 1;
-					penalt_label1 = penalty_label[lab_num];
-					inter_sum1 = intersection_sum[lab_num];
-					cost_label1 = label_cost[lab_num];
-					label_height1 = height_label[lab_num];
-					cand_strip_number1 = candidate_strip_number[lab_num];
-					central_bunch_number1 = candidate_number[lab_num];
-					beg_int1 = ColorInt[cand_strip_number1].ColoredIntervalsStructure->BegInterv[central_bunch_number1];
-					end_int1 = ColorInt[cand_strip_number1].ColoredIntervalsStructure->EndInterv[central_bunch_number1];
-					int_length1 = end_int1 - beg_int1 + 1;
-					if (LabelCenterCoordinate<0)
-					{//lcc
-						if (int_length>3 * StripWidth)
-						{//>3
-							if (!label_height)
-							{
-								if (penalt_label>0)
-								{
-									center_coordinate = -2;
-								}
-							}
-							else
-							{
-								if (!penalt_label)
-								{
-									center_coordinate = beg_int + (end_int - beg_int) / 2;
-								}
-							}
-						}//>3
-					}//lcc
-
-				}//nt=1
-			}
-		}//nt
-		 /*if(number_of_targets>1)
-		 {
-		 center_coordinate--;
-		 }*/
-		if (center_coordinate>0)
-		{
-			LabelCenterCoordinate = center_coordinate;
-			LabelLeftCoordinate = beg_int;
-			LabelRightCoordinate = end_int;
-		}
-		prior = center_coordinate;
-		/*if(total_number_of_labels==1)
-		{
-		FindGeneratingBunch()
-		}*/
-	N:
-		if (total_lebel_in_strips_number>0)
-		{//tln>0
-			delete[] candidate_strip_number;
-			delete[] candidate_number;
-			delete[] height_label;
-			delete[] serial_label_number;
-			delete[] new_label_quality;
-			delete[] last_str_number;
-			delete[] penalty_label;
-			delete[] intersection_sum;
-			delete[] label_blocked;
-			delete[] label_cost;
-		}
-		return(prior);
-	}//tnl>0
-	else
-	{
-		return(prior);
-	}
-	for (coun_strip = 0; coun_strip<NumStrips; coun_strip++)
-	{//cycle_strips	 
-		Num_of_labels = ColorInt[coun_strip].NumberOfLabels;
-		if (Num_of_labels>0)
-		{//nl>0
-			for (coun_label = 0; coun_label<Num_of_labels; coun_label++)
-			{//cycle_label
-				left_section_length = 0;
-				right_section_length = 0;
-				central_bunch_number = ColorInt[coun_strip].Label_bunch_num[coun_label];
-
-				bunch_suitability = ColorInt[coun_strip].center_bunch_suitability[central_bunch_number];
-				label_suitability = ColorInt[coun_strip].label_segments[central_bunch_number];
-				if (label_suitability>0)
-				{//ls>0
-					beg_int = ColorInt[coun_strip].ColoredIntervalsStructure->BegInterv[central_bunch_number];
-					end_int = ColorInt[coun_strip].ColoredIntervalsStructure->EndInterv[central_bunch_number];
-					central_int_length = end_int - beg_int + 1;
-					left_neighbor = ColorInt[coun_strip].left_adjacent[central_bunch_number];
-					left_contrast = ColorInt[coun_strip].left_continuation[central_bunch_number];
-					if (left_contrast<0)
-					{
-						left_neighbor = -left_neighbor - 1;
-						left_contrast_reduced = -left_contrast - 1;
-						left_contrast_reduced = left_contrast_reduced % 10;
-					}
-					right_neighbor = ColorInt[coun_strip].right_adjacent[central_bunch_number];
-					right_contrast = ColorInt[coun_strip].right_continuation[central_bunch_number];
-					if (right_contrast<0)
-					{
-						right_neighbor = -right_neighbor - 1;
-						right_contrast_reduced = -right_contrast - 1;
-						right_contrast_reduced = right_contrast_reduced % 10;
-					}
-					number_of_sections_left = ColorSection->Number_of_sections_left;
-					number_of_sections_right = ColorSection->Number_of_sections_right;
-					if (left_contrast<0)
-					{//lc<0
-						left_trace_number = SectionTraceLeft[coun_strip*MAX_COL_INT + central_bunch_number];
-						left_trace_number_reduced = left_trace_number % 1000;
-						if (left_trace_number_reduced>0)
-						{//lt>0
-							left_trace_number_reduced -= 1;
-							first_left_section_strip = ColorSection->section_fibre_first[left_trace_number_reduced];
-							last_left_section_strip = ColorSection->section_fibre_last[left_trace_number_reduced];
-							left_section_length = last_left_section_strip - first_left_section_strip + 1;
-							if (left_section_length == 2)
-							{//lsl=2
-								another_left_contrast = -1;
-								another_right_contrast = -1;
-								if (first_left_section_strip == coun_strip)
-								{//fs=
-									another_bunch =
-										ColorSection->DescrSec[left_trace_number_reduced].location_of_section[last_left_section_strip];
-									up_down = 0;
-								}//fs=
-								else
-								{//efs
-									another_bunch =
-										ColorSection->DescrSec[left_trace_number_reduced].location_of_section[first_left_section_strip];
-									up_down = 1;
-								}//efs
-								if (another_bunch >= 0)
-								{//ab>=0
-									another_bunch -= 1;
-									if (!up_down)
-									{//ud
-										another_bunch = ColorInt[last_left_section_strip].old_bunch_number[another_bunch];
-										another_beg_int =
-											ColorInt[last_left_section_strip].ColoredIntervalsStructure->BegInterv[another_bunch];
-										another_end_int =
-											ColorInt[last_left_section_strip].ColoredIntervalsStructure->EndInterv[another_bunch];
-										another_left_contrast = ColorInt[last_left_section_strip].left_continuation[another_bunch];
-										another_right_contrast = ColorInt[last_left_section_strip].right_continuation[another_bunch];
-									}//ud
-									else
-									{//eud
-										another_bunch = ColorInt[first_left_section_strip].old_bunch_number[another_bunch];
-										another_beg_int =
-											ColorInt[first_left_section_strip].ColoredIntervalsStructure->BegInterv[another_bunch];
-										another_end_int =
-											ColorInt[first_left_section_strip].ColoredIntervalsStructure->EndInterv[another_bunch];
-										another_left_contrast = ColorInt[first_left_section_strip].left_continuation[another_bunch];
-										another_right_contrast = ColorInt[first_left_section_strip].right_continuation[another_bunch];
-									}//eud
-									 //}//ab>=0
-
-									another_length = another_end_int - another_beg_int + 1;
-
-									length_ratio = (32 * central_int_length) / (another_length + central_int_length);
-									if (another_length)
-									{
-										length_ratio1 = (32 * central_int_length) / (another_length);
-									}
-									else
-									{
-										length_ratio1 = 0;
-									}
-									if (!up_down)
-									{//ud0
-										left_shift = another_beg_int - beg_int;
-										right_shift = another_end_int - end_int;
-									}//ud0
-									else
-									{//ead0
-										if (another_end_int>0)
-										{
-											left_shift = beg_int - another_beg_int;
-											right_shift = end_int - another_end_int;
-										}
-									}//ead0
-									if (right_contrast<0)
-									{//rc<0
-										if (another_left_contrast<0)
-										{//alc<0
-											if ((length_ratio1<20) || (2 * abs(left_shift)>StripWidth))
-											{
-												ColorInt[coun_strip].label_segments[central_bunch_number] = 0;
-												goto K;
-											}
-										}//alc<0
-									}//rc<0
-								}//ab>=0
-							}//lsl=2
-
-						}//lt>0
-					}//lc<0
-					right_trace_number = SectionTraceRight[coun_strip*MAX_COL_INT + central_bunch_number];
-					right_trace_number_reduced = right_trace_number % 1000;
-					if (right_trace_number_reduced>0)
-					{//rt>0
-						right_trace_number_reduced -= 1;
-						first_right_section_strip = ColorSection->section_fibre_first[right_trace_number_reduced];
-						last_right_section_strip = ColorSection->section_fibre_last[right_trace_number_reduced];
-						right_section_length = last_right_section_strip - first_right_section_strip + 1;
-					}//rt>0
-					else
-					{//ert
-						if (left_trace_number == 0)
-						{//ltn0
-							if (central_int_length>4 * StripWidth)
-							{
-								ColorInt[coun_strip].label_segments[central_bunch_number] = 0;
-								goto K;
-							}
-						}//ltn0
-
-					}//ert
-				}//ls>0
-			K:
-				;
-
-			}//cycle_label
-		}//nl>0
-
-
-	}//cycle_strips
-
-	prior = 0;
-
-	return(prior);
-}
-//=====================================================
-int
-
-CImageProcess::StraightLineHighObjectsTesting(void)
+int CImageProcess::StraightLineHighObjectsTesting(void)
 {
 	int count_sec;
 	//int section_number;

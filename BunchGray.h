@@ -9,6 +9,33 @@
 
 #pragma once
 
+// Container for bunches
+#include <vector>
+
+
+
+class GrayBunch
+{
+public:
+	GrayBunch(std::int16_t begin,
+		std::int16_t end,
+		std::uint8_t stripNum,
+		float meanIntensity);
+
+	~GrayBunch();
+public:
+	// bunch's coordinates
+	std::int16_t beg, end;
+	std::uint8_t stripNumber;
+	// mean intensity of segments comprising this bunch
+	float intens;
+	bool sectionCrossed;
+
+public:
+	std::uint16_t length() const { return end - beg + 1; }
+};
+
+
 
 
 class CBunchGray
@@ -18,6 +45,8 @@ public:
 	~CBunchGray();
 
 public:
+	std::vector<GrayBunch> bursts;       // candidate bunches
+
 	int DimX;
 	int DimY;
 	int HorizontalVertical;
@@ -118,4 +147,7 @@ int* added_signif,int* starting_cont_interv,int* finishing_cont_interv,
 int* joined_intervals,int* added_w_intens);
 
 	int FindingIntervalsWithAdjacent(int last_member,int first_member,int direc, int* boundary_int);
+
+	std::int8_t find_bursts(std::uint16_t max_length,
+		std::uint8_t depth);
 };

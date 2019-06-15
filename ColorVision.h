@@ -124,7 +124,6 @@ public:
 
 	// Implementation
 	//{{AFX_MSG(CColorVisionApp)
-	afx_msg void OnAppAbout();
 	afx_msg void OnSegment();
 	afx_msg void OnChangeParam();
 	afx_msg void OnVizStrips();
@@ -139,17 +138,7 @@ public:
 	DECLARE_MESSAGE_MAP() 
 public:
 	void OnSegmentInitialize(); 
-	
-	void DirectArrayDraw();
-	
-	void CalculateBrush(int side_triangle, int side_hue, int BunAverSat, int BunAverGr,
-			int* scoor1, int* scoor2, int* scoor3, int* nscoor1, int* nscoor2, int* nscoor3);
-
-	void HorizontalLine(POINT OrPoint, POINT EndPoint, int ACoor1, int ACoor2, int ACoor3);
-
-	void VerticalLine(POINT OrPoint, POINT EndPoint, int ACoor1, int ACoor2, int ACoor3);
 	 
-
 public:
 	afx_msg void OnFileChangeparam();
 public:
