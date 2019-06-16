@@ -6,9 +6,8 @@
 #endif // _MSC_VER > 1000
 // ViewImageVw.h : header file
 //
-/*static int CoorHuPoints[16]= {7, 23, 39, 55, 71, 87, 103, 119, 135, 151, 167, 183,
-199, 215, 231, 247
-};*/
+
+
 /////////////////////////////////////////////////////////////////////////////
 // CViewImageVw view
 
@@ -45,12 +44,8 @@ protected:
 	ColorSectionDescr* Sect1;
 	// Attributes
 public:
-	void
-
-		CViewImageVw::Calculate(CPoint point, unsigned char *RedComp, unsigned char *GreenComp,
+	void Calculate(CPoint point, unsigned char *RedComp, unsigned char *GreenComp,
 			unsigned char *BlueComp, int *HueComp, int *GrayComp, float *SaturComp);
-
-	//}
 
 	// Operations
 public:

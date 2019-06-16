@@ -63,6 +63,104 @@ END
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 235, 55
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About ColorVision"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "ColorVision Version 1.0",IDC_STATIC,40,10,119,8,SS_NOPREFIX
+    LTEXT           "Copyright (C)  2005  K.I. Kiy",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
+END
+
+IDD_DIALOG1 DIALOGEX 0, 0, 340, 192
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Change Parameters"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,283,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,283,24,50,14
+    CONTROL         "Horizontal or vertical strips",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,14,98,10
+    EDITTEXT        IDC_EDIT1,15,68,20,14,ES_AUTOHSCROLL
+    LTEXT           "Number of strips",IDC_STATIC,14,49,52,8,NOT WS_GROUP | WS_TABSTOP
+    CONTROL         "Network or direct input",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,33,87,10
+    EDITTEXT        IDC_EDIT2,14,102,27,14,ES_AUTOHSCROLL
+    LTEXT           "Number of frames",IDC_STATIC,14,88,56,8
+    LTEXT           "Network Address",IDC_STATIC,7,118,55,8
+    EDITTEXT        IDC_EDIT3,7,171,103,14,ES_AUTOHSCROLL
+    LTEXT           "Camera number",IDC_STATIC,121,119,51,8,WS_TABSTOP
+    EDITTEXT        IDC_EDIT4,127,171,33,14,ES_AUTOHSCROLL
+    CONTROL         "Permute ratios",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,96,49,61,10
+END
+
+IDD_DIALOG2 DIALOGEX 0, 0, 111, 61
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Bunch Number Dialog"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "Spin1",IDC_SPIN1,"msctls_updown32",UDS_WRAP | UDS_SETBUDDYINT | UDS_AUTOBUDDY,71,31,11,14
+    EDITTEXT        IDC_EDIT1,24,30,40,14,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG3 DIALOGEX 0, 0, 112, 73
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Color Section Dialog"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    EDITTEXT        IDC_EDIT2,21,30,40,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN2,"msctls_updown32",UDS_WRAP | UDS_SETBUDDYINT | UDS_AUTOBUDDY,71,30,11,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_DIALOG1, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 333
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 185
+    END
+
+    IDD_DIALOG2, DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 97
+        TOPMARGIN, 4
+        BOTTOMMARGIN, 55
+    END
+
+    IDD_DIALOG3, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 105
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 66
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -109,7 +207,9 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\ColorVision.ico"
+
 IDR_COLORVTYPE          ICON                    "res\\ColorVisionDoc.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -117,6 +217,7 @@ IDR_COLORVTYPE          ICON                    "res\\ColorVisionDoc.ico"
 //
 
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -251,61 +352,6 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Dialog
-//
-
-IDD_ABOUTBOX DIALOGEX 0, 0, 235, 55
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "About ColorVision"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
-BEGIN
-    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    LTEXT           "ColorVision Version 1.0",IDC_STATIC,40,10,119,8,SS_NOPREFIX
-    LTEXT           "Copyright (C)  2005  K.I. Kiy",IDC_STATIC,40,25,119,8
-    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
-END
-
-IDD_DIALOG1 DIALOGEX 0, 0, 208, 155
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Change Parameters"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
-BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,151,7,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,151,24,50,14
-    CONTROL         "Horizontal or vertical strips",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,14,98,10
-    EDITTEXT        IDC_EDIT1,15,68,20,14,ES_AUTOHSCROLL
-    LTEXT           "Number of strips",IDC_STATIC,14,49,52,8,NOT WS_GROUP | WS_TABSTOP
-    CONTROL         "Network or direct input",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,33,87,10
-    EDITTEXT        IDC_EDIT2,14,102,27,14,ES_AUTOHSCROLL
-    LTEXT           "Number of frames",IDC_STATIC,14,88,56,8
-    LTEXT           "Network Address",IDC_STATIC,7,118,55,8
-    EDITTEXT        IDC_EDIT3,7,134,103,14,ES_AUTOHSCROLL
-    LTEXT           "Camera number",IDC_STATIC,121,119,51,8,WS_TABSTOP
-    EDITTEXT        IDC_EDIT4,127,134,33,14,ES_AUTOHSCROLL
-    CONTROL         "Permute ratios",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,96,49,61,10
-END
-
-IDD_DIALOG2 DIALOGEX 0, 0, 111, 61
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Bunch Number Dialog"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
-BEGIN
-    CONTROL         "Spin1",IDC_SPIN1,"msctls_updown32",UDS_WRAP | UDS_SETBUDDYINT | UDS_AUTOBUDDY,71,31,11,14
-    EDITTEXT        IDC_EDIT1,24,30,40,14,ES_AUTOHSCROLL
-END
-
-IDD_DIALOG3 DIALOGEX 0, 0, 112, 73
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Color Section Dialog"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
-BEGIN
-    EDITTEXT        IDC_EDIT2,21,30,40,14,ES_AUTOHSCROLL
-    CONTROL         "Spin1",IDC_SPIN2,"msctls_updown32",UDS_WRAP | UDS_SETBUDDYINT | UDS_AUTOBUDDY,71,30,11,14
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Version
 //
 
@@ -344,45 +390,13 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// DESIGNINFO
+// AFX_DIALOG_LAYOUT
 //
 
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
+IDD_DIALOG1 AFX_DIALOG_LAYOUT
 BEGIN
-    IDD_ABOUTBOX, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 228
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 48
-    END
-
-    IDD_DIALOG1, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 201
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 148
-    END
-
-    IDD_DIALOG2, DIALOG
-    BEGIN
-        LEFTMARGIN, 6
-        RIGHTMARGIN, 97
-        TOPMARGIN, 4
-        BOTTOMMARGIN, 55
-    END
-
-    IDD_DIALOG3, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 105
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 66
-    END
+    0
 END
-#endif    // APSTUDIO_INVOKED
 
 
 /////////////////////////////////////////////////////////////////////////////

@@ -232,7 +232,7 @@ delete[] IntAllInformGray;
 
 
 
-/*-------------------------------------------------------------------------------------------------
+/**************************************************************************************************
 ----@Description:
 --------This program performs geometric description of intensities in a particular strip.
 **************************************************************************************************/
@@ -273,7 +273,7 @@ void CStrip::Loc_stat_geom_double(BOOL NumPair)
 	 int scale_pos = 0;
 	 int res_scale_pos = 0;
 
-	 int* frequency_of_color_differ = new int[NUM_INTEN*(DimDifference1)];
+	 int* frequency_of_color_differ = new int[NUM_INTEN * DimDifference1];
 	 memset(last_end, (int) '\0', sizeof(int)*NUM_INTEN);
 	 memset(last_endg, (int) '\0', sizeof(int)*NUM_INTEN1);
 
@@ -289,7 +289,6 @@ void CStrip::Loc_stat_geom_double(BOOL NumPair)
 
 			 for (ncoor1 = 0; ncoor1<StripWidth; ncoor1++)
 			 {
-
 				 inten_blue = *(intensi + entry_point++);
 				 inten_green = *(intensi + entry_point++);
 				 inten_red = *(intensi + entry_point);
@@ -786,7 +785,6 @@ void CStrip::Loc_stat_geom_double(BOOL NumPair)
 									 else
 									 {
 										 //without change of the value, from red to yellow-green within the chosen range(46-60), zero and negative
-
 
 										 actual_inten_opponent1 = inten_opponent1;
 										 goto L;

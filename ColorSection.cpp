@@ -104,10 +104,10 @@ CColorSection::~CColorSection()
 
 }
 
-//----------------------------------------------------------------------------
-void
 
-CColorSection::SectionTracking(int left_right_boundary, int* section_trace)
+
+
+void CColorSection::SectionTracking(int left_right_boundary, int* section_trace)
 {
 
 	int previous_strip, start_strip, nex_fibre;

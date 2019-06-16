@@ -110,9 +110,7 @@ public:
 
 public:
 
-	void
-
-		CColorSection::SectionTracking(int left_right_boundary, int* section_trace);
+	void SectionTracking(int left_right_boundary, int* section_trace);
 
 	int
 

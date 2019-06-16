@@ -8,13 +8,12 @@
 
 
 #include "stdafx.h"
+
+
 #include "ColorVision.h"
 #include "ImageProcess.h"
 
-
  
-#include <iostream> 
-
  
 
 using namespace std;
@@ -579,13 +578,7 @@ CImageProcess::~CImageProcess()
 	{
 		delete[] GlobalDeviation;
 		GlobalDeviation = NULL;
-	}
-
-	//if(ColorOfBasicBunches!=NULL)
-	//{//last_cor07.12.16
-	//delete [] ColorOfBasicBunches;
-	//ColorOfBasicBunches=NULL;
-	//}
+	} 
 	if (!HorizontalVertical)
 	{//horvert
 		if (SkyFinding)
@@ -600,28 +593,7 @@ CImageProcess::~CImageProcess()
 				delete[] SkyVisualization;
 				SkyVisualization = NULL;
 			}
-
-			//if(LeftBunchesInTheSky!=NULL)
-			//{
-			//delete [] LeftBunchesInTheSky;
-			//LeftBunchesInTheSky=NULL;
-			//}
-			//if(LeftSkyComp!=NULL)
-			//{
-			//delete [] LeftSkyComp;
-			//LeftSkyComp=NULL;
-			//}
-			//if(NumberRightSkyComp>0)
-			//{
-			//delete [] RightBunchesInTheSky;
-			//}
-			//RightBunchesInTheSky=NULL;
-			//if(RightSkyComp!=NULL)
-			//{
-			//delete [] RightSkyComp;
-			//RightSkyComp=NULL;
-			//}
-
+			 
 
 		}
 		//last_cor08.02.16
@@ -681,24 +653,9 @@ CImageProcess::~CImageProcess()
 			delete[] RightAdjacentGreenSectionMax;
 		}
 		RightAdjacentGreenSectionMax = NULL;//last_cor09.12.16
-											//if(LeftRightSectionNumberOfRightGreenBoundaryPoints!=NULL)
-											//{
-											//delete [] LeftRightSectionNumberOfRightGreenBoundaryPoints;
-											//}
+ 
 		LeftRightSectionNumberOfRightGreenBoundaryPoints = NULL;
-	}
-
-	/*if(LeftBounSecTrace!=NULL)
-	{
-	delete [] LeftBounSecTrace;
-	LeftBounSecTrace=NULL;
-	}*/
-
-	/*if(RightBounSecTrace!=NULL)
-	{
-	delete [] RightBounSecTrace;
-	}
-	RightBounSecTrace=NULL;*/
+	} 
 	//last_cor08.02.16
 	if (ColorDescrSect != NULL)
 	{
@@ -830,8 +787,7 @@ void CImageProcess::InitialConstructions()
 	int count_frames; 
 
 	clock_t start = clock();
-
-	//DimDifference=NUM_INTEN1>>1;
+	 
 	Res_Width = (3 * DimX) % 4;
 	if (Res_Width)
 	{
@@ -846,18 +802,16 @@ void CImageProcess::InitialConstructions()
 	{
 		CurStrip[i].NumLevels = NumLevels;
 		CurStrip[i].NumbStr = NumStrips;
-		CurStrip[i].BitPerP = BitsPerPix;
-		//CurStrip[i].Graygrades[16]=graygrades[16];
+		CurStrip[i].BitPerP = BitsPerPix; 
 		CurStrip[i].num_strip = i;
-		if (i<NumStrips - 1)
+		if (i < NumStrips - 1)
 		{
 			CurStrip[i].StripWidth = StripWidth;
 			CurStrip[i].StripWidthPrev = StripWidth;
 		}
 		else
-		{
-
-			if (Residual1>0)
+		{ 
+			if (Residual1 > 0)
 			{
 				CurStrip[i].StripWidth = Residual1;
 				CurStrip[i].StripWidthPrev = StripWidth;
@@ -866,9 +820,7 @@ void CImageProcess::InitialConstructions()
 			{
 				CurStrip[i].StripWidth = StripWidth;
 				CurStrip[i].StripWidthPrev = StripWidth;
-			}
-
-
+			} 
 		}
 		CurStrip[i].HorizontalVertical = HorizontalVertical;
 		CurStrip[i].GGBorGGR = GGBorGGR;
@@ -878,8 +830,7 @@ void CImageProcess::InitialConstructions()
 		CurStrip[i].Dimension = Dimension;
 		CurStrip[i].DimDifference = DimDifference;
 		CurStrip[i].DimDifference1 = DimDifference / 2;
-		CurStrip[i].DimDifference2 = DimDifference / 4;
-		//CurStrip[i].AffineProj=ColorRatio;
+		CurStrip[i].DimDifference2 = DimDifference / 4; 
 		CurStrip[i].correct_int = correct_intence;
 		CurStrip[i].PressedLength = PressedLength;
 		CurStrip[i].StripLength = StripLength;
@@ -955,11 +906,7 @@ void CImageProcess::InitialConstructions()
 
 		CurStrip[i].opponent_color_difference = opponent_color_difference;
 		CurStrip[i].invert_color_difference1 = invert_color_difference1;
-		CurStrip[i].invert_color_difference2 = invert_color_difference2;
-		/*CurStrip[i].left_shift1=left_shift1;
-		CurStrip[i].left_shift2=left_shift2;
-		CurStrip[i].right_shift1=right_shift1;
-		CurStrip[i].right_shift2=right_shift2;*/
+		CurStrip[i].invert_color_difference2 = invert_color_difference2; 
 		GrayBunches[i].StripCur = &CurStrip[i];
 		GrayBunches[i].HorizontalVertical = HorizontalVertical;
 		GrayBunches[i].DimX = DimX;
@@ -972,8 +919,7 @@ void CImageProcess::InitialConstructions()
 
 		ColorInt[i].ColoredIntervalsStructure = &IntegratedColorIntervals[i];
 		ColorInt[i].VideoCameraIsLoaded = VideoCameraIsLoaded;
-		ColorInt[i].TotalNumFrame = TotalNumFrame;
-		//ColorInt[i].ColorLessIntervalsStructure=&IntegratedColorlessBackIntervals[i];
+		ColorInt[i].TotalNumFrame = TotalNumFrame; 
 		ColorInt[i].StripCurrent = &CurStrip[i];
 		ColorInt[i].PressedLength = PressedLength;
 		ColorInt[i].StripLength = StripLength;
@@ -990,8 +936,7 @@ void CImageProcess::InitialConstructions()
 		ColorInt[i].painted_strip_colored_long = new int[StripLength];
 		ColorInt[i].painted_numbers_colored_long = new int[StripLength];
 		ColorInt[i].consistency_colored_long = new int[StripLength];
-		ColorInt[i].intensities_with_colored_int = new int[NUM_INTEN];
-		//ColorInt[i].NumStrips = NumStrips;//last_cor26
+		ColorInt[i].intensities_with_colored_int = new int[NUM_INTEN]; 
 		ColorInt[i].NumStrip = NumStrips;//last_cor26.02.19
 
 		ColorInt[i].OldNumbers = new int[NUM_INTEN];
@@ -1003,10 +948,8 @@ void CImageProcess::InitialConstructions()
 				memset(IntegratedColorBunchesCharacteristics[i + NumStrips*count_frames].length_of_trajectory, (int) '\0', sizeof(int)*(MAX_COL_INT));
 				memset(IntegratedColorBunchesCharacteristics[i + NumStrips*count_frames].right_length_of_trajectory, (int) '\0', sizeof(int)*(MAX_COL_INT));
 			}
-			ColorInt[i].CurrentFrameNumber = NumberOfCurrentFrame;
-
-		}
-
+			ColorInt[i].CurrentFrameNumber = NumberOfCurrentFrame; 
+		} 
 	}
 
 	SectionTraceLeft = new int[MAX_COL_INT*NumStrips];
@@ -1066,22 +1009,7 @@ void CImageProcess::InitialConstructions()
 	for (int zero_sec = 0; zero_sec<NUM_SECT1; zero_sec++)
 	{
 		ColorDescrSect[zero_sec].location_of_section = new int[NumStrips];
-	}
-	/*if(SkyFinding)
-	{
-	SkyPixelsOfBoundaryPoints= new int[DimX];
-	SkyVisualization=new int[DimX];
-	}*/
-
-
-	/*//if(VertFinding)
-	//{
-	VerticalContrastCurves=new int [768];
-	StripSignals=new int [NumStrips];
-	//}*/
-	end = clock();
-	sec = ((1000 * (end - start)) / CLK_TCK);
-	execution_time = +sec;
+	}  
 }
 
 
@@ -1122,7 +1050,6 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 
 	Im = (std::uint8_t* ) pApp->pm_BitmapApp->bmBits;
  
-
 	MaximumNumberOfCoveringElements = 0;
 
 	for (size_t i = 0; i < NumStrips; i++)
@@ -1170,7 +1097,14 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 		memset(ColorInt[i].painted_strip_saturation, (int) '\0', sizeof(int)*(3 * PressedLength));
 		memset(ColorInt[i].painted_strip_colored, (int) '\0', sizeof(int)*(PressedLength));
 		 
-		CurStrip[i].Loc_stat_geom_double(GGBorGGR); 
+		 
+		// Build geometrized histogram
+		CurStrip[i].Loc_stat_geom_double(GGBorGGR);  
+
+		// Cluster segments into bunch
+		GrayBunches[i].find_bursts(8 * StripWidth, 5);
+
+
 
 		if (VideoCameraIsLoaded && (TotalNumFrame > 1) && (0 != LengthofMotionAnalysisInterval))
 		{
@@ -1191,11 +1125,10 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 		ColorInt[i].StripCurrent = &CurStrip[i];
 		ColorInt[i].PressedLength = PressedLength;
 
-		ColorInt[i].FindingStructureParametrs(CurStrip[i].num_of_int,
-			ColorInt[i].intensities_with_colored_int, ColorInt[i].OldNumbers,
+		// Builds color bunches
+		ColorInt[i].FindingStructureParametrs(CurStrip[i].num_of_int, ColorInt[i].intensities_with_colored_int, ColorInt[i].OldNumbers,
 			&ColorInt[i].NumInterestingIntensities);
-		 
-
+		  
 		int covering_number = ColorInt[i].NumberOfIntervalsInCovering;
 		TotalDisOrdering += ColorInt[i].Disordering;
 		
@@ -1218,17 +1151,16 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 				RedNumberOfPreviousFrame = (NumberOfCurrentFrame - 1) % LengthofMotionAnalysisInterval;
 				ContrastBunchesMotion(i, ColorInt[i].bunches_occurred);
 			}
-		}
-
+		} 
 	}
 	
 	maximum_number_of_ordered_bunches = 0;
 	
-	for (int count_bunch_ord = 0; count_bunch_ord<NumStrips; count_bunch_ord++)
+	for (int i = 0; i < NumStrips; i++)
 	{
-		int strip_disordering = ColorInt[count_bunch_ord].Disordering;
+		int strip_disordering = ColorInt[i].Disordering;
 		if (0 == strip_disordering)
-			number_ordered = ColorInt[count_bunch_ord].NumberOfIntervalsInCovering;
+			number_ordered = ColorInt[i].NumberOfIntervalsInCovering;
 		if (number_ordered > maximum_number_of_ordered_bunches)
 		{
 			maximum_number_of_ordered_bunches = number_ordered;
@@ -1244,12 +1176,11 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 	ColorSection->SectionTracking(1, SectionTraceRight);
 	
 	number_of_section_right = ColorSection->Number_of_sections_right;
-	number_of_sections = ColorSection->Number_of_sections;
+	number_of_sections      = ColorSection->Number_of_sections;
 	
 	
 	if ((number_of_section_left > 0) && (number_of_section_right > 0))
-	{
-
+	{ 
 		memset(NumberOfConnectionsLeftRight, (int) '\0', sizeof(int)*(NUM_SECT1 / 2));
 		memset(SectionNeighborsLeftRight, (int) '\0', sizeof(int)*(number_of_section_left*(NUM_SECT1 / 2)));
 		memset(NumberOfLRConnections, (int) '\0', sizeof(int)*(number_of_sections));
@@ -1271,7 +1202,8 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 		FindingRightConectedSection();
 		StraightLineHighObjectsTesting();
 		ConnectedSections(SectionNeighborsLeftRight);
-		if (MaximumNumberOfCoveringElements>0)
+		
+		if (MaximumNumberOfCoveringElements > 0)
 		{//last_cor13.12.16
 			ColorOfBasicBunches = new int[MaximumNumberOfCoveringElements*NumStrips];//last_cor12.12.16
 			memset(ColorOfBasicBunches, (int) '\0', sizeof(int)*(MaximumNumberOfCoveringElements*NumStrips));
@@ -1330,6 +1262,7 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 		int l_line = DimX - 1;
 
 		int vertical_success = VerticalLinesConstruct(f_strip, l_strip, f_line, l_line);//last_cor07.06.18
+		
 		if (!HorizontalVertical)
 		{//horvertlast_cor02.08.18
 			
@@ -1537,6 +1470,7 @@ void CImageProcess::detect_green()
 
 	VerticalPartsofGreenBoundary();
 }
+
 
 
 void CImageProcess::ContrastBunchesMotion(int num_strips, int* bunches_location)
@@ -1913,10 +1847,11 @@ int CImageProcess::ExtensionOfLeftContrast(int number_of_strip, int bunch_number
 K:
 	return(prior);
 }
-//=====================================================
-int
 
-CImageProcess::ExtensionOfRightContrast(int number_of_strip, int bunch_number, int bunch_beg, int bunch_end, int bunch_hue, int bunch_lower_hue,
+
+
+
+int CImageProcess::ExtensionOfRightContrast(int number_of_strip, int bunch_number, int bunch_beg, int bunch_end, int bunch_hue, int bunch_lower_hue,
 	int bunch_upper_hue, int bunch_gray, int bunch_lower_gray, int bunch_upper_gray, int bunch_saturation,
 	int bunch_lower_saturation, int bunch_upper_saturation)
 {
@@ -2206,9 +2141,11 @@ CImageProcess::ExtensionOfRightContrast(int number_of_strip, int bunch_number, i
 K:
 	return(prior);
 }
-//=====================================================
-int
-CImageProcess::Test_Junction_Different_Strips(int next_bunch, int previous_bunch, int Intersection_Measure,
+
+
+
+
+int CImageProcess::Test_Junction_Different_Strips(int next_bunch, int previous_bunch, int Intersection_Measure,
 	int indic_length, int ratio_length, int ratio_length1, int strip_number, int previous_strip_number)
 {
 	int bunch_mean_hue;
@@ -6170,9 +6107,7 @@ int CImageProcess::StraightLineHighObjectsTesting(void)
 		{
 			if (section_length == 2)
 			{//sl=2
-				differ_ends = contrast_ends[1] - contrast_ends[0];
-				//if(count_sec<number_of_sections_left)
-				//{
+				differ_ends = contrast_ends[1] - contrast_ends[0]; 
 				if ((differ_ends>0) && (differ_ends <= 5 * StripWidth))
 				{
 					InclineCurve[count_sec] = 1;
@@ -6914,8 +6849,7 @@ optimal_chain_prolong_last_end_pos, &reliability1, 0);
 if ((actual_ratio >= 6) &&(optimal_length >= 3))
 {
 	if (reliability1 > 0)
-	{
-		//InclineCurve[section_num] = 1;
+	{ 
 		if (!incl_local1)
 		{//last_cor13.11.18
 			incl_local1 += 1;
@@ -7986,36 +7920,7 @@ if ((actual_ratio_neg >= 6) && (optimal_length_minus >= 3))
 				}//e13
 			}//e15
 		}//e!psh
-	}//tpr>0
-	 //}//s_left
-	 /*else
-	 {
-	 if(!neg_shift_curve)
-	 {//nsh0
-	 InclineCurve[section_num]=1;
-	 }
-	 else
-	 {
-	 if(total_pos_ratio>=15)
-	 {
-	 InclineCurve[section_num]=1;
-	 }
-	 else
-	 {
-	 if(total_pos_ratio>=13)
-	 {
-	 InclineCurve[section_num]=2;
-	 }
-	 else
-	 {
-	 if(total_pos_ratio>=11)
-	 {
-	 InclineCurve[section_num]=3;
-	 }
-	 }
-	 }
-	 }
-	 }*/
+	}//tpr>0 
 	total_num_pos = CenterOfMass(hist_pos, 64, &center_m_pos, &dev_pos, &left_number_pos, &right_number_pos,
 		&small_angle_pos, &big_angle_pos, paint, hist_box_pos, dim_new_hist);
 	total_num_neg = CenterOfMass(hist_neg, 64, &center_m_neg, &dev_neg, &left_number_neg, &right_number_neg,
@@ -15009,7 +14914,9 @@ TIntColored::TIntColored(void)
 	Significance = new int[MAX_COL_INT];
 	Cardinality = new int[MAX_COL_INT];
 }
-//=====================================================
+
+
+
 TIntColored::~TIntColored(void)
 {
 	delete[] BegInterv;
@@ -15029,7 +14936,9 @@ TIntColored::~TIntColored(void)
 	delete[] Significance;
 	delete[] Cardinality;
 }
-//=====================================================
+
+
+
 TIntColorLessBack::TIntColorLessBack(void)
 {
 	BegInterv = new int[MAX_COLLESS_INT];

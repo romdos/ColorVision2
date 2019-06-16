@@ -141,13 +141,13 @@ int* local_background,int* interv_intensity,int* previous_number,int* lower_left
 int* upper_left,int* lower_right,int* upper_right,int* adjac_link,int* new_number);
 
 	int GrainsGrowing(int num_grain,int gr_intensity,int gr_prev_number,
-int adjacent_lower_interv,int adjacent_upper_interv,int beg_grain,int end_grain,
-int grain_dens0,int signif,int direct,int adj_link,int* new_num,int* local_signif_sum,
-int* added_signif,int* starting_cont_interv,int* finishing_cont_interv,
-int* joined_intervals,int* added_w_intens);
+						int adjacent_lower_interv,int adjacent_upper_interv,int beg_grain,int end_grain,
+						int grain_dens0,int signif,int direct,int adj_link,int* new_num,int* local_signif_sum,
+						int* added_signif,int* starting_cont_interv,int* finishing_cont_interv,
+						int* joined_intervals,int* added_w_intens);
 
 	int FindingIntervalsWithAdjacent(int last_member,int first_member,int direc, int* boundary_int);
 
 	std::int8_t find_bursts(std::uint16_t max_length,
-		std::uint8_t depth);
+							std::uint8_t depth);
 };

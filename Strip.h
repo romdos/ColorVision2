@@ -226,18 +226,18 @@ class CStrip
 public:
 	CStrip();
 	~CStrip();
+public:
 
-	int num_strip;  // number of the strip
-
-	int StripWidth; // width of a strip in pixels
-	int StripWidthPrev; // width of the preceding strip
+	int num_strip; 
+	int StripWidth;  
+	int StripLength;
+	int StripWidthPrev; // todo: delete
 
 	int HorizontalVertical;
 
 	BOOL GGBorGGR;
 
 	int PressedLength;
-	int StripLength;
 	int NumLevels;   // number of values each pixel can take (e.g. 256)
 	int NumbStr;  	  //number of strips
 	int BitPerP;

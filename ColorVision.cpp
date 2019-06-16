@@ -276,6 +276,7 @@ void CColorVisionApp::OnSegment()
 			{
 				m_ParamHaveBeenChanged = FALSE;
 			}
+			// create class for a given image
 			ColorImageProcess = new CImageProcess(VideoInputLimit);
 			ColorImageProcess->InitialConstructions();
 			// Algorithm is here

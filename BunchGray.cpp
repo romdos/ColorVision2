@@ -1697,14 +1697,14 @@ grain_upper_right=-1;
 		  }
 	 
 			}
-			if(contin_intensity!=-1)
-			{
-			LowerIntensityOfClusters[NumberOflusters]=contin_intensity;
-			}
-			else
-			{
-			LowerIntensityOfClusters[NumberOflusters]=grain_intensity;
-			}
+	if (contin_intensity != -1)
+	{
+		LowerIntensityOfClusters[NumberOflusters] = contin_intensity;
+	}
+	else
+	{
+		LowerIntensityOfClusters[NumberOflusters] = grain_intensity;
+	}
 
 			   if(contin_intensity1!=-1)
 			    {
@@ -1728,9 +1728,7 @@ AverageIntensityOfClusters[NumberOflusters]=
 //-----------------------------------------------------------------------------
 
 
-int
-
-CBunchGray::GrainsGrowing(int num_grain,int gr_intensity,int gr_prev_number,
+int CBunchGray::GrainsGrowing(int num_grain,int gr_intensity,int gr_prev_number,
 int adjacent_lower_interv,int adjacent_upper_interv,int beg_grain,int end_grain,
 int grain_dens0,int signif,int direct,int adj_link,int* new_num,int* local_signif_sum,
 int* added_signif,int* starting_cont_interv,int* finishing_cont_interv,
@@ -1988,32 +1986,27 @@ comp_total_length=(16*total_joined_length)/(total_joined_length+grain_length);
 		return(extension_result);
 	}
 }
-//-----------------------------------------------------------------------------
+
 
 
 int CBunchGray::FindingIntervalsWithAdjacent(int last_member,int first_member,int direc,
 							int* boundary_int)
-{
-	int param;
-	int new_member;
+{ 
+	int new_member = -1;
 
-	new_member=-1;
-	param=first_member+direc;
+	int param = first_member + direc;
 
-	while(param!=last_member)
+	while (param != last_member)
 	{
-	if(*(boundary_int+param)!=-1)
-	{
-		new_member=param;
-		break;
-	}
-param+=direc;
+		if(*(boundary_int+param)!=-1)
+		{
+			new_member=param;
+			break;
+		}
+		param+=direc;
+	} 
+	return new_member;
 }
-
-return(new_member);
-	
-}
-
 
 
 
@@ -2028,11 +2021,11 @@ return(new_member);
 *-------------------------------------------------------------------------------------------------
 * @Return value:
 *	-1 -- if no bunch was found,
-*	0 -- otherwise.
+*	 0 -- otherwise.
 *-------------------------------------------------------------------------------------------------
 * @Notes:
 *	todo: make convenient and efficient indexation -> (intens, interv) (e.g. B-tree).
-*  	        make with gap.
+*  	      make with gap.
 **************************************************************************************************/
 std::int8_t CBunchGray::find_bursts(std::uint16_t max_length,
 									std::uint8_t depth)
@@ -2056,7 +2049,7 @@ std::int8_t CBunchGray::find_bursts(std::uint16_t max_length,
 	if (start_intens == 0)
 		return -1;
 
-	// Array (or matrix) showing was a segment (intens, number) already picked or not
+	// Array (or matrix) indicating whether a segment (intens, number) was picked or not
 	std::vector<bool> picked_segments(NUM_INTEN1 * MAX_INT_NUMBER, false);
 
 	// todo: investigate
@@ -2124,7 +2117,6 @@ std::int8_t CBunchGray::find_bursts(std::uint16_t max_length,
 						}
 					}
 				}
-
 				next_intens--;
 				intens_differ = intens - next_intens;
 			}
