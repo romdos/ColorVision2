@@ -10,11 +10,13 @@
 
 
 #include "StdAfx.h"
+
+
 #include "Geometry.h"
 
 
 
-Segment::Segment(std::int16_t a, std::int16_t b)
+Segment::Segment(sint16 a, sint16 b)
 {
 	beg = a;
 	end = b;
@@ -40,14 +42,14 @@ Segment::~Segment() {}
 *	   2 - if intersection length is less than a half of a small interval, 
 *	   3 - if intervals are not intersecting.                                                       
 */
-std::uint8_t measure_intersection(Segment& s1, Segment& s2,
-                                  std::uint16_t* Ratio1,
-                                  std::uint16_t* Ratio2)
+uint8 measure_intersection(Segment& s1, Segment& s2,
+                           uint16* Ratio1,
+                           uint16* Ratio2)
 {
-	std::int16_t begIntersection = max(s1.beg, s2.beg);
-    std::int16_t endIntersection = min(s1.end, s2.end);
+	sint16 begIntersection = max(s1.beg, s2.beg);
+    sint16 endIntersection = min(s1.end, s2.end);
 	
-	if (begIntersection > endIntersection+5) // not intersecting
+	if (begIntersection > endIntersection + 5) // not intersecting
 	{
 		*Ratio1 = begIntersection - endIntersection;
 		*Ratio2 = 0;
@@ -55,13 +57,13 @@ std::uint8_t measure_intersection(Segment& s1, Segment& s2,
 	}
 	else
 	{
-        std::int16_t intersection = endIntersection - begIntersection + 1;
+		sint16 intersection = endIntersection - begIntersection + 1;
 
-		std::uint16_t firstLen = s1.end - s1.beg + 1;
-        std::uint16_t secondLen = s2.end - s2.beg + 1;
+		uint16 firstLen = s1.end - s1.beg + 1;
+        uint16 secondLen = s2.end - s2.beg + 1;
 
-        std::uint16_t minLen = min(firstLen, secondLen);
-        std::uint16_t maxLen = max(firstLen, secondLen);
+        uint16 minLen = min(firstLen, secondLen);
+        uint16 maxLen = max(firstLen, secondLen);
 		//  16 is for zero avoiding from division 
 		*Ratio1 = (16 * intersection) / firstLen;
 		*Ratio2 = (16 * intersection) / secondLen;

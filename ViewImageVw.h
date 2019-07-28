@@ -1,11 +1,24 @@
+
+
+
+
+
 #if !defined(AFX_VIEWIMAGEVW_H__73776B00_0DC3_4C1F_9716_68EEFE838F00__INCLUDED_)
 #define AFX_VIEWIMAGEVW_H__73776B00_0DC3_4C1F_9716_68EEFE838F00__INCLUDED_
+
+
 
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
 // ViewImageVw.h : header file
 //
+
+
+
+#define COLOR 0
+#define GRAYSCALE 1
+
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -18,24 +31,34 @@ protected:
 	DECLARE_DYNCREATE(CViewImageVw)
 protected:
 	int m_Dragging;
+
 	HCURSOR m_HArrow;
 	HCURSOR m_HCross;
+	
 	CPoint   WindowShift;
+	
 	long WMHeight;
 	long WMWidth;
+	
 	BOOL ImageLoaded;
 	BOOL CameraImageLoaded;
 	BOOL ImageIsSegmented;
 	BOOL m_Video_ImageSegmented;
 	BOOL AreaWasClicked;
+	
 	CRect ImageRect;
+
 	BOOL HorizVert;
 	int NumStrips;
+	
 	CColorVisionApp *pApp;
 	CViewImageDoc* pDoc;
+	
 	CString str, str1;
 	CString strTitle;
+	
 	int NumClicked;
+	
 	int ImageRepresentationType;
 	CStrip* CurrentStrip;
 	CString m_CannotDisp;
@@ -75,6 +98,9 @@ protected:
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
+
+
+
 #ifndef _DEBUG
 inline CViewImageDoc* CViewImageVw::GetDocument()
 {

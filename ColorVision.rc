@@ -13,50 +13,6 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Русский (Россия) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
-LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
-#pragma code_page(1251)
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_DIALOG4 DIALOGEX 0, 0, 105, 71
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "MergBunches"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    EDITTEXT        IDC_EDIT5,24,32,40,14,ES_AUTOHSCROLL
-    CONTROL         "",IDC_SPIN3,"msctls_updown32",UDS_WRAP | UDS_SETBUDDYINT | UDS_AUTOBUDDY,71,32,11,14
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
-BEGIN
-    IDD_DIALOG4, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 98
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 64
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-#endif    // Русский (Россия) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
 // Английский (США) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
@@ -87,7 +43,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,283,7,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,283,24,50,14
     CONTROL         "Horizontal or vertical strips",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,14,98,10
-    EDITTEXT        IDC_EDIT1,15,68,20,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_VALUE_OLDBUNCH,15,68,20,14,ES_AUTOHSCROLL
     LTEXT           "Number of strips",IDC_STATIC,14,49,52,8,NOT WS_GROUP | WS_TABSTOP
     CONTROL         "Network or direct input",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,33,87,10
     EDITTEXT        IDC_EDIT2,14,102,27,14,ES_AUTOHSCROLL
@@ -99,13 +55,17 @@ BEGIN
     CONTROL         "Permute ratios",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,96,49,61,10
 END
 
-IDD_DIALOG2 DIALOGEX 0, 0, 111, 61
+IDD_DIALOG2 DIALOGEX 0, 0, 252, 124
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Bunch Number Dialog"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    CONTROL         "Spin1",IDC_SPIN1,"msctls_updown32",UDS_WRAP | UDS_SETBUDDYINT | UDS_AUTOBUDDY,71,31,11,14
-    EDITTEXT        IDC_EDIT1,24,30,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_COLORBUNCH, 15,35,33,13, ES_AUTOHSCROLL 
+    EDITTEXT        IDC_GRAYBUNCH, 145,35,33,13, ES_AUTOHSCROLL
+	CONTROL         "", IDC_SPIN_COLORBUNCH, "msctls_updown32", UDS_WRAP | UDS_SETBUDDYINT | UDS_AUTOBUDDY, 49, 34, 11, 14
+    CONTROL         "", IDC_SPIN_GRAYBUNCH, "msctls_updown32", UDS_WRAP | UDS_SETBUDDYINT | UDS_AUTOBUDDY, 179, 34,11,14
+    CONTROL         "Color bunch",     IDC_RADIO1, "Button", BS_AUTORADIOBUTTON,14,18,52,10
+    CONTROL         "Grayscale bunch", IDC_RADIO2, "Button", BS_AUTORADIOBUTTON,144,18,67,10
 END
 
 IDD_DIALOG3 DIALOGEX 0, 0, 112, 73
@@ -145,9 +105,9 @@ BEGIN
     IDD_DIALOG2, DIALOG
     BEGIN
         LEFTMARGIN, 6
-        RIGHTMARGIN, 97
+        RIGHTMARGIN, 238
         TOPMARGIN, 4
-        BOTTOMMARGIN, 55
+        BOTTOMMARGIN, 118
     END
 
     IDD_DIALOG3, DIALOG
@@ -251,9 +211,7 @@ BEGIN
     BEGIN
         MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
         MENUITEM SEPARATOR
-        MENUITEM "Camera Input",                ID_CAMERA_INPUT
         MENUITEM SEPARATOR
-        MENUITEM "Video File",                  ID_VIDEO_FILE
         MENUITEM SEPARATOR
         MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
         MENUITEM SEPARATOR
@@ -314,11 +272,7 @@ BEGIN
         MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
         MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
         MENUITEM "&Arrange Icons",              ID_WINDOW_ARRANGE
-    END
-    POPUP "Video"
-    BEGIN
-        MENUITEM "Camera Process",              ID_VIDEO_CAMERAPROCESS
-    END
+    END 
     POPUP "&Help"
     BEGIN
         MENUITEM "&About ColorVision...",       ID_APP_ABOUT
@@ -394,6 +348,11 @@ END
 //
 
 IDD_DIALOG1 AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG2 AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
@@ -524,9 +483,7 @@ BEGIN
     ID_VIZ_STRIPS           "Color values distribution"
     ID_GRAY_STRIPS          "Grayscale values geometric distribution"
     ID_BUNCH_DEMO           "Demonstrates Color Bunches"
-    ID_COLOR_SECTIONS       "Demonstrate colored objects"
-    ID_CAMERA_INPUT         "Input from a camera"
-    ID_VIDEO_FILE           "Video input from a file"
+    ID_COLOR_SECTIONS       "Demonstrate colored objects" 
     ID_FILE_CHANGEPARAM     "change parameters in video processing"
 END
 

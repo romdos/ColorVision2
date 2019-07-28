@@ -1,7 +1,7 @@
-/**************************************************************************************************
-*	Clusters of grayscale intensity segments.
-*	
-**************************************************************************************************/
+
+
+
+/*  Clusters of grayscale intensity segments.  */
 
 
 
@@ -9,24 +9,26 @@
 
 #pragma once
 
-// Container for bunches
+
+// To redefine basic types
+#include "std_types.h"
+
+
+// To store for bunches
 #include <vector>
 
+using namespace std;
 
-
+// created by Roman
 class GrayBunch
 {
 public:
-	GrayBunch(std::int16_t begin,
-		std::int16_t end,
-		std::uint8_t stripNum,
-		float meanIntensity);
-
+	GrayBunch(sint16 begin, sint16 end, uint8 stripNum, float meanIntensity);
 	~GrayBunch();
 public:
 	// bunch's coordinates
-	std::int16_t beg, end;
-	std::uint8_t stripNumber;
+	sint16 beg, end;
+	uint8 stripNumber;
 	// mean intensity of segments comprising this bunch
 	float intens;
 	bool sectionCrossed;
@@ -37,7 +39,7 @@ public:
 
 
 
-
+// created by K.I.
 class CBunchGray
 {
 public:
@@ -45,7 +47,9 @@ public:
 	~CBunchGray();
 
 public:
-	std::vector<GrayBunch> bursts;       // candidate bunches
+
+	// candidate bunches
+	vector<GrayBunch> bursts;       
 
 	int DimX;
 	int DimY;
@@ -136,9 +140,13 @@ int* is_greater,int* new_num,int* exten_signif);
 	void Strip_value_painting_secondary(int beg_int,int end_int,int num_int,int signif,
 int* painted_strip_sc,int* intense_consistency_sc);
 	
+
+
 	void ArrangeIntervals(int* valuable_interval,int* visibility,int* local_signif_sum,
-int* local_background,int* interv_intensity,int* previous_number,int* lower_left,
-int* upper_left,int* lower_right,int* upper_right,int* adjac_link,int* new_number);
+						int* local_background,int* interv_intensity,int* previous_number,int* lower_left,
+						int* upper_left,int* lower_right,int* upper_right,int* adjac_link,int* new_number);
+
+
 
 	int GrainsGrowing(int num_grain,int gr_intensity,int gr_prev_number,
 						int adjacent_lower_interv,int adjacent_upper_interv,int beg_grain,int end_grain,
@@ -146,8 +154,11 @@ int* upper_left,int* lower_right,int* upper_right,int* adjac_link,int* new_numbe
 						int* added_signif,int* starting_cont_interv,int* finishing_cont_interv,
 						int* joined_intervals,int* added_w_intens);
 
+
+
 	int FindingIntervalsWithAdjacent(int last_member,int first_member,int direc, int* boundary_int);
 
-	std::int8_t find_bursts(std::uint16_t max_length,
-							std::uint8_t depth);
+
+	sint8 clusterize(uint16 max_length,
+					uint8 depth);
 };

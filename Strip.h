@@ -1,5 +1,5 @@
 /*
- * A separate strip of an image. Contains all necessary data and methods
+ * A strip of an image. Contains all necessary data and methods
  * for building Geometrized Histogram.
  *
  *
@@ -12,6 +12,8 @@
 #if !defined(AFX_STRIP_H__5115FABA_2C3C_461B_95FE_071A46A2B06E__INCLUDED_)
 #define AFX_STRIP_H__5115FABA_2C3C_461B_95FE_071A46A2B06E__INCLUDED_
 
+
+
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
@@ -19,7 +21,7 @@
 
 
 /*
-*  Segments.
+*  Segments of Geometrized Histograms.
 *
 *
 */
@@ -226,11 +228,15 @@ class CStrip
 public:
 	CStrip();
 	~CStrip();
+
 public:
 
+	// todo: rename according to camelCase. Remain only 'number'
 	int num_strip; 
+
 	int StripWidth;  
 	int StripLength;
+
 	int StripWidthPrev; // todo: delete
 
 	int HorizontalVertical;
@@ -263,7 +269,7 @@ public:
 	int graygrades1[16];
 	int graygrades2[16];
 
-	unsigned char *intensi;
+	uint8* intensi;
 	//beginning parameters for analysis of a color ratio image
 	int *hist_fun;  // number of lines where pixels of a particular intensity occur
 	int *hist_sum;  // the value of the histogram function
@@ -294,7 +300,7 @@ public:
 	int *opponent1_max;
 	float *opponent1_mean;
 
-	unsigned char* valuable_intensity;  // flags for "visible" intensities
+	uint8* valuable_intensity;  // flags for "visible" intensities
 	int* bright_consistency; // array that describes the most visible intensities
 	int* intensities_occurred;// array that describes the intensities at the
 							  //particular point of the vertical axis
@@ -333,7 +339,10 @@ public:
 	int* import_begg;       //the most important interval for the particular value
 	int* import_endg;
 
-	unsigned char* valuable_intensityg;  // flags for "visible" intensities
+	uint8* valuable_intensityg;  // flags for "visible" intensities
+	
+	
+	
 	int* bright_consistencyg; // array that describes the most visible intensities
 	int* intensities_occurredg;// array that describes the intensities at the
 							   //particular point of the vertical axis
@@ -348,6 +357,7 @@ public:
 
 	unsigned int* signif_value; //Consistience of the intensity
 
+public:
 	void Loc_stat_geom_double(BOOL NumPair);
 	// scans the strip and fills in the array AllIntens
 
@@ -393,4 +403,5 @@ public:
 };
 
  
+
 #endif // !defined(AFX_STRIP_H__5115FABA_2C3C_461B_95FE_071A46A2B06E__INCLUDED_)

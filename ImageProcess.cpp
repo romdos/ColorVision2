@@ -303,7 +303,6 @@ CImageProcess::CImageProcess(int TotalNumberofFrames)
 				Residual1 = DimY - StripWidth*(NumStrips - 1);
 			}
 		}
-
 	}
 	else
 	{
@@ -312,7 +311,7 @@ CImageProcess::CImageProcess(int TotalNumberofFrames)
 		StripLength = DimY;
 		Residual = DimX - StripWidth*NumStrips;
 
-		if (Residual>0)
+		if (Residual > 0)
 		{
 			StripWidth1 = DimX / (NumStrips - 1);
 			Residual1 = DimX - StripWidth1*(NumStrips - 1);
@@ -782,6 +781,7 @@ void CImageProcess::InitialConstructions()
 { 
 	int Res_Width;
 	int Cor_Width; 
+
 	clock_t end;
 	int sec;
 	int count_frames; 
@@ -789,6 +789,7 @@ void CImageProcess::InitialConstructions()
 	clock_t start = clock();
 	 
 	Res_Width = (3 * DimX) % 4;
+
 	if (Res_Width)
 	{
 		Cor_Width = 4 - Res_Width;
@@ -798,7 +799,7 @@ void CImageProcess::InitialConstructions()
 		Cor_Width = 0;
 	}
 
-	for (int i = 0; i<NumStrips; i++)
+	for (int i = 0; i < NumStrips; i++)
 	{
 		CurStrip[i].NumLevels = NumLevels;
 		CurStrip[i].NumbStr = NumStrips;
@@ -907,7 +908,9 @@ void CImageProcess::InitialConstructions()
 		CurStrip[i].opponent_color_difference = opponent_color_difference;
 		CurStrip[i].invert_color_difference1 = invert_color_difference1;
 		CurStrip[i].invert_color_difference2 = invert_color_difference2; 
+		
 		GrayBunches[i].StripCur = &CurStrip[i];
+		
 		GrayBunches[i].HorizontalVertical = HorizontalVertical;
 		GrayBunches[i].DimX = DimX;
 		GrayBunches[i].DimY = DimY;
@@ -1048,7 +1051,7 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 		RedNumberOfCurrentFrame = NumberOfCurrentFrame % LengthofMotionAnalysisInterval;
 	}
 
-	Im = (std::uint8_t* ) pApp->pm_BitmapApp->bmBits;
+	Im = (uint8* ) pApp->pm_BitmapApp->bmBits;
  
 	MaximumNumberOfCoveringElements = 0;
 
@@ -1102,9 +1105,8 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 		CurStrip[i].Loc_stat_geom_double(GGBorGGR);  
 
 		// Cluster segments into bunch
-		GrayBunches[i].find_bursts(8 * StripWidth, 5);
-
-
+		GrayBunches[i].clusterize(8 * StripWidth, 5);
+		 
 
 		if (VideoCameraIsLoaded && (TotalNumFrame > 1) && (0 != LengthofMotionAnalysisInterval))
 		{

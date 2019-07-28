@@ -51,10 +51,8 @@ CVizStripView::CVizStripView()
 }
 
 CVizStripView::~CVizStripView()
-{
-
-	pApp = (CColorVisionApp *)AfxGetApp();
-	pApp->NumberOfDoc--;
+{ 
+	pApp = (CColorVisionApp *)AfxGetApp(); 
 	if (StripRepresentationType == 1)
 	{
 		pApp->m_StripColorRepresentation = FALSE;

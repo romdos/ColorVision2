@@ -51,7 +51,7 @@ BOOL CViewImageFrame::PreCreateWindow(CREATESTRUCT& cs)
 	pApp= (CColorVisionApp *)AfxGetApp ();
 
     
-	ImageRepresentationType=pApp->ImageRepresentationType;
+	ImageRepresentationType = pApp->ImageRepresentationType;
 	
 
 	if( !CMDIChildWnd::PreCreateWindow(cs) )

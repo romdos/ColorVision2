@@ -1,43 +1,30 @@
-/*
- * Finds large bunches based only on intensity. It is not supposed to be used for road marking
- * finding because it finds only large objects (e.g. road).
- *
- *
- *
- *
- *
-*/
-
-
-
-
-
+/*  Bunches are constructed based on grayscale image */
 
 
 
 #include "stdafx.h"
+
+// To get ColorVisionApp*
 #include "ColorVision.h"
-#include "Strip.h"
+ 
+// Declarations
 #include "BunchGray.h"
 
 
 
 
-GrayBunch::GrayBunch(std::int16_t begin,
-	std::int16_t ending,
-	std::uint8_t stripNum,
+GrayBunch::GrayBunch(sint16 begin, sint16 ending, uint8 stripNum,
 	float meanIntensity)
 {
 	beg = begin;
 	end = ending;
+
 	stripNumber = stripNum;
+
 	intens = meanIntensity;
+
 	sectionCrossed = false;
 }
-
-
-
-
 
 
 GrayBunch::~GrayBunch() {}
@@ -86,9 +73,10 @@ delete [] CardinalityOfClusters;
 
 }
 }
-BOOL
 
-CBunchGray::IntervalInteraction()
+
+
+BOOL CBunchGray::IntervalInteraction()
 {
 
 int NumInt;
@@ -1728,7 +1716,7 @@ AverageIntensityOfClusters[NumberOflusters]=
 //-----------------------------------------------------------------------------
 
 
-int CBunchGray::GrainsGrowing(int num_grain,int gr_intensity,int gr_prev_number,
+int CBunchGray::GrainsGrowing(int num_grain, int gr_intensity, int gr_prev_number,
 int adjacent_lower_interv,int adjacent_upper_interv,int beg_grain,int end_grain,
 int grain_dens0,int signif,int direct,int adj_link,int* new_num,int* local_signif_sum,
 int* added_signif,int* starting_cont_interv,int* finishing_cont_interv,
@@ -1989,8 +1977,7 @@ comp_total_length=(16*total_joined_length)/(total_joined_length+grain_length);
 
 
 
-int CBunchGray::FindingIntervalsWithAdjacent(int last_member,int first_member,int direc,
-							int* boundary_int)
+int CBunchGray::FindingIntervalsWithAdjacent(int last_member, int first_member, int direc, int* boundary_int)
 { 
 	int new_member = -1;
 
@@ -2012,23 +1999,22 @@ int CBunchGray::FindingIntervalsWithAdjacent(int last_member,int first_member,in
 
 /**************************************************************************************************
 * @Description:
-*	Constructs burst bunches from given segments of a strip and adds them to bursts list.
+*	  Constructs burst bunches from given segments of a strip and adds them to bursts list.
 *-------------------------------------------------------------------------------------------------
 * @Parameters:
-*	@In:
 *		max_length -- upper boundary of bunch length,
 *		depth -- shows how deep we go forward along intensities.
 *-------------------------------------------------------------------------------------------------
 * @Return value:
-*	-1 -- if no bunch was found,
-*	 0 -- otherwise.
+*		-1 -- if no bunch was found,
+*		 0 -- otherwise.
 *-------------------------------------------------------------------------------------------------
 * @Notes:
 *	todo: make convenient and efficient indexation -> (intens, interv) (e.g. B-tree).
 *  	      make with gap.
 **************************************************************************************************/
-std::int8_t CBunchGray::find_bursts(std::uint16_t max_length,
-									std::uint8_t depth)
+sint8 CBunchGray::clusterize(uint16 max_length,
+							 uint8 depth)
 {
 	// todo: analyse performance of clear()
 	bursts.clear();
@@ -2036,8 +2022,8 @@ std::int8_t CBunchGray::find_bursts(std::uint16_t max_length,
 	/* Find maximal intensity with non-empty set of segments */
 	TIntCharactGray* segments = StripCur->IntAllInformGray;
 
-	std::uint8_t start_intens = NUM_INTEN1 - 1;
-	std::uint8_t segments_num = segments[start_intens].num_of_int;
+	uint8 start_intens = NUM_INTEN1 - 1;
+	uint8 segments_num = segments[start_intens].num_of_int;
 
 	while ((start_intens > 0) && (segments_num == 0))
 	{

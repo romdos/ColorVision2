@@ -1,8 +1,6 @@
-// ColorVision.h : main header file for the COLORVISION application
-//
-
-
-
+/*
+	Declares class ColorVisionApp.
+*/
 
 
 
@@ -19,26 +17,27 @@
 #endif
 
 
-#include "resource.h"       // main symbols
+
+// main symbols
+#include "resource.h"      
+
+
 #include "Dib.h"
 #include "DibTga.h"
 #include "DibGrayScale.h"
+
 #include "ImageProcess.h"
-#include "BunchNumDialog.h"
-#include "olorSectionDialog.h"
-#include "Camera.h"// модуль камеры 
+ 
+#include "BunchCountDialog.h"
+
+#include "ColorSectionDialog.h" 
 
 
 
-static int CoorHuPoints[16] = { 7, 23, 39, 55, 71, 87, 103, 119, 135, 151, 167, 183,
-199, 215, 231, 247
-};
 
+/* ColorVisionApp */
+ 
 
-/////////////////////////////////////////////////////////////////////////////
-// CColorVisionApp:
-// See ColorVision.cpp for the implementation of this class
-//
 
 class CColorVisionApp : public CWinApp
 {
@@ -52,16 +51,16 @@ public:
 	BOOL m_FindLabels;
 	BOOL m_FindSky;//last_cor27.05.15
 	BOOL m_FindGreen;//last_cor08.02.16
+	
 	int ColorNumber1;
 	int ColorNumber2;
-	int ColorNumber3;
-	//BOOL m_CameraIsInitialized;
+	int ColorNumber3; 
+	
 	BITMAPINFOHEADER info;
 	BITMAP *pm_BitmapApp;
 	BITMAP *pm_GrayBitmap;
 	BITMAP m_BitmapApp;
-	BITMAP m_GrayBitmap;
-	//BITMAPINFOHEADER BmHeader;
+	BITMAP m_GrayBitmap; 
 
 	BOOL m_ImageIsInverted;
 	BOOL m_StripColorRepresentation;
@@ -75,28 +74,38 @@ public:
 	int CameraNumber;
 	BOOL HorizontalVertical;
 	BOOL PermuteRatios;
+	
+	
 	int VideoImageProcessedNumber;
 	int VideoInputLimit;
 	int BitsPerPixel;
 	int NumberStripClicked;
-	int NumberOfBunch;
+	// todo: add graybunch
+
+	std::uint8_t NumberOfBunch;
+	std::uint8_t grayBunchNumber;
+
+
 	int NumberOfColorSection;
 	int ImageRepresentationType;
 	int VideoImageRepresentationType;
 	int StripRepresentationType;
 	int GlobalObjectsRepresentationType;
-	int NumberOfDoc;
-	BunchNumDialog* pm_BunchNumDialog;
+
+	BunchCountDialog* pm_BunchCountDialog;
+	  
 	ColorSectionDialog* pm_ColorSectNumDialog;
+	
+	// todo: rename docs (reflect the role of each of them)
 	CDocument* pDoci0;
+
 	CDocument* pDoci1;
 	CDocument* pDoci2;
 	CDocument* pDoci3;
 	CDocument* pDocs1;
 	CDocument* pDocs2;
 	CDocument* pDocs3;
-	CDocument* pDocColSec1;
-	Camera* pCamera; 
+	CDocument* pDocColSec1; 
 
 	CImageProcess *ColorImageProcess;
 	unsigned char* pBuffer;
@@ -150,8 +159,7 @@ public:
 };
 
 
-/////////////////////////////////////////////////////////////////////////////
-
+ 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 

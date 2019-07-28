@@ -1,14 +1,33 @@
+
+
+
+
+
+
+
+
+
 #if !defined(AFX_VIEWIMAGEDOC_H__7A3AF8B1_2F07_48CA_A3BC_E13D48652A28__INCLUDED_)
 #define AFX_VIEWIMAGEDOC_H__7A3AF8B1_2F07_48CA_A3BC_E13D48652A28__INCLUDED_
+
+
 
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
+
+
+
+
 // ViewImageDoc.h : header file
 //
 #include "DibTga.h"
 #include "Dib.h"
 #include "DibGrayScale.h"
+
+
+
+
 /////////////////////////////////////////////////////////////////////////////
 // CViewImageDoc document
 
@@ -22,20 +41,18 @@ protected:
 // Attributes
 public:
 
-CDib     *m_DibDoc;
-//HBITMAP  *m_hBitmap;
-CDibTga  *m_DibTgaDoc;
-CDibGrayScale *m_DibGrayScaleDoc;
-//CFont     m_Font;
-CString    m_it_is_nt;
-CString    m_it_is_jpg;
-CString    OnlyTCU;
-int ImageRepresentationType; 
+	CDib     *m_DibDoc;
+	//HBITMAP  *m_hBitmap;
+	CDibTga  *m_DibTgaDoc;
+	CDibGrayScale *m_DibGrayScaleDoc;
+	//CFont     m_Font;
+	CString    m_it_is_nt;
+	CString    m_it_is_jpg;
+	CString    OnlyTCU;
+	int ImageRepresentationType; 
 
 // Operations
-public:
-
-
+public: 
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CViewImageDoc)
@@ -50,9 +67,7 @@ public:
 public:
 	virtual ~CViewImageDoc();
 
-	void
-
-	CallCalculateGrayScale();
+	void CallCalculateGrayScale();
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;

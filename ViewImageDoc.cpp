@@ -1,16 +1,24 @@
 // ViewImageDoc.cpp : implementation file
 //
 
+
+
+
+
+
 #include "stdafx.h"
-#include "ColorVision.h"
-//#include "Dib.h"
+#include "ColorVision.h" 
 #include "ViewImageDoc.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
+
+
+
 #define DIB_HEADER_MARKER   ((WORD) ('M' << 8) | 'B')
 
 /////////////////////////////////////////////////////////////////////////////
@@ -31,87 +39,76 @@ END_MESSAGE_MAP()
 
 CViewImageDoc::CViewImageDoc()
 {
-	m_DibGrayScaleDoc=NULL;
+	m_DibGrayScaleDoc = NULL;
 	m_DibDoc = NULL;
 	m_DibTgaDoc = NULL;
 
-	CColorVisionApp *pApp;
-	pApp= (CColorVisionApp *)AfxGetApp ();
-	ImageRepresentationType=pApp->ImageRepresentationType;
-	if(ImageRepresentationType==0)
-	{
+	CColorVisionApp *pApp = (CColorVisionApp *)AfxGetApp();
 	
-	//m_hBitmap = NULL;
-	m_it_is_nt = "it isn't either a BMP, or TGA, or JPG file";
-	m_it_is_jpg = "it is a JPG file";
-	OnlyTCU = "Only uncompressed true color images are processed";
-	}
+	ImageRepresentationType = pApp->ImageRepresentationType;
 	
+	if (ImageRepresentationType == 0)
+	{ 
+		//m_hBitmap = NULL;
+		m_it_is_nt = "it isn't either a BMP, or TGA, or JPG file";
+		m_it_is_jpg = "it is a JPG file";
+		OnlyTCU = "Only uncompressed true color images are processed";
+	} 
 }
+
+
 
 BOOL CViewImageDoc::OnNewDocument()
 {
 	if (!CDocument::OnNewDocument())
 		return FALSE;
 
-if(ImageRepresentationType==1)
-{
-CallCalculateGrayScale();
-}
-
-
+	if (ImageRepresentationType == 1)
+	{
+		CallCalculateGrayScale();
+	} 
 	return TRUE;
 }
 
+
+
 CViewImageDoc::~CViewImageDoc()
 {
-	CColorVisionApp *pApp;
-pApp= (CColorVisionApp *)AfxGetApp ();
+	CColorVisionApp *pApp = (CColorVisionApp *)AfxGetApp ();
 
-	                     if(ImageRepresentationType==0)
-						 {
-							 pApp->pDoci0 = NULL;
-							 /*if(pApp->ColorImageProcess!=NULL)
-							 {
-			 pApp->ColorImageProcess->DeleteTemporal();
-							 }*/
-	if(m_DibDoc!=NULL)
+	if(ImageRepresentationType==0)
 	{
-	delete m_DibDoc;
-    m_DibDoc=NULL;
-	}
-	if(m_DibTgaDoc!=NULL)
-	{
-	delete m_DibTgaDoc;
-    m_DibTgaDoc=NULL;
-	}
+		pApp->pDoci0 = NULL; 
+		if (m_DibDoc != NULL)
+		{
+			delete m_DibDoc;
+			m_DibDoc = NULL;
+		}
+		if (m_DibTgaDoc != NULL)
+		{
+			delete m_DibTgaDoc;
+			m_DibTgaDoc = NULL;
+		} 
 
-	if(pApp->pm_BunchNumDialog!=NULL)
-	{
-     pApp->pm_BunchNumDialog->DestroyWindow();
-	 delete pApp->pm_BunchNumDialog;
-     pApp->pm_BunchNumDialog = NULL;
-	}
-
-	if(pApp->pm_ColorSectNumDialog!=NULL)
-	{
-     pApp->pm_ColorSectNumDialog->DestroyWindow();
-	 delete pApp->pm_ColorSectNumDialog;
-     pApp->pm_ColorSectNumDialog = NULL;
-	}
+		if (pApp->pm_ColorSectNumDialog!=NULL)
+		{
+			pApp->pm_ColorSectNumDialog->DestroyWindow();
+			delete pApp->pm_ColorSectNumDialog;
+			pApp->pm_ColorSectNumDialog = NULL;
+		}
 	// maxser
 	
     // maxser end
-if((pApp->m_ImageSegmented)&&((pApp->m_StripColorRepresentation)||
-   (pApp->m_StripGrayRepresentation)||(pApp->m_ColorBunchRepresentation)
-   ||(pApp->m_GrayScaleOpened)||(pApp->m_ColorSectionsRepresentation)))
-{
-
-	if(pApp->pDocs1 != NULL)
+	if((pApp->m_ImageSegmented)&&((pApp->m_StripColorRepresentation)||
+	   (pApp->m_StripGrayRepresentation)||(pApp->m_ColorBunchRepresentation)
+	   ||(pApp->m_GrayScaleOpened)||(pApp->m_ColorSectionsRepresentation)))
 	{
-		pApp->pDocs1->OnCloseDocument();
-		pApp->pDocs1 = NULL;
-	}
+
+		if(pApp->pDocs1 != NULL)
+		{
+			pApp->pDocs1->OnCloseDocument();
+			pApp->pDocs1 = NULL;
+		}
 	if(pApp->pDocs2 != NULL)
 	{
 		pApp->pDocs2->OnCloseDocument();
@@ -141,25 +138,22 @@ if((pApp->m_ImageSegmented)&&((pApp->m_StripColorRepresentation)||
 	pApp->m_ColorBunchRepresentation=FALSE;
 	pApp->m_ColorSectionsRepresentation=FALSE;
     pApp->NumberStripClicked = 0;
-    pApp->pm_BitmapApp=NULL;
-	pApp->NumberOfDoc=0;
+    pApp->pm_BitmapApp=NULL; 
 							  }
-	                        if(ImageRepresentationType==1)
-							  {
-								  if(m_DibGrayScaleDoc!=NULL)
-								  {
-	                               delete m_DibGrayScaleDoc;
-                                   m_DibGrayScaleDoc=NULL;
-								  }
-                               pApp->m_GrayScaleOpened=FALSE;
-							   pApp->pDoci1=NULL;
-							  }
+	if (ImageRepresentationType==1)
+	{
+		if (m_DibGrayScaleDoc!=NULL)
+		{
+			delete m_DibGrayScaleDoc;
+			m_DibGrayScaleDoc=NULL;
+		}
+		pApp->m_GrayScaleOpened=FALSE;
+		pApp->pDoci1=NULL;
+	}
 							
 }
 
-
-
-
+ 
 // CViewImageDoc serialization
 
 void CViewImageDoc::Serialize(CArchive& ar)
@@ -194,66 +188,67 @@ BOOL CViewImageDoc::OnOpenDocument(LPCTSTR lpszPathName)
     DWORD len1;
     DWORD len2;
 	TARGAHeader tgaHeader;
-	
-
+	 
 	if (!CDocument::OnOpenDocument(lpszPathName))
 		return FALSE;
 	
 	// TODO: Add your specialized creation code here
 	if (!file.Open(lpszPathName, CFile::modeRead | CFile::shareDenyWrite, &fe))
 	{
-		ReportSaveLoadException(lpszPathName, &fe,
-			FALSE, AFX_IDP_FAILED_TO_OPEN_DOC);
+		ReportSaveLoadException(lpszPathName, &fe, FALSE, AFX_IDP_FAILED_TO_OPEN_DOC);
 		return FALSE;
 	}
-	CFile::GetStatus( lpszPathName, status );
-    m_FullName=status.m_szFullName;
-	FileExt=m_FullName.Right(3);
-if((FileExt.Compare("bmp"))&&(FileExt.Compare("BMP"))&&
-		(FileExt.Compare("tga"))&&(FileExt.Compare("TGA"))&&
-		(FileExt.Compare("jpg"))&&(FileExt.Compare("JPG")))
-{
-//MessageBox(NULL, "it isn't either a BMP, or TGA, or JPG file", NULL, MB_ICONINFORMATION | MB_OK);
-MessageBox(NULL, m_it_is_nt, NULL, MB_ICONINFORMATION | MB_OK);
-return FALSE;
-}
-if((!FileExt.Compare("jpg"))||(!FileExt.Compare("JPG")))
-{
-MessageBox(NULL, m_it_is_jpg, NULL, MB_ICONINFORMATION | MB_OK);
 
-}
-//MessageBox(NULL, m_FullName, NULL, MB_ICONINFORMATION | MB_OK);
+	CFile::GetStatus(lpszPathName, status);
+
+    m_FullName = status.m_szFullName;
+
+	FileExt = m_FullName.Right(3);
+
+	if ((FileExt.Compare("bmp"))&&(FileExt.Compare("BMP"))&&
+			(FileExt.Compare("tga"))&&(FileExt.Compare("TGA"))&&
+			(FileExt.Compare("jpg"))&&(FileExt.Compare("JPG")))
+	{
+	//MessageBox(NULL, "it isn't either a BMP, or TGA, or JPG file", NULL, MB_ICONINFORMATION | MB_OK);
+		MessageBox(NULL, m_it_is_nt, NULL, MB_ICONINFORMATION | MB_OK);
+		return FALSE;
+	}
+	
+	if ((!FileExt.Compare("jpg"))||(!FileExt.Compare("JPG")))
+	{
+		MessageBox(NULL, m_it_is_jpg, NULL, MB_ICONINFORMATION | MB_OK);
+
+	}
+	//MessageBox(NULL, m_FullName, NULL, MB_ICONINFORMATION | MB_OK);
 	// replace calls to Serialize with ReadDIBFile function
-dwBitsSize = file.GetLength();
-CColorVisionApp *pApp;
-pApp= (CColorVisionApp *)AfxGetApp ();
-if((!FileExt.Compare("bmp"))||(!FileExt.Compare("BMP")))
-{
-	
-m_DibDoc = new CDib;
+	dwBitsSize = file.GetLength();
+	CColorVisionApp *pApp = (CColorVisionApp *)AfxGetApp ();
 
-	
-	len = file.Read((LPSTR)&bmfHeader, sizeof(bmfHeader));
-	if (len != sizeof(bmfHeader))
-		return FALSE;
+	if ((!FileExt.Compare("bmp")) || (!FileExt.Compare("BMP")))
+	{ 
+		m_DibDoc = new CDib; 
+		len = file.Read((LPSTR)&bmfHeader, sizeof(bmfHeader));
+		
+		if (len != sizeof(bmfHeader))
+			return FALSE;
 
-	if (bmfHeader.bfType != DIB_HEADER_MARKER)
-		return FALSE;
+		if (bmfHeader.bfType != DIB_HEADER_MARKER)
+			return FALSE;
 
 	Offset=bmfHeader.bfOffBits;
 	Bsize=bmfHeader.bfSize;
 
-len1 = file.Read((LPSTR)&bminfHeader, sizeof(bminfHeader));
-if ((bminfHeader.biClrUsed)||(bminfHeader.biBitCount != 24)||(bminfHeader.biCompression))
-{
-MessageBox(NULL, "Only noncompressed true color images are processed", 
-		   NULL, MB_ICONINFORMATION | MB_OK);
-return FALSE;
-}
-dwStrcSize=bminfHeader.biSize;
+	len1 = file.Read((LPSTR)&bminfHeader, sizeof(bminfHeader));
+	if ((bminfHeader.biClrUsed)||(bminfHeader.biBitCount != 24)||(bminfHeader.biCompression))
+	{
+	MessageBox(NULL, "Only noncompressed true color images are processed", 
+			   NULL, MB_ICONINFORMATION | MB_OK);
+	return FALSE;
+	}
+	dwStrcSize=bminfHeader.biSize;
 
 
-file.Close();
+	file.Close();
 	TRY
 	{
 		m_DibDoc->LoadImageBMPFile(lpszPathName);
@@ -318,91 +313,86 @@ len = file.Read((LPSTR)&tgaHeader.Width, sizeof(tgaHeader.Width));
 len = file.Read((LPSTR)&tgaHeader.Height, sizeof(tgaHeader.Height));
 	if (len != sizeof(tgaHeader.Height))
 		return FALSE;
-	len2+=len;
-len = file.Read((LPSTR)&tgaHeader.BitsPerPixel, sizeof(tgaHeader.BitsPerPixel));
+	
+	len2 += len;
+	len = file.Read((LPSTR)&tgaHeader.BitsPerPixel, sizeof(tgaHeader.BitsPerPixel));
+	
 	if (len != sizeof(tgaHeader.BitsPerPixel))
 		return FALSE;
-	len2+=len;
-len = file.Read((LPSTR)&tgaHeader.Flags, sizeof(tgaHeader.Flags));
+	
+	len2 += len;
+	
+	len = file.Read((LPSTR)&tgaHeader.Flags, sizeof(tgaHeader.Flags));
+	
 	if (len != sizeof(tgaHeader.Flags))
 		return FALSE;
-    len2+=len;
-	if(((tgaHeader.BitsPerPixel!=16)&&(tgaHeader.BitsPerPixel!=24))||
-		(tgaHeader.ImageType != 2))
+    
+	len2 += len;
+	
+	if (((tgaHeader.BitsPerPixel != 16) && (tgaHeader.BitsPerPixel != 24)) || (tgaHeader.ImageType != 2))
 	{
-MessageBox(NULL, OnlyTCU, 
+		MessageBox(NULL, OnlyTCU, 
 		   NULL, MB_ICONINFORMATION | MB_OK);
         return FALSE;
 	}
-	if(tgaHeader.Flags == 0x20)
-	{
-     pApp->m_ImageIsInverted=TRUE;
-    }
-	    m_DibTgaDoc= new CDibTga;
-		dwBitsSize-=len2;
+		if (tgaHeader.Flags == 0x20)
+		{
+			pApp->m_ImageIsInverted=TRUE;
+		}
+	    m_DibTgaDoc = new CDibTga;
+		
+		dwBitsSize -= len2;
+		
 		m_DibTgaDoc->LoadImageTGAFile(file,&tgaHeader,dwBitsSize);
-	    (pApp->pm_BitmapApp)=m_DibTgaDoc->GetBitmapFile();
-		if(pApp->pm_BitmapApp==NULL)
+	    
+		(pApp->pm_BitmapApp) = m_DibTgaDoc->GetBitmapFile();
+		
+		if (pApp->pm_BitmapApp == NULL)
 		{
 			return FALSE;
 		}
-		pApp->m_ImageIsLoaded=TRUE;
-		return TRUE;
-	
+		pApp->m_ImageIsLoaded = TRUE;
+		return TRUE; 
+	}
+	return TRUE;
 }
-return TRUE;
-}
+
+
 
 void CViewImageDoc::OnUpdateFileOpen(CCmdUI* pCmdUI) 
 {
 	// TODO: Add your command update UI handler code here
 
 	CColorVisionApp *pApp = (CColorVisionApp *)AfxGetApp ();
-	/*if(pApp->m_ImageIsLoaded)
-	{
-    AfxMessageBox ("A file has been already openned");
-	}*/
+
 	pCmdUI->Enable(!pApp->m_ImageIsLoaded);
 	
 }
+
+
 
 void CViewImageDoc::OnUpdateFileMruFile1(CCmdUI* pCmdUI) 
 {
 	// TODO: Add your command update UI handler code here
 	CColorVisionApp *pApp = (CColorVisionApp *)AfxGetApp ();
-	/*if(pApp->m_ImageIsLoaded)
-	{
-    AfxMessageBox ("A file has been already openned");
-	}*/
 	pCmdUI->Enable(!pApp->m_ImageIsLoaded);
-	
 }
 
-/////////////////////////////////////////////////////////////////////////////
-void
 
-CViewImageDoc::CallCalculateGrayScale()
+
+void CViewImageDoc::CallCalculateGrayScale()
 {
-	CColorVisionApp *pApp = (CColorVisionApp *)AfxGetApp ();
-	ImageRepresentationType=pApp->ImageRepresentationType;
-	if(ImageRepresentationType==1)
-	{
-m_DibGrayScaleDoc = new CDibGrayScale;
-m_DibGrayScaleDoc->CalculateGrayscale();
-	}
-	/*else
-	{
-		if(ImageRepresentationType==3)
-		{
-		if(pApp->VideoImageProcessedNumber==0)
-		{
-			m_DibGrayScaleDoc = new CDibGrayScale;
-		}
-		m_DibGrayScaleDoc->CalculateGrayscaleVideo();
-		}
-	}*/
+	CColorVisionApp *pApp = (CColorVisionApp *)AfxGetApp();
+	ImageRepresentationType = pApp->ImageRepresentationType;
 	
+	if (ImageRepresentationType == 1)
+	{
+		m_DibGrayScaleDoc = new CDibGrayScale;
+		m_DibGrayScaleDoc->CalculateGrayscale();
+	}
 }
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CViewImageDoc diagnostics
@@ -420,12 +410,3 @@ void CViewImageDoc::Dump(CDumpContext& dc) const
 #endif //_DEBUG
 
 /////////////////////////////////////////////////////////////////////////////
-
-/*void CViewImageDoc::OnVizStrips() 
-{
-	// TODO: Add your command handler code here
-	CDocument::OnNewDocument();
-		
-
-	
-}*/

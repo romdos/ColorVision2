@@ -1,11 +1,21 @@
 // ViewImageVw.cpp : implementation file
 //
 
+
+
 #include "stdafx.h"
+
+
+ 
 #include "ColorVision.h"
 #include "ViewImageDoc.h"
 #include "ViewImageVw.h"
+
+
 #include <math.h>
+
+
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -13,39 +23,40 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+
+
 /////////////////////////////////////////////////////////////////////////////
 // CViewImageVw
 
 IMPLEMENT_DYNCREATE(CViewImageVw, CScrollView)
+
+static int CoorHuPoints[16] = { 7, 23, 39, 55, 71, 87, 103, 119, 135, 151, 167, 183, 199, 215, 231, 247 };
+
 
 CViewImageVw::CViewImageVw()
 {
 	m_Dragging = 0;
 	m_HArrow = AfxGetApp()->LoadStandardCursor(IDC_ARROW);
 	m_HCross = AfxGetApp()->LoadStandardCursor(IDC_CROSS);
+	 
 	WindowShift.x = 10;
 	WindowShift.y = 20;
+	
+	 
 	ImageIsSegmented = FALSE;
 	AreaWasClicked = FALSE;
 	SectInform = NULL;
+	
 	pApp = (CColorVisionApp *)AfxGetApp();
 	ImageRepresentationType = pApp->ImageRepresentationType;
-	if (ImageRepresentationType == 1)
+	
+	if (ImageRepresentationType == GRAYSCALE)
 	{
 		strTitle = "Grayscale";
-	}
-	/*if(ImageRepresentationType==2)
-	{
-	strTitle = "Video Input";
-	m_CannotDisp = "Cannot display camera input";
-	}
-	if(ImageRepresentationType==3)
-	{
-	strTitle = "Processing of the Video Input";
-	m_CannotDisp = "Cannot display processing camera input";
-	}*/
-
+	} 
 }
+
+
 
 CViewImageVw::~CViewImageVw()
 {
@@ -63,6 +74,7 @@ CViewImageVw::~CViewImageVw()
 }
 
 
+
 BEGIN_MESSAGE_MAP(CViewImageVw, CScrollView)
 	//{{AFX_MSG_MAP(CViewImageVw)
 	ON_WM_MOUSEMOVE()
@@ -70,17 +82,17 @@ BEGIN_MESSAGE_MAP(CViewImageVw, CScrollView)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
+
+
 /////////////////////////////////////////////////////////////////////////////
 // CViewImageVw drawing
 
 void CViewImageVw::OnInitialUpdate()
 {
 	CScrollView::OnInitialUpdate();
-
-
+	 
 	pApp = (CColorVisionApp *)AfxGetApp();
-
-
+	  
 	WMHeight = (pApp->pm_BitmapApp)->bmHeight;
 	WMWidth = (pApp->pm_BitmapApp)->bmWidth;
 
@@ -90,7 +102,7 @@ void CViewImageVw::OnInitialUpdate()
 
 	CSize sizeTotal;
 	// TODO: calculate the total size of this view
-	if ((ImageLoaded) || (CameraImageLoaded))
+	if (ImageLoaded || CameraImageLoaded)
 	{
 		sizeTotal.cx = WMWidth;
 		sizeTotal.cy = WMHeight;
@@ -105,30 +117,17 @@ void CViewImageVw::OnInitialUpdate()
 
 	SetScrollSizes(MM_TEXT, sizeTotal);
 	pDoc = GetDocument();
+	
 	if (ImageRepresentationType == 1)
 	{
 		pDoc->SetTitle((LPCTSTR)strTitle);
 		pApp->pDoci1 = pDoc;
 	}
 
-	/*if(ImageRepresentationType==2)
-	{
-	pDoc->SetTitle((LPCTSTR) strTitle);
-	pApp->pDoci2 = pDoc;
-	}
-	if(ImageRepresentationType==3)
-	{
-	pDoc->SetTitle((LPCTSTR) strTitle);
-	pApp->pDoci3 = pDoc;
-	}*/
-
 	if (ImageRepresentationType == 0)
 	{
-
-		//pDoc->SetTitle((LPCTSTR) strTitle);
 		pApp->pDoci0 = pDoc;
 	}
-
 }
 
 
@@ -136,37 +135,44 @@ void CViewImageVw::OnInitialUpdate()
 void CViewImageVw::OnDraw(CDC* pDC)
 {
 	POINT OrPoint;
-	POINT EndPoint;
+	POINT EndPoint; 
 
 	POINT NewOrPoint;
+	POINT NewEndPoint;
+
 	POINT CnPoint;
 	POINT New1CnPoint;
 	POINT New2CnPoint;
-	POINT NewEndPoint;
-
-
+	 
 	int LineStart;
 	int SideHue;
 	int NumSideHues;
 	int SideTriangle;
+	
 	int Coor1;
 	int Coor2;
+	
 	int Scoor1;
 	int Scoor2;
 	int Scoor3;
+	
 	int NScoor1;
 	int NScoor2;
 	int NScoor3;
+	
 	int GrayLev;
 	int NewGrayLev;
 	int Imax;
 	int StripNumber;
 	int BunchNumber;
+	
 	int Beg_bunch;
 	int End_bunch;
+	
 	int bunch_average_hue;
 	int bunch_average_sat;
 	int bunch_average_gray;
+	
 	int old_col_number;
 	int old_col_num;
 	int bunch_number;
@@ -200,15 +206,19 @@ void CViewImageVw::OnDraw(CDC* pDC)
 	int left_green_boun_bunch;
 	int right_green_boun_bunch;
 	int length_of_vert_line;
+	
 	int line_member;
 	int line_member_old;
 	int line_member_old_beg;
 	int line_member_old_end;
+	
 	int first_vert_line_strip;
 	int coun_strip_v;
 	int NumberVLines;
+	
 	int SignalConnectedLine;
 	int SignalConnectedLineRight;
+	
 	int CarInFront;
 	int CarInFrontRight;
 
@@ -217,15 +227,13 @@ void CViewImageVw::OnDraw(CDC* pDC)
 	CPen* POldPen1;
 	CPen* pHuePen3;
 	CPoint BeginPoint;
-	BOOL IdenCard;//last_cor27.05.15
-	BOOL SkyFind;
-	BOOL GreenFind;
-	BOOL VertFind;
+ 	BOOL VertFind;
 
-	IdenCard = TRUE;
-	SkyFind = FALSE;
+	BOOL IdenCard = TRUE;
+	BOOL SkyFind = FALSE;
+	BOOL GreenFind = FALSE;
+
 	sky_index = 0;
-	GreenFind = FALSE;
 	CPoint ShiftDimensions;
 	bunch_occurrence = 0;
 	
@@ -234,18 +242,17 @@ void CViewImageVw::OnDraw(CDC* pDC)
 	NumStrips   = pApp->NumberOfStrips;
 	StripNumber = pApp->NumberStripClicked;
 	
-	ImageIsSegmented = pApp->m_ImageSegmented;
+	ImageIsSegmented       = pApp->m_ImageSegmented;
 	m_Video_ImageSegmented = pApp->m_Video_ImageSegmented;
 
 
-	if (ImageRepresentationType == 1)
+	if (ImageRepresentationType == GRAYSCALE)
 	{
 		ShiftDimensions = GetDeviceScrollPosition();
 	}
 
-	if (ImageRepresentationType == 0)
-	{//Ip=0
-	 //return;
+	if (ImageRepresentationType == COLOR)
+	{
 		pDoc = GetDocument();
 		// TODO: add draw code here
 
@@ -260,12 +267,14 @@ void CViewImageVw::OnDraw(CDC* pDC)
 				pDoc->m_DibTgaDoc->Draw(pDC);
 			}
 			 
-			if ((ImageIsSegmented) && ((pApp->m_StripColorRepresentation) || (pApp->m_ColorBunchRepresentation) || (pApp->m_StripGrayRepresentation)
-				|| (pApp->m_GrayScaleOpened)) && (AreaWasClicked))
+			if (ImageIsSegmented && (pApp->m_StripColorRepresentation || pApp->m_ColorBunchRepresentation || (pApp->m_StripGrayRepresentation)
+				|| (pApp->m_GrayScaleOpened)) && AreaWasClicked)
 			{//condlog
-				NumStrips = pApp->ColorImageProcess->NumStrips;
-				HorizVert = pApp->ColorImageProcess->HorizontalVertical;
+
+				NumStrips    = pApp->ColorImageProcess->NumStrips;
+				HorizVert    = pApp->ColorImageProcess->HorizontalVertical;
 				StrWidthPrev = pApp->ColorImageProcess->CurStrip[0].StripWidthPrev;
+				
 				if (HorizVert)
 				{
 					OrPoint.y = WMHeight + WindowShift.y - 1;
@@ -302,7 +311,7 @@ void CViewImageVw::OnDraw(CDC* pDC)
 
 				video_limit = pApp->VideoInputLimit;
 
-				if ((GreenFind) && (!video_limit))
+				if (GreenFind && (!video_limit))
 				{//grf
 					if (!SectNumber)
 					{
@@ -313,7 +322,7 @@ void CViewImageVw::OnDraw(CDC* pDC)
 						PeakColor5 = RGB(NScoor1, NScoor2, NScoor3);
 						pHuePen3 = new CPen(PS_SOLID, 5, PeakColor5);
 						POldPen1 = pDC->SelectObject(pHuePen3);
-						for (int coun_strip1 = 0; coun_strip1<NumStrips; coun_strip1++) //draw color bunches
+						for (int coun_strip1 = 0; coun_strip1 < NumStrips; coun_strip1++) //draw color bunches
 						{//strip_loop
 							old_col_number = pApp->ColorImageProcess->ColorInt[coun_strip1].NumberOfColoredIntervals;
 							bunch_number1 = pApp->ColorImageProcess->ColorInt[coun_strip1].RefinedNumberOfBunches;
@@ -665,7 +674,7 @@ void CViewImageVw::OnDraw(CDC* pDC)
 		}
 	}
 
-	if (ImageRepresentationType == 1)
+	if (ImageRepresentationType == GRAYSCALE)
 	{
 		video_limit = pApp->VideoInputLimit;
 		pDoc = GetDocument();
@@ -687,7 +696,7 @@ void CViewImageVw::OnDraw(CDC* pDC)
 			BOOL hide;//last_cor01.13.19
 			int WhiteYellowMarkingLabel;//last_cor01.13.19
 
-			if ((ImageIsSegmented) && ((pApp->m_ColorBunchRepresentation) || (pApp->m_GrayScaleOpened)))
+			if (ImageIsSegmented && ((pApp->m_ColorBunchRepresentation) || (pApp->m_GrayScaleOpened)))
 			{
 				BunchNumber = pApp->NumberOfBunch;
 				NumStrips = pApp->ColorImageProcess->NumStrips;
@@ -962,7 +971,7 @@ void CViewImageVw::OnDraw(CDC* pDC)
 
 					COLORREF PeakColor3;
 					COLORREF PeakColor4;
-					for (int coun_strip = 0; coun_strip<NumStrips; coun_strip++) //draw color bunches
+					for (int coun_strip = 0; coun_strip < NumStrips; coun_strip++) //draw color bunches
 					{//strip_loop
 						old_col_number = pApp->ColorImageProcess->ColorInt[coun_strip].NumberOfColoredIntervals;
 						bunch_number1 = pApp->ColorImageProcess->ColorInt[coun_strip].RefinedNumberOfBunches;
@@ -970,7 +979,7 @@ void CViewImageVw::OnDraw(CDC* pDC)
 						StripWidth1 = CurrentStrip[coun_strip].StripWidth;
 						StripWidthPrev1 = CurrentStrip[coun_strip].StripWidthPrev;
 
-						for (int coun_bunch1 = 0; coun_bunch1<bunch_number1; coun_bunch1++) //draw color bunches
+						for (int coun_bunch1 = 0; coun_bunch1 < bunch_number1; coun_bunch1++) //draw color bunches
 						{//bunch_loop
 							WhiteYellowMarkingLabel =
 								pApp->ColorImageProcess->ColorInt[coun_strip].MarkingSignal[coun_bunch1];
@@ -1312,6 +1321,7 @@ void CViewImageVw::OnDraw(CDC* pDC)
 							StripWidthPrev1 = CurrentStrip[coun_strip1].StripWidthPrev;
 							left_green_boun_bunch = pApp->ColorImageProcess->LeftGreenBoundaryBunch[coun_strip1];
 							right_green_boun_bunch = pApp->ColorImageProcess->RightGreenBoundaryBunch[coun_strip1];
+							
 							if (left_green_boun_bunch > 0)
 							{
 								left_green_boun_bunch--;
@@ -1320,6 +1330,7 @@ void CViewImageVw::OnDraw(CDC* pDC)
 							{
 								left_green_boun_bunch = -1;
 							}
+							
 							if (right_green_boun_bunch > 0)
 							{
 								right_green_boun_bunch--;
@@ -1328,6 +1339,7 @@ void CViewImageVw::OnDraw(CDC* pDC)
 							{
 								right_green_boun_bunch = -1;
 							}
+							
 							for (int coun_bunch2 = 0; coun_bunch2 < bunch_number1; coun_bunch2++) //draw color bunches
 							{//bunch_loop
 								old_col_num = pApp->ColorImageProcess->ColorInt[coun_strip1].old_bunch_number[coun_bunch2];
@@ -1484,40 +1496,37 @@ void CViewImageVw::OnDraw(CDC* pDC)
 					return;
 
 				}
-				
-				
+				 
 				if (BunchNumber >= bunch_number)
 				{
 					BunchNumber = 0;
 				}
 
-
-
-
 				blocking_bunch = pApp->ColorImageProcess->ColorInt[StripNumber].bunch_blocking;
 				old_col_num = pApp->ColorImageProcess->ColorInt[StripNumber].old_bunch_number[BunchNumber];
 				
-				if (old_col_num<old_col_number)
+				if (old_col_num < old_col_number)
 				{
-					bunch_average_hue =
-						pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageHue[old_col_num];
-					bunch_average_sat =
-						pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageSat[old_col_num];
-					bunch_average_gray =
-						pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageGray[old_col_num];
-					Beg_bunch =
-						pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->BegInterv[old_col_num];
-					End_bunch =
-						pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->EndInterv[old_col_num];
+					bunch_average_hue = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageHue[old_col_num];
+					bunch_average_sat = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageSat[old_col_num];
+					bunch_average_gray = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageGray[old_col_num];
+					
+					Beg_bunch = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->BegInterv[old_col_num];
+					End_bunch = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->EndInterv[old_col_num];
+					
 					left_contrast = pApp->ColorImageProcess->ColorInt[StripNumber].left_continuation[old_col_num];
 					right_contrast = pApp->ColorImageProcess->ColorInt[StripNumber].right_continuation[old_col_num];
+					
 					NumSideHues = (NUM_HUES / 3);
-					if (bunch_average_hue>47)
+					
+					if (bunch_average_hue > 47)
 					{
 						bunch_average_hue -= 48;
 					}
+					
 					SideTriangle = bunch_average_hue / NumSideHues;
-					SideHue = bunch_average_hue - NumSideHues*SideTriangle;
+					SideHue      = bunch_average_hue - NumSideHues*SideTriangle;
+					
 					if (SideTriangle == 0)
 					{
 						Coor1 = 255 - CoorHuPoints[SideHue];
@@ -1532,7 +1541,7 @@ void CViewImageVw::OnDraw(CDC* pDC)
 						PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
 						GrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
 						GrayLev = GrayLev / 4;
-						if (GrayLev>bunch_average_gray)
+						if (GrayLev > bunch_average_gray)
 						{
 
 							NScoor1 = (Scoor1*bunch_average_gray) / GrayLev;
@@ -1563,7 +1572,7 @@ void CViewImageVw::OnDraw(CDC* pDC)
 						PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
 						GrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
 						GrayLev = GrayLev / 4;
-						if (GrayLev>bunch_average_gray)
+						if (GrayLev > bunch_average_gray)
 						{
 							NScoor1 = (Scoor1*bunch_average_gray) / GrayLev;
 							NScoor2 = (Scoor2*bunch_average_gray) / GrayLev;
@@ -1586,14 +1595,19 @@ void CViewImageVw::OnDraw(CDC* pDC)
 						Scoor1 = 84 + (bunch_average_sat*(Coor1 - 84)) / 15;
 						Scoor2 = (84 * (15 - bunch_average_sat)) / 15;
 						Scoor3 = 84 + (bunch_average_sat*(Coor2 - 84)) / 15;
+						
 						Imax = max(Scoor1, max(Scoor2, Scoor3));
+						
 						Scoor1 = (Scoor1 * 255) / Imax;
 						Scoor2 = (Scoor2 * 255) / Imax;
 						Scoor3 = (Scoor3 * 255) / Imax;
+						
 						PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
+						
 						GrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
 						GrayLev = GrayLev / 4;
-						if (GrayLev>bunch_average_gray)
+						
+						if (GrayLev > bunch_average_gray)
 						{
 							NScoor1 = (Scoor1*bunch_average_gray) / GrayLev;
 							NScoor2 = (Scoor2*bunch_average_gray) / GrayLev;
@@ -1614,7 +1628,7 @@ void CViewImageVw::OnDraw(CDC* pDC)
 					NScoor3 = (NScoor3 + Scoor3) / 2;
 					PeakColor1 = RGB(NScoor1, NScoor2, NScoor3);
 					OldNum = pApp->ColorImageProcess->ColorInt[StripNumber].OldNumbers;
-					//HuePen.CreatePen(PS_SOLID, 3, PeakColor2);
+
 					HuePen.CreatePen(PS_SOLID, 3, PeakColor1);
 
 					POldPen = pDC->SelectObject(&HuePen);
@@ -1628,14 +1642,15 @@ void CViewImageVw::OnDraw(CDC* pDC)
 						EndPoint.x = OrPoint.x;
 						EndPoint.y = WMHeight - End_bunch;
 						pDC->LineTo(EndPoint);
-						if (right_contrast<0)
+						
+						if (right_contrast < 0)
 						{
 							pDC->MoveTo(EndPoint);
 							NewOrPoint.x = EndPoint.x - min(5, StripWidth / 2);
 							NewOrPoint.y = EndPoint.y;
 							pDC->LineTo(NewOrPoint);
 						}
-						if (left_contrast<0)
+						if (left_contrast < 0)
 						{
 							pDC->MoveTo(OrPoint);
 							EndPoint.x = OrPoint.x - min(5, StripWidth / 2);
@@ -1648,18 +1663,22 @@ void CViewImageVw::OnDraw(CDC* pDC)
 					{
 						OrPoint.x = Beg_bunch;
 						OrPoint.y = WMHeight - (StripWidthPrev*StripNumber + StripWidth / 2);
+						
 						pDC->MoveTo(OrPoint);
+						
 						EndPoint.x = End_bunch;
 						EndPoint.y = OrPoint.y;
+						
 						pDC->LineTo(EndPoint);
-						if (right_contrast<0)
+						
+						if (right_contrast < 0)
 						{
 							pDC->MoveTo(EndPoint);
 							NewOrPoint.x = EndPoint.x;
 							NewOrPoint.y = EndPoint.y - min(5, StripWidth / 2);
 							pDC->LineTo(NewOrPoint);
 						}
-						if (left_contrast<0)
+						if (left_contrast < 0)
 						{
 							pDC->MoveTo(OrPoint);
 							EndPoint.x = OrPoint.x;
@@ -1674,7 +1693,6 @@ void CViewImageVw::OnDraw(CDC* pDC)
 	}
 }
 
- 
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1709,7 +1727,7 @@ void CViewImageVw::OnMouseMove(UINT nFlags, CPoint point)
 
 
 
-
+// Calculates of a given point's color characteristics
 void CViewImageVw::Calculate(CPoint point, unsigned char *RedComp, unsigned char *GreenComp,
 	unsigned char * BlueComp, int *HueComp, int *GrayComp, float *SaturComp)
 {
@@ -1721,13 +1739,16 @@ void CViewImageVw::Calculate(CPoint point, unsigned char *RedComp, unsigned char
 	int VComp;
 	int Cor_Width;
 	int Res_Width;
+	
 	CColorVisionApp *pApp;
+	
 	unsigned char *LineAddr;
 	long linear_shift;
 	POINT Coord;
 
 	Coord.x = point.x - WindowShift.x;
 	Coord.y = (int)WMHeight - point.y + WindowShift.y;
+	
 	if (Coord.y >= WMHeight)
 	{
 		RComp = 0;
@@ -1738,7 +1759,9 @@ void CViewImageVw::Calculate(CPoint point, unsigned char *RedComp, unsigned char
 		*HueComp = -1;
 		goto L;;
 	}
+	
 	Res_Width = (3 * ((int)WMWidth)) % 4;
+	
 	if (Res_Width)
 	{
 		Cor_Width = 4 - Res_Width;
@@ -1754,13 +1777,19 @@ void CViewImageVw::Calculate(CPoint point, unsigned char *RedComp, unsigned char
 	RComp = LineAddr[linear_shift + 2];
 	GComp = LineAddr[linear_shift + 1];
 	BComp = LineAddr[linear_shift];
+	
 	VComp = max(max(RComp, GComp), BComp);
 	minRGB = min(min(RComp, GComp), BComp);
-	if (VComp > 0) SComp = ((float)(VComp - minRGB)) / (float)VComp;
-	else       SComp = 0;
+	
+	if (VComp > 0) 
+		SComp = ((float)(VComp - minRGB)) / (float)VComp;
+	else       
+		SComp = 0;
 
-	if (VComp == minRGB) H = 0;
-	else {
+	if (VComp == minRGB) 
+		H = 0;
+	else 
+	{
 		if (VComp == RComp)
 			H = (float)(GComp - BComp) / (VComp - minRGB);
 		else if (VComp == GComp)
@@ -1784,7 +1813,7 @@ L:
 
 
 
-
+// Draws clicked point's coordinates and color characteristics 
 void CViewImageVw::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
@@ -1804,20 +1833,23 @@ void CViewImageVw::OnLButtonDown(UINT nFlags, CPoint point)
 	int NumStr;
 
 	pApp = (CColorVisionApp *)AfxGetApp();
+	
 	if (ImageRepresentationType == 0)
 	{
 		CClientDC dc(this);
-
-
+		 
 		if (ImageRect.PtInRect(point))
 		{
 			ShiftDimensions = GetDeviceScrollPosition();
 			point1 = point + ShiftDimensions;
+			
 			Calculate(point1, &Red, &Green, &Blue, &Hue, &V, &Saturation);
+			
 			if (Hue == -1)
 			{
 				return;
 			}
+
 			if (Blue + Green != 0)
 			{
 				gb = (unsigned char)(255 * (long)Green / (Blue + Green));
@@ -1847,7 +1879,6 @@ void CViewImageVw::OnLButtonDown(UINT nFlags, CPoint point)
 			POINT Coord;
 			TEXTMETRIC tm;
 			POINT Text_Origin;
-			//CString str,str1;
 			long Symbol_width;
 			CWnd *p_Wnd;
 
@@ -1948,8 +1979,6 @@ void CViewImageVw::OnLButtonDown(UINT nFlags, CPoint point)
 			((pApp->m_StripColorRepresentation) || (pApp->m_StripGrayRepresentation)
 				|| (pApp->m_ColorBunchRepresentation) || (pApp->m_GrayScaleOpened))))
 		{
-			//CColorVisionApp *pApp;
-			//pApp= (CColorVisionApp *)AfxGetApp ();
 			Height = pApp->ColorImageProcess->DimY;
 			NumStr = pApp->ColorImageProcess->NumStrips;
 			ShiftDimensions = GetDeviceScrollPosition();
@@ -1971,18 +2000,12 @@ void CViewImageVw::OnLButtonDown(UINT nFlags, CPoint point)
 			pApp->NumberStripClicked = NumClicked;
 			StrWidth = pApp->ColorImageProcess->CurStrip[NumClicked].StripWidth;
 
-			//CDocument* pDoc0=pApp->pDoci0;
 			CDocument* pDoc1 = pApp->pDoci1;
 			CDocument* pDocs1 = pApp->pDocs1;
 			CDocument* pDocs2 = pApp->pDocs2;
 			CDocument* pDocs3 = pApp->pDocs3;
 			CDocument* pDocCSec1 = pApp->pDocColSec1;
 
-
-			/*if(pDoc0 != NULL)
-			{
-			pDoc0->UpdateAllViews(NULL);
-			}*/
 
 			if (pDocs1 != NULL)
 			{
@@ -2003,124 +2026,6 @@ void CViewImageVw::OnLButtonDown(UINT nFlags, CPoint point)
 				pDoc1->UpdateAllViews(NULL);
 			}
 
-
-
-			/*POSITION curTemplatePos = pApp->GetFirstDocTemplatePosition();
-			POSITION curDocPos,curDocPos1;*/
-			/* int i=0;
-
-
-			while(curTemplatePos != NULL)
-			{
-
-			CDocTemplate* curTemplate =
-			pApp->GetNextDocTemplate(curTemplatePos);
-
-			if(i==0)
-			{
-			curDocPos1=curTemplate->GetFirstDocPosition();
-
-			}
-
-			if(i==1)
-			{
-			curDocPos=curTemplate->GetFirstDocPosition();
-			if(curDocPos!=NULL)
-			{
-
-			CDocument* pDoc = curTemplate->GetNextDoc(curDocPos);
-
-			if(pDoc!=NULL)
-			{
-			if(pApp->NumberOfDoc==3)
-			{
-			CDocument* pDoc1 = curTemplate->GetNextDoc(curDocPos);
-			CDocument* pDoc2 = curTemplate->GetNextDoc(curDocPos);
-			if((pDoc2!=NULL)&&(pDoc1!=NULL))
-			{
-			pDoc2->UpdateAllViews(NULL);
-			pDoc1->UpdateAllViews(NULL);
-			pDoc->UpdateAllViews(NULL);
-			}
-			else
-			{
-			if(pDoc1!=NULL)
-			{
-			pDoc1->UpdateAllViews(NULL);
-			pDoc->UpdateAllViews(NULL);
-			}
-			if(pDoc2!=NULL)
-			{
-			pDoc2->UpdateAllViews(NULL);
-			pDoc->UpdateAllViews(NULL);
-			}
-
-			}
-			}
-
-			if(pApp->NumberOfDoc==2)
-			{
-			CDocument* pDoc1 = curTemplate->GetNextDoc(curDocPos);
-			if(pDoc1!=NULL)
-			{
-			pDoc1->UpdateAllViews(NULL);
-			pDoc->UpdateAllViews(NULL);
-			}
-			}
-
-			/*CDocument* pDoc2 = curTemplate->GetNextDoc(curDocPos);
-			if(pDoc2!=NULL)
-			{
-			pDoc1->UpdateAllViews(NULL);
-			pDoc2->UpdateAllViews(NULL);
-			}
-			}
-			if(pApp->NumberOfDoc==1)
-			{
-			pDoc->UpdateAllViews(NULL);
-			}
-
-
-			if((curDocPos1!=NULL)&&(pApp->m_GrayScaleOpened))
-			{
-			CDocument* pDoc3 = curTemplate->GetNextDoc(curDocPos1);
-			if(pDoc3!=NULL)
-			{
-			CDocument* pDoc4 = curTemplate->GetNextDoc(curDocPos1);
-			if(pDoc4!=NULL)
-			{
-			pDoc4->UpdateAllViews(NULL);
-			}
-			}
-			}
-			}
-
-
-
-			int ElWid;
-			CWnd *p_Wnd1;
-			p_Wnd1=dc.GetWindow();
-			p_Wnd1->Invalidate();
-			p_Wnd1->UpdateWindow();
-			ElWid=min(StrWidth,6);
-			if(HorizVert)
-			{
-			CenterPoint.x = WindowShift.x + (WMWidth/NumStrips)*NumClicked + StrWidth/2;
-			CenterPoint.y = WMHeight + WindowShift.y +ElWid;
-			}
-			else
-			{
-			CenterPoint.x = WMWidth + WindowShift.x + ElWid;
-			CenterPoint.y = (WMHeight/NumStrips)*(NumStrips-NumClicked-1)+WindowShift.y + StrWidth/2;
-			}
-			dc.Ellipse(CenterPoint.x-6,CenterPoint.y-6,CenterPoint.x+6,CenterPoint.y+6);
-			return;
-
-			}
-			}
-			i++;
-
-			}*/
 			int ElWid;
 			CWnd *p_Wnd1;
 			p_Wnd1 = dc.GetWindow();
@@ -2146,11 +2051,8 @@ void CViewImageVw::OnLButtonDown(UINT nFlags, CPoint point)
 			//return;
 		}
 		dc.SelectObject(PtrOldPen);
-		dc.SelectObject(PtrOldBrush);
-
-
-	}
-
+		dc.SelectObject(PtrOldBrush); 
+	} 
 }
 
 

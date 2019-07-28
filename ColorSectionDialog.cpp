@@ -1,15 +1,28 @@
-// olorSectionDialog.cpp : implementation file
-//
+/*
+
+	Dialog to list color sections.
+
+*/
+
+
+
+
+
 
 #include "stdafx.h"
 #include "ColorVision.h"
-#include "olorSectionDialog.h"
+#include "ColorSectionDialog.h"
+
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
+
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 // ColorSectionDialog dialog
@@ -46,6 +59,8 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // ColorSectionDialog message handlers
 
+
+
 BOOL ColorSectionDialog::OnInitDialog()
 {
 	CDialog::OnInitDialog();
@@ -66,6 +81,8 @@ BOOL ColorSectionDialog::OnInitDialog()
 				  // EXCEPTION: OCX Property Pages should return FALSE
 }
 
+
+
 void ColorSectionDialog::OnChangeEdit2()
 {
 	// TODO: If this is a RICHEDIT control, the control will not
@@ -74,27 +91,23 @@ void ColorSectionDialog::OnChangeEdit2()
 	// with the ENM_CHANGE flag ORed into the mask.
 
 	// TODO: Add your control notification handler code here
-	int Temp;
+	int Temp = (int)GetDlgItemInt(IDC_EDIT2);
 
-	Temp = (int)GetDlgItemInt(IDC_EDIT2);
-	if (Temp >= 0 && Temp<256)
+	if (Temp >= 0 && Temp < 256)
 	{
 		m_SectionNumber = Temp;
-		CColorVisionApp *pApp;
-		pApp = (CColorVisionApp *)AfxGetApp();
+		CColorVisionApp *pApp = (CColorVisionApp *)AfxGetApp();
 		pApp->NumberOfColorSection = m_SectionNumber;
+		
 		if (pApp->pDocColSec1 != NULL)
 		{
 			pApp->pDocColSec1->UpdateAllViews(NULL);
 			pApp->pDoci0->UpdateAllViews(NULL);
-		}
-		/*if(pApp->pDoci1!=NULL)
-		{
-		pApp->pDoci1->UpdateAllViews(NULL);
-		}*/
-	}
-
+		} 
+	} 
 }
+
+
 
 void ColorSectionDialog::OnLButtonDblClk(UINT nFlags, CPoint point)
 {

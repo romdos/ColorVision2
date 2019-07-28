@@ -39,9 +39,9 @@ void CChParam::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CChParam)
-	DDX_Control(pDX, IDC_EDIT1, m_NumStripEdit);
+	DDX_Control(pDX, IDC_EDIT_VALUE_OLDBUNCH, m_NumStripEdit);
 	DDX_Check(pDX, IDC_CHECK1, m_HorVert);
-	DDX_Text(pDX, IDC_EDIT1, m_NumStrips);
+	DDX_Text(pDX, IDC_EDIT_VALUE_OLDBUNCH, m_NumStrips);
 	DDV_MinMaxInt(pDX, m_NumStrips, 1, 99);
 	//}}AFX_DATA_MAP
 	DDX_Check(pDX, IDC_CHECK2, NetworkDirect);
@@ -62,7 +62,7 @@ BEGIN_MESSAGE_MAP(CChParam, CDialog)
 	//{{AFX_MSG_MAP(CChParam)
 	ON_WM_PAINT()
 	ON_BN_CLICKED(IDC_CHECK1, OnCheck1)
-	ON_EN_CHANGE(IDC_EDIT1, OnChangeEdit1)
+	ON_EN_CHANGE(IDC_EDIT_VALUE_OLDBUNCH, OnChangeEdit1)
 	//}}AFX_MSG_MAP
 	ON_BN_CLICKED(IDC_CHECK2, &CChParam::OnBnClickedCheck2)
 	ON_EN_CHANGE(IDC_EDIT2, &CChParam::OnEnChangeEdit2)
@@ -111,12 +111,10 @@ void CChParam::OnChangeEdit1()
 	// with the ENM_CHANGE flag ORed into the mask.
 	
 	// TODO: Add your control notification handler code here
-	int Temp;
-
-	Temp = (int) GetDlgItemInt (IDC_EDIT1);
-	if(Temp>0 && Temp<100)
+	int Temp = (int) GetDlgItemInt (IDC_EDIT_VALUE_OLDBUNCH);
+	if(Temp > 0 && Temp < 100)
     {
-     m_NumStrips=Temp;
+		m_NumStrips = Temp;
 	}
 	
 }

@@ -24,7 +24,8 @@
 // Min and Max functions are contained here
 #include <algorithm>
 
-
+// To redefine basic types
+#include "std_types.h"
 
 #include "Config.h"
   
@@ -32,20 +33,20 @@
 class Segment
 {
 public:
-	Segment(std::int16_t begin, std::int16_t end);
+	Segment(sint16 begin, sint16 end);
 	~Segment();
 
-	std::int16_t beg;
-	std::int16_t end;
+	sint16 beg;
+	sint16 end;
 
-	std::uint16_t length() { return end - beg + 1; }
+	uint16 length() { return end - beg + 1; }
 };
 
 
-std::uint8_t measure_intersection(Segment& s1,
-                       Segment& s2,
-					   std::uint16_t* ratio_1,
-                       std::uint16_t* ratio_2);
+uint8 measure_intersection(Segment& s1,
+						   Segment& s2,
+						   uint16* ratio_1,
+						   uint16* ratio_2);
 
 
 

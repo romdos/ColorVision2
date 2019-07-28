@@ -141,6 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BunchCountDialog.cpp" />
     <ClCompile Include="BunchGray.cpp" />
     <ClCompile Include="BunchNumDialog.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -217,7 +218,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="MarkingSignalParts.cpp" />
-    <ClCompile Include="olorSectionDialog.cpp">
+    <ClCompile Include="ColorSectionDialog.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
@@ -274,6 +275,7 @@
     <ResourceCompile Include="ColorVision.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BunchCountDialog.h" />
     <ClInclude Include="BunchGray.h" />
     <ClInclude Include="BunchNumDialog.h" />
     <ClInclude Include="ChildFrm.h" />
@@ -281,7 +283,7 @@
     <ClInclude Include="ColorIntervalSelect.h" />
     <ClInclude Include="ColorSection.h" />
     <ClInclude Include="ColorVision.h" />
-    <ClInclude Include="Config.h" />
+    <ClInclude Include="ColorVision_cfg.h" />
     <ClInclude Include="Dib.h" />
     <ClInclude Include="DibGrayScale.h" />
     <ClInclude Include="DibTga.h" />
@@ -289,9 +291,10 @@
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="ImageProcess.h" />
     <ClInclude Include="MainFrm.h" />
-    <ClInclude Include="olorSectionDialog.h" />
+    <ClInclude Include="ColorSectionDialog.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="std_types.h" />
     <ClInclude Include="Strip.h" />
     <ClInclude Include="ViewImageDoc.h" />
     <ClInclude Include="ViewImageVw.h" />

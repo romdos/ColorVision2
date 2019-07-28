@@ -1,6 +1,6 @@
 /* 
-*	Main file. 
-*/
+ *	Start file. 
+ */
 
 
 
@@ -25,8 +25,6 @@
 #include "ChParam.h" 
 
 
-
- 
 
 
 #ifdef _DEBUG
@@ -66,34 +64,32 @@ END_MESSAGE_MAP()
 
 
 
-
-
 /////////////////////////////////////////////////////////////////////////////
 // CColorVisionApp construction
 
 CColorVisionApp::CColorVisionApp()
-{
-	// TODO: add construction code here,
-	// Place all significant initialization in InitInstance
+{ 
+	NumberStripClicked = 0;
+
 	m_ImageIsLoaded = FALSE;
 	m_VideoCameraIsLoaded = FALSE;
 	m_GrayScaleOpened = FALSE;
 	m_ImageSegmented = FALSE;
 	m_Video_ImageSegmented = FALSE;
 	m_ImageIsInverted = TRUE;
-	m_ParamHaveBeenChanged = FALSE;
-	//m_FindLabels=TRUE;
-	m_FindLabels = FALSE;
+	m_ParamHaveBeenChanged = FALSE; 
+
 	m_FindSky = TRUE;
 	m_FindGreen = TRUE;
+	
 	ColorNumber1 = 4;
 	ColorNumber2 = 1;
 	ColorNumber3 = 0;
+	
 	m_StripColorRepresentation = FALSE;
 	m_StripGrayRepresentation = FALSE;
 	m_ColorBunchRepresentation = FALSE;
-	m_ColorSectionsRepresentation = FALSE;
-	//m_CameraIsInitialized = FALSE;
+	m_ColorSectionsRepresentation = FALSE; 
 	m_VideoCameraInput = FALSE;
 	m_VideoCameraSequenceProcessing = FALSE;
 	m_NetworkDirectX = FALSE;
@@ -102,8 +98,7 @@ CColorVisionApp::CColorVisionApp()
 	pm_GrayBitmap = NULL;
 	pBuffer = NULL;
 	buffer = NULL;
-	pData = NULL;
-	//pmListBunch = NULL;
+	pData = NULL; 
 	NumberOfStrips = 48;
 	CameraNumber = 0;
 	NumberStripClicked = 0;
@@ -112,24 +107,22 @@ CColorVisionApp::CColorVisionApp()
 	VideoInputLimit = 1;
 	NumberOfColorSection = -1;
 	HorizontalVertical = FALSE;
-	PermuteRatios = TRUE;
-	//printf("\n $%d",VideoInputLimit);
+	PermuteRatios = TRUE; 
 	ColorImageProcess = NULL;
 	StripRepresentationType = 0;
 	ImageRepresentationType = 0;
 	VideoImageRepresentationType = 0;
-	GlobalObjectsRepresentationType = 0;
-	NumberOfDoc = 0;
-	pm_BunchNumDialog = NULL;
+	GlobalObjectsRepresentationType = 0;  
+	
 	pDoci0 = NULL;
 	pDoci2 = NULL;
 	pDoci3 = NULL;
 	pDocs1 = NULL;
 	pDocs2 = NULL;
 	pDocs3 = NULL;
-	pDoci1 = NULL;
-	pCamera = NULL; 
+	pDoci1 = NULL; 
 	pDocColSec1 = NULL;
+
 	m_BitmapApp.bmBits = 0;
 	m_BitmapApp.bmBitsPixel = 0;
 	m_BitmapApp.bmHeight = 0;
@@ -144,6 +137,7 @@ CColorVisionApp::CColorVisionApp()
 	m_GrayBitmap.bmType = 0;
 	m_GrayBitmap.bmWidth = 0;
 	m_GrayBitmap.bmWidthBytes = 0;
+	
 	info.biBitCount = 0;
 	info.biClrImportant = 0;
 	info.biClrUsed = 0;
@@ -155,6 +149,7 @@ CColorVisionApp::CColorVisionApp()
 	info.biWidth = 0;
 	info.biXPelsPerMeter = 0;
 	info.biYPelsPerMeter = 0;
+
 	strFail = "Cannot continue input";
 	strVideo = "Net connection doesn't operate";
 	strVideoClose = "Restart the program please!";
@@ -244,21 +239,14 @@ BOOL CColorVisionApp::InitInstance()
 
 
 void CColorVisionApp::OnSegment()
-{
-	int DimX;        // width  of the image in pixels
-	int DimY;
-
-	// TODO: Add your command handler code here
+{ 
 	if (m_ImageIsLoaded)
 	{
-
-		DimX = pm_BitmapApp->bmWidth;
-		DimY = pm_BitmapApp->bmHeight;
-
-
-
-		if ((ColorImageProcess) && (DimX == ColorImageProcess->DimX) &&
-			(DimY == ColorImageProcess->DimY) && (HorizontalVertical == ColorImageProcess->HorizontalVertical) &&
+		int DimX = pm_BitmapApp->bmWidth;
+		int DimY = pm_BitmapApp->bmHeight; 
+		
+		if ((NULL != ColorImageProcess) && (DimX == ColorImageProcess->DimX) && (DimY == ColorImageProcess->DimY) 
+			&& (HorizontalVertical == ColorImageProcess->HorizontalVertical) &&
 			(NumberOfStrips == ColorImageProcess->NumStrips))
 		{
 			ColorImageProcess->execution_time = 0;
@@ -276,19 +264,13 @@ void CColorVisionApp::OnSegment()
 			{
 				m_ParamHaveBeenChanged = FALSE;
 			}
-			// create class for a given image
+
 			ColorImageProcess = new CImageProcess(VideoInputLimit);
 			ColorImageProcess->InitialConstructions();
-			// Algorithm is here
-			ColorImageProcess->SegmentImage(VideoImageProcessedNumber);
-		}
 
-		if (pm_BunchNumDialog != NULL)
-		{
-			pm_BunchNumDialog->DestroyWindow();
-			delete pm_BunchNumDialog;
-			pm_BunchNumDialog = NULL;
-		}
+			// Segmentation procedures are here
+			ColorImageProcess->SegmentImage(VideoImageProcessedNumber);
+		} 
 
 		if (pm_ColorSectNumDialog != NULL)
 		{
@@ -328,8 +310,6 @@ void CColorVisionApp::OnSegment()
 			}
 		}
 
-		NumberStripClicked = 0;
-		NumberOfDoc = 0;
 		m_ImageSegmented = TRUE;
 	}
 }
@@ -360,6 +340,7 @@ void CColorVisionApp::OnChangeParam()
 		VideoInputLimit = ParamDialog.m_NumFrames;
 		CameraNumber = ParamDialog.m_CameraNum;
 		PermuteRatios = ParamDialog.m_GGBorGGR;
+		
 		if ((NumStr != NumberOfStrips) || (HorV != HorizontalVertical))//fool proof
 		{
 			m_ParamHaveBeenChanged = TRUE;
@@ -372,39 +353,28 @@ void CColorVisionApp::OnChangeParam()
 void CColorVisionApp::OnVizStrips()
 {
 	// TODO: Add your command handler code here
-	if ((m_ImageIsLoaded) && (m_ImageSegmented))
+	if (m_ImageIsLoaded && m_ImageSegmented)
 	{
 		POSITION curTemplatePos = GetFirstDocTemplatePosition();
 
-		int i = 0;
-
+		int i = 0; 
 
 		while (curTemplatePos != NULL)
-		{
-
-			CDocTemplate* curTemplate =
-				GetNextDocTemplate(curTemplatePos);
+		{ 
+			CDocTemplate* curTemplate = GetNextDocTemplate(curTemplatePos);
 			CString str;
-			curTemplate->GetDocString(str, CDocTemplate::docName);
-			/*if(str == _T("Strip"))
-			{
-			curTemplate->OpenDocumentFile(NULL);
-			return;
-			}*/
+			curTemplate->GetDocString(str, CDocTemplate::docName); 
 			if (i == 1)
 			{
 				StripRepresentationType = 1;
 				curTemplate->OpenDocumentFile(NULL);
-				m_StripColorRepresentation = TRUE;
-				NumberOfDoc++;
+				m_StripColorRepresentation = TRUE; 
 				return;
 			}
 			i++;
-
 		}
 		AfxMessageBox(IDS_COLORSTRIP);
-	}
-
+	} 
 }
 
 
@@ -429,16 +399,14 @@ void CColorVisionApp::OnGrayStrips()
 
 		while (curTemplatePos != NULL)
 		{
-			CDocTemplate* curTemplate =
-				GetNextDocTemplate(curTemplatePos);
+			CDocTemplate* curTemplate = GetNextDocTemplate(curTemplatePos);
 			CString str;
 			curTemplate->GetDocString(str, CDocTemplate::docName);
 			if (i == 1)
 			{
 				StripRepresentationType = 2;
 				curTemplate->OpenDocumentFile(NULL);
-				m_StripGrayRepresentation = TRUE;
-				NumberOfDoc++;
+				m_StripGrayRepresentation = TRUE; 
 				return;
 			}
 			i++;
@@ -460,18 +428,17 @@ void CColorVisionApp::OnUpdateGrayStrips(CCmdUI* pCmdUI)
 
 void CColorVisionApp::OnBunchDemo()
 {
-	// TODO: Add your command handler code here
 	if (m_ImageIsLoaded && m_ImageSegmented)
 	{
-		pm_BunchNumDialog = new BunchNumDialog();
-		if (pm_BunchNumDialog != NULL)
+		pm_BunchCountDialog = new BunchCountDialog;
+		if (pm_BunchCountDialog != NULL)
 		{
-			BOOL ret = pm_BunchNumDialog->Create(IDD_DIALOG2, m_pMainWnd);
+			BOOL ret = pm_BunchCountDialog->Create(IDD_DIALOG2, m_pMainWnd);
 			if (!ret)   //Create failed.
 			{
 				AfxMessageBox(strFailCrDialog);
 			}
-			pm_BunchNumDialog->ShowWindow(SW_SHOW);
+			pm_BunchCountDialog->ShowWindow(SW_SHOW);
 		}
 		else
 		{
@@ -479,32 +446,27 @@ void CColorVisionApp::OnBunchDemo()
 		}
 
 		POSITION curTemplatePos = GetFirstDocTemplatePosition();
-
-		int i = 0;
-
-		while (curTemplatePos != NULL)
-		{
-
-			CDocTemplate* curTemplate =
-				GetNextDocTemplate(curTemplatePos);
+		  
+		if (curTemplatePos != NULL)
+		{ 
+			CDocTemplate* curTemplate = GetNextDocTemplate(curTemplatePos);
+			 
+			ImageRepresentationType = GRAYSCALE;
+			
+			curTemplate->OpenDocumentFile(NULL);
+			
+			m_GrayScaleOpened = TRUE;
+		 
+			curTemplate = GetNextDocTemplate(curTemplatePos);
+			
 			CString str;
 			curTemplate->GetDocString(str, CDocTemplate::docName);
 
-			if (i == 0)
-			{
-				ImageRepresentationType = 1;
-				curTemplate->OpenDocumentFile(NULL);
-				m_GrayScaleOpened = TRUE;
-			}
-			if (i == 1)
-			{
-				StripRepresentationType = 3;
-				curTemplate->OpenDocumentFile(NULL);
-				m_ColorBunchRepresentation = TRUE;
-				NumberOfDoc++;
-				return;
-			}
-			i++;
+			StripRepresentationType = 3;
+			
+			curTemplate->OpenDocumentFile(NULL);
+			
+			m_ColorBunchRepresentation = TRUE; 
 		}
 	}
 }
@@ -514,10 +476,10 @@ void CColorVisionApp::OnBunchDemo()
 void CColorVisionApp::OnUpdateBunchDemo(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable((m_ImageSegmented) && (!m_ColorBunchRepresentation) &&
-		(m_StripColorRepresentation));
-
+	pCmdUI->Enable((m_ImageSegmented) && (!m_ColorBunchRepresentation) && m_StripColorRepresentation);
 }
+
+
 
 void CColorVisionApp::OnColorSections()
 {
@@ -527,7 +489,6 @@ void CColorVisionApp::OnColorSections()
 		pm_ColorSectNumDialog = new ColorSectionDialog();
 		if (pm_ColorSectNumDialog != NULL)
 		{
-
 			BOOL ret = pm_ColorSectNumDialog->Create(IDD_DIALOG3, m_pMainWnd);
 			if (!ret)   //Create failed.
 			{
@@ -554,8 +515,7 @@ void CColorVisionApp::OnColorSections()
 			{
 				GlobalObjectsRepresentationType = 1;
 				curTemplate->OpenDocumentFile(NULL);
-				m_ColorSectionsRepresentation = TRUE;
-				NumberOfDoc++;
+				m_ColorSectionsRepresentation = TRUE; 
 				return;
 			}
 			i++;
@@ -576,7 +536,6 @@ void CColorVisionApp::OnUpdateColorSections(CCmdUI* pCmdUI)
 
  
 
- 
 void CColorVisionApp::OnSegmentInitialize()
 {
 	if (m_VideoCameraIsLoaded)
@@ -598,11 +557,8 @@ void CColorVisionApp::OnSegmentInitialize()
 				pDoci0 = NULL;
 			}
 			ColorImageProcess = new CImageProcess(VideoInputLimit);
-
 			ColorImageProcess->InitialConstructions();
-
 			m_ParamHaveBeenChanged = FALSE;
-
 		}
 	}
 }
@@ -612,25 +568,25 @@ void CColorVisionApp::OnSegmentInitialize()
 void CColorVisionApp::OnFileChangeparam()
 {
 	// TODO: Add your command handler code here
-	CChParam ParamDialog;
-	int Numstr;
-	BOOL HorV;
+	CChParam ParamDialog;  
 
 	ParamDialog.m_HorVert = HorizontalVertical;
 	ParamDialog.m_NumStrips = NumberOfStrips;
 	ParamDialog.m_NumFrames = VideoInputLimit;
 	ParamDialog.NetworkDirect = m_NetworkDirectX;
-	Numstr = NumberOfStrips;
-	HorV = ParamDialog.m_HorVert;
-	//ParamDialog.m_CameraNum=CameraNumber;
+	
+	int Numstr = NumberOfStrips;
+	BOOL HorV = ParamDialog.m_HorVert; 
+
 	if (ParamDialog.DoModal() == IDOK)
 	{
 		HorizontalVertical = ParamDialog.m_HorVert;
-		NumberOfStrips = ParamDialog.m_NumStrips;
-		m_NetworkDirectX = ParamDialog.NetworkDirect;
-		VideoInputLimit = ParamDialog.m_NumFrames;
-		CameraNumber = ParamDialog.m_CameraNum;
-		if ((HorV != HorizontalVertical) || (Numstr != NumberOfStrips))//fool proof
+		NumberOfStrips     = ParamDialog.m_NumStrips;
+		m_NetworkDirectX   = ParamDialog.NetworkDirect;
+		VideoInputLimit    = ParamDialog.m_NumFrames;
+		CameraNumber       = ParamDialog.m_CameraNum;
+
+		if ((HorV != HorizontalVertical) || (Numstr != NumberOfStrips))   //fool proof
 		{
 			m_ParamHaveBeenChanged = TRUE;
 		}

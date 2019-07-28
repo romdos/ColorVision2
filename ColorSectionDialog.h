@@ -1,10 +1,13 @@
+
+
+
 #if !defined(AFX_OLORSECTIONDIALOG_H__A837439D_29C0_42DA_87E9_4D23557C74C5__INCLUDED_)
 #define AFX_OLORSECTIONDIALOG_H__A837439D_29C0_42DA_87E9_4D23557C74C5__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
-// olorSectionDialog.h : header file
+// ColorSectionDialog.h : header file
 //
 
 /////////////////////////////////////////////////////////////////////////////

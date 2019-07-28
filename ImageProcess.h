@@ -27,7 +27,7 @@
 #endif // _MSC_VER > 1000
 
 
-
+using namespace std;
 
 class CImageProcess
 {
@@ -169,7 +169,7 @@ public:
 
 	int  GetHeight() { return DimY; }
 	int  GetWidth() { return DimX; }
-	unsigned char *GetBits() { return Im; }
+	uint8* GetBits() { return Im; }
 
 	int        NumStrips;      // number of vertical (horizontal) strips
 	int        StripWidth;     // width of a strip (except for the last one) = DimX/NumStrips

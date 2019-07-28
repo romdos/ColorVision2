@@ -1,3 +1,6 @@
+
+
+
 /*
  * Builds geometrized histograms in a strip (local GH).
  *
@@ -154,7 +157,6 @@ CStrip::CStrip()
     
    TotalTime = 0;
 }
-
 
 
 
