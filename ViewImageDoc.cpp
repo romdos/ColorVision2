@@ -135,7 +135,7 @@ CViewImageDoc::~CViewImageDoc()
 	pApp->m_GrayScaleOpened=FALSE;
 	pApp->m_StripColorRepresentation=FALSE;
 	pApp->m_StripGrayRepresentation=FALSE;
-	pApp->m_ColorBunchRepresentation=FALSE;
+	pApp->m_ColorBunchRepresentation = FALSE;
 	pApp->m_ColorSectionsRepresentation=FALSE;
     pApp->NumberStripClicked = 0;
     pApp->pm_BitmapApp=NULL; 

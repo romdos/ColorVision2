@@ -1,26 +1,22 @@
-
-
-
-/*
- * Builds geometrized histograms in a strip (local GH).
- *
- *
- *
- *
- *
- */
+//*************************************************************************************************
+// @Description:
+//		Builds geometrized histograms in a strip (local GH).
+//
+// @History:
+// 
+//
+//*************************************************************************************************
 
 
 
 
 
 #include "stdafx.h" 
+
 #include "Strip.h"
  
 
-
-
-
+ 
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[]=__FILE__;
@@ -28,6 +24,11 @@ static char THIS_FILE[]=__FILE__;
 #endif
 
  
+
+// Element of this array shows whether a segment was picked to bunch (TRUE) or not FALSE
+static BOOL pickedSegments[SEGMENTS_AND_INTENS_TOTAL_NUM];
+
+  
 
 CStrip::CStrip()
 {
@@ -234,10 +235,46 @@ delete[] IntAllInformGray;
 
 
 
-/**************************************************************************************************
-----@Description:
---------This program performs geometric description of intensities in a particular strip.
-**************************************************************************************************/
+GrayBunch::GrayBunch()
+{
+	beg = 0;
+	end = 0;
+
+	stripNumber = 0; 
+	intens = 0.0f;
+
+	sectionCrossed = FALSE;
+	isValid = FALSE;
+}
+
+
+
+GrayBunch::GrayBunch(sint16 begin, 
+					 sint16 ending, 
+				     uint8 stripNum,
+					 float meanIntensity)
+{
+	beg = begin;
+	end = ending;
+
+	stripNumber = stripNum;
+
+	intens = meanIntensity;
+
+	sectionCrossed = FALSE;
+	isValid = FALSE;
+}
+
+
+
+GrayBunch::~GrayBunch() {}
+
+ 
+
+//*************************************************************************************************
+// @Description:
+//		This program performs geometric description of intensities in a particular strip.
+//*************************************************************************************************
 void CStrip::Loc_stat_geom_double(BOOL NumPair)
 {
 	 int ncoor2; 
@@ -259,7 +296,7 @@ void CStrip::Loc_stat_geom_double(BOOL NumPair)
 	 int last_pix[NUM_INTEN];
 	 int last_endg[NUM_INTEN1]; 
 
-	 std::uint16_t last_pixg[NUM_INTEN1];
+	 uint16 last_pixg[NUM_INTEN1];
 
 	 int* inten_count1;
 	 int fine_color_balance; 
@@ -3109,31 +3146,31 @@ IntAllInform[inten_first].CenterOfMass1[num_int]=Center_of_mass1;
 
 
 
-/**************************************************************************************************
-* @Description:
-*      Calculates the outermost left and right points of intesities in the strip.
-*      Calculates how often intesity occurs and vertical lines of occurences.
-*-------------------------------------------------------------------------------------------------
-* @Parameters:
-*      @In:
-*        inten -- intenstity of pixel
-*        coord -- current coordinate of pixel with intensity (inten)
-*      @Out:
-*        last_pi -- right outermost position of pixel with intensity (inten)
-*        last_en --
-*-------------------------------------------------------------------------------------------------
-* @Notes: todo: rename function
-**************************************************************************************************/
-void CStrip::StripCharacteristicsFindingGray(std::uint8_t inten,
-											 std::uint16_t coord,
-											 std::uint16_t* last_pi,
+//**************************************************************************************************
+// @Description:
+//      Calculates the outermost left and right points of intesities in the strip.
+//      Calculates how often intesity occurs and vertical lines of occurences.
+//-------------------------------------------------------------------------------------------------
+// @Parameters:
+//      @In:
+//        inten -- intenstity of pixel
+//        coord -- current coordinate of pixel with intensity (inten)
+//      @Out:
+//        last_pi -- right outermost position of pixel with intensity (inten)
+//        last_en --
+//-------------------------------------------------------------------------------------------------
+// @Notes: todo: rename function
+//*************************************************************************************************/
+void CStrip::StripCharacteristicsFindingGray(uint8 inten,
+											 uint16 coord,
+											 uint16* last_pi,
 											 int* last_en)
 {
 	if (hist_sumg[inten] != 0)
 	{
-		std::int16_t save_beg_pare = end_pointg[inten];
+		sint16 save_beg_pare = end_pointg[inten];
 
-		std::int16_t jump_pare = coord - save_beg_pare;
+		sint16 jump_pare = coord - save_beg_pare;
 
 		if ((save_beg_pare != 0) && (jump_pare == 0))
 		{
@@ -3141,7 +3178,7 @@ void CStrip::StripCharacteristicsFindingGray(std::uint8_t inten,
 		}
 		else
 		{
-			std::int16_t jump_coor = coord - last_pi[inten];
+			sint16 jump_coor = coord - last_pi[inten];
 			last_pi[inten] = coord;
 
 			// tolerant gap
@@ -3205,7 +3242,7 @@ void CStrip::FinalCorrectionGray()
 {
 	int intensity_cons;
 
-	for (std::uint8_t inu = 0; inu < NUM_INTEN1; inu++)
+	for (uint8 inu = 0; inu < NUM_INTEN1; inu++)
 	{
 		if ((thick_lastg[inu] == 0) || (num_of_intg[inu] > (MAX_INT_NUMBER - 2)))
 		{
@@ -3213,8 +3250,8 @@ void CStrip::FinalCorrectionGray()
 			continue;
 		}
 
-		std::int16_t first = thick_firstg[inu];
-		std::int16_t last = thick_lastg[inu];
+		sint16 first = thick_firstg[inu];
+		sint16 last = thick_lastg[inu];
 
 		if (num_of_intg[inu] == 0)
 		{
@@ -3356,14 +3393,14 @@ ahead:
  * @Notes:
  *      todo: rename function. Emphasize dealing only with gray intensities.
  **************************************************************************************************/
-void CStrip::Strip_value_painting1(std::uint8_t intens,
-								   std::int16_t beg, 
-								   std::int16_t end,
+void CStrip::Strip_value_painting1(uint8 intens,
+								   sint16 beg, 
+								   sint16 end,
 								   int consistency)
 {
 	int limit = NUM_INTEN1 / 4;
 
-	for (std::int16_t x = (beg >> PRESSING); x <= (end >> PRESSING); x++)
+	for (sint16 x = (beg >> PRESSING); x <= (end >> PRESSING); x++)
 	{
 
 		int quant = quantity_of_intensitiesg[x];
@@ -3384,4 +3421,121 @@ void CStrip::Strip_value_painting1(std::uint8_t intens,
 		}
 		quantity_of_intensitiesg[x]++;
 	}
+}
+
+
+
+//*************************************************************************************************
+// @Description:
+//       Constructs burst bunches from given segments in a strip and adds them to bursts array.
+//-------------------------------------------------------------------------------------------------
+// @Parameters:
+//       max_length -- upper boundary of bunch length,
+//       depth -- shows how deep we go forward along intensities.
+//-------------------------------------------------------------------------------------------------
+// @Return:
+//       -1 -- if no bunch was found,
+//        0 -- otherwise.
+//-------------------------------------------------------------------------------------------------
+// @Notes:
+//  	todo: make convenient and efficient indexation -> (intens, interv) (e.g. B-tree).
+//  	        make with gap.
+//*************************************************************************************************
+sint8 CStrip::findBursts(uint16 max_length,
+						 uint8 depth)
+{  
+	// Intensity with non-empty set of segments
+	uint8 startIntens = NUM_INTEN1 - 1U;
+	uint8 segmentsNum = IntAllInformGray[startIntens].num_of_int;
+
+	while ((0U != startIntens) && (0U == segmentsNum))
+	{
+		--startIntens;
+		segmentsNum = IntAllInformGray[startIntens].num_of_int;
+	}
+
+	// Dark min intensity is not appropriate for obvious reasons
+	if (0U == segmentsNum)
+		return -1;
+
+	// Array (or matrix) showing was a segment (intens, number) already picked or not
+	for (uint16 i = 0U; i < SEGMENTS_AND_INTENS_TOTAL_NUM; i++)
+	{
+		pickedSegments[i] = FALSE;
+	}
+
+	// todo: investigate
+	uint8 lastIntens  = 11U; // <---   todo: affects out of range
+	uint8 bunchesNum = 0U;
+
+	for (uint8 intens = startIntens; intens > lastIntens; --intens)
+	{
+		segmentsNum = IntAllInformGray[intens].num_of_int;
+		for (uint8 segment = 0U; segment < segmentsNum; segment++)
+		{
+			BOOL segmentPicked = pickedSegments[intens * MAX_INT_NUMBER + segment];
+
+			if (segmentPicked == TRUE)
+				continue;
+
+			pickedSegments[intens * MAX_INT_NUMBER + segment] = TRUE;
+
+			sint16 beg = IntAllInformGray[intens].BegInt[segment];
+			sint16 end = IntAllInformGray[intens].EndInt[segment];
+
+			Segment seed(beg, end);
+
+			if (seed.length() > max_length)
+				continue;
+
+			// Grow a bunch 
+			float mean_intens = intens;
+			uint8 pickedSegmentsNum = 1U;
+
+			for (uint8 nextIntens = intens - 1U, dist = intens - nextIntens; 
+				 dist < depth;
+				 nextIntens--, dist = intens - nextIntens)
+			{
+				for (uint8 next_segment = 0U; 
+					 next_segment < IntAllInformGray[nextIntens].num_of_int; 
+					 next_segment++)
+				{
+					segmentPicked = pickedSegments[nextIntens * MAX_INT_NUMBER + next_segment];
+					if (TRUE == segmentPicked)
+						continue;
+					// Candidate segment
+					sint16 candBeg = IntAllInformGray[nextIntens].BegInt[next_segment];
+					sint16 candEnd = IntAllInformGray[nextIntens].EndInt[next_segment];
+
+					Segment segmentCandidate(candBeg, candEnd);
+					if (segmentCandidate.length() > max_length)
+						continue;
+
+					uint16 r1, r2; // useless, only for measure_intersection
+					BOOL segmentsIntersected = measure_intersection(seed, segmentCandidate, &r1, &r2) <= 2;
+					if (true == segmentsIntersected)
+					{
+						candBeg = min(beg, candBeg);
+						candEnd = max(end, candEnd);
+						// if new length is not big
+						if ((candEnd - candBeg + 1) < max_length)
+						{
+							pickedSegments[nextIntens * MAX_INT_NUMBER + next_segment] = TRUE;
+							beg = candBeg;
+							end = candEnd;
+							mean_intens += nextIntens;
+							++pickedSegmentsNum;
+						}
+					}
+				}  
+			} 
+			mean_intens /= pickedSegmentsNum;
+			
+			GrayBunch bunch(beg, end, num_strip, mean_intens);
+			if (bunchesNum < BURSTS_SIZE)
+				bursts[bunchesNum++] = bunch; 
+		}
+	} 
+
+	return 0;
 }

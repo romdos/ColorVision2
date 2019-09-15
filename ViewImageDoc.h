@@ -1,4 +1,10 @@
-
+// 
+//
+//
+//
+//
+//
+//
 
 
 
@@ -18,9 +24,7 @@
 
 
 
-
-// ViewImageDoc.h : header file
-//
+ 
 #include "DibTga.h"
 #include "Dib.h"
 #include "DibGrayScale.h"

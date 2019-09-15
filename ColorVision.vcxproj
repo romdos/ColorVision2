@@ -52,7 +52,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>.\Debug\</OutDir>
     <IntDir>.\Debug\</IntDir>
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -141,14 +141,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BunchCountDialog.cpp" />
+    <ClCompile Include="BunchCountDlg.cpp" />
     <ClCompile Include="BunchGray.cpp" />
-    <ClCompile Include="BunchNumDialog.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-    </ClCompile>
     <ClCompile Include="Bunchrel.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
@@ -275,15 +269,14 @@
     <ResourceCompile Include="ColorVision.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BunchCountDialog.h" />
+    <ClInclude Include="BunchCountDlg.h" />
     <ClInclude Include="BunchGray.h" />
-    <ClInclude Include="BunchNumDialog.h" />
     <ClInclude Include="ChildFrm.h" />
     <ClInclude Include="ChParam.h" />
     <ClInclude Include="ColorIntervalSelect.h" />
     <ClInclude Include="ColorSection.h" />
     <ClInclude Include="ColorVision.h" />
-    <ClInclude Include="ColorVision_cfg.h" />
+    <ClInclude Include="cv_config.h" />
     <ClInclude Include="Dib.h" />
     <ClInclude Include="DibGrayScale.h" />
     <ClInclude Include="DibTga.h" />

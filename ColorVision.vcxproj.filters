@@ -18,9 +18,6 @@
     <ClCompile Include="BunchGray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BunchNumDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Bunchrel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -90,7 +87,7 @@
     <ClCompile Include="ColorSectionDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BunchCountDialog.cpp">
+    <ClCompile Include="BunchCountDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,9 +98,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BunchGray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BunchNumDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ChildFrm.h">
@@ -169,13 +163,13 @@
     <ClInclude Include="ColorSectionDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BunchCountDialog.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ColorVision_cfg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="std_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cv_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BunchCountDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

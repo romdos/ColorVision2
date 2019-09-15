@@ -1,16 +1,36 @@
+/*
+ *
+ *
+ *
+ *
+ *
+ */
+
+
+
+
 #include "stdafx.h"
 #include "ColorVision.h"
 #include "ImageProcess.h"
 #include <stdio.h>
 #include <time.h>
 
+
+
+
 using namespace std;
+
+
+
 
 #ifdef _DEBUG
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #define new DEBUG_NEW
 #endif
+
+
+
 
 static  int hue_zones[NUM_HUES] = { 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3,
 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5,
@@ -205,10 +225,11 @@ CImageProcess::MaximumGreenComp(int left_right)
 	}
 	return(prior);
 }
-//=========================================================
-int
 
-CImageProcess::OpposGreenComponents(int left_right, int section_number)
+
+
+
+int CImageProcess::OpposGreenComponents(int left_right, int section_number)
 {
 
 	int section_beg;
@@ -11317,13 +11338,6 @@ if ((section_weight > DimX / 2) && (w_mng_section_weight > DimX / 2) && (non_gre
 				{//bao0
 					if (first_green_adjacent == bunch_adjacent_ordered)
 					{//fga=bao
-					 /*if(count_adj_n_green_sec_max_oppos>=1)
-					 {
-					 max_adj_sec=adj_sec_n_green_max_oppos[0]-1;
-					 max_adj_sec_weight=ColorSection->section_weight[max_adj_sec];
-					 first_max_adj_sec_strip=ColorSection->section_fibre_first[max_adj_sec];
-					 last_max_adj_sec_strip=ColorSection->section_fibre_last[max_adj_sec];
-					 }*/
 						if (((first_green_adjacent == last_green_adjacent) ||
 							((first_green_adjacent == last_gr_in_chain) && (residual_ratio2 <= 9) && (first_green_adjacent >= 0))) &&
 							((max_green_adj_section_bunch>max_n_green_adj_section_bunch) && (max_n_green_adj_section_bunch >= 0)))

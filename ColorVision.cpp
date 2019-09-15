@@ -6,8 +6,6 @@
 
 #include "stdafx.h" 
 
-
-
 #include "ColorVision.h"
 
 #include "MainFrm.h"
@@ -44,12 +42,16 @@ BEGIN_MESSAGE_MAP(CColorVisionApp, CWinApp)
 	//{{AFX_MSG_MAP(CColorVisionApp)
 	ON_COMMAND(ID_SEGMENT, OnSegment)
 	ON_COMMAND(ID_CHANGE_PARAM, OnChangeParam)
+	
 	ON_COMMAND(ID_VIZ_STRIPS, OnVizStrips)
 	ON_UPDATE_COMMAND_UI(ID_VIZ_STRIPS, OnUpdateVizStrips)
+	
 	ON_COMMAND(ID_GRAY_STRIPS, OnGrayStrips)
 	ON_UPDATE_COMMAND_UI(ID_GRAY_STRIPS, OnUpdateGrayStrips)
-	ON_COMMAND(ID_BUNCH_DEMO, OnBunchDemo)
+	
+	ON_COMMAND(ID_BUNCH_DEMO, OnBunchDemo)	
 	ON_UPDATE_COMMAND_UI(ID_BUNCH_DEMO, OnUpdateBunchDemo)
+	
 	ON_COMMAND(ID_COLOR_SECTIONS, OnColorSections)
 	ON_UPDATE_COMMAND_UI(ID_COLOR_SECTIONS, OnUpdateColorSections)
 	//}}AFX_MSG_MAP
@@ -92,8 +94,7 @@ CColorVisionApp::CColorVisionApp()
 	m_ColorSectionsRepresentation = FALSE; 
 	m_VideoCameraInput = FALSE;
 	m_VideoCameraSequenceProcessing = FALSE;
-	m_NetworkDirectX = FALSE;
-	pm_inputbuffer = NULL;
+	m_NetworkDirectX = FALSE; 
 	pm_BitmapApp = NULL;
 	pm_GrayBitmap = NULL;
 	pBuffer = NULL;
@@ -421,7 +422,6 @@ void CColorVisionApp::OnUpdateGrayStrips(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable((m_ImageSegmented) && (!m_StripGrayRepresentation));
-
 }
 
 
@@ -430,15 +430,16 @@ void CColorVisionApp::OnBunchDemo()
 {
 	if (m_ImageIsLoaded && m_ImageSegmented)
 	{
-		pm_BunchCountDialog = new BunchCountDialog;
-		if (pm_BunchCountDialog != NULL)
-		{
-			BOOL ret = pm_BunchCountDialog->Create(IDD_DIALOG2, m_pMainWnd);
-			if (!ret)   //Create failed.
+		// todo: try to not use member pointer of dialog, make local right here
+		m_pBunchCountDialog = new BunchCountDlg;
+		
+		if (m_pBunchCountDialog != NULL)
+		{ 
+			if (!m_pBunchCountDialog->Create(IDD_DIALOG_BUNCH_SELECT, m_pMainWnd))
 			{
 				AfxMessageBox(strFailCrDialog);
 			}
-			pm_BunchCountDialog->ShowWindow(SW_SHOW);
+			m_pBunchCountDialog->ShowWindow(SW_SHOW);
 		}
 		else
 		{
@@ -610,16 +611,18 @@ void CColorVisionApp::OnAppExit()
 	{
 		pDoci2->OnCloseDocument();
 		pDoci2 = NULL;
-	}
-	if (pm_inputbuffer != NULL)
-	{
-		delete pm_inputbuffer;
-	}
+	} 
 	if (pData != NULL)
 	{
 		delete pData;
 		pData = NULL;
 	}
+	
+	if (nullptr != m_pBunchCountDialog)
+	{
+		delete m_pBunchCountDialog;
+	}
+
 	if (ColorImageProcess != NULL)
 	{
 		ColorImageProcess->DeleteTemporal();
@@ -632,10 +635,7 @@ void CColorVisionApp::OnAppExit()
 	{
 		delete pBuffer;
 		pBuffer = NULL;
-	} 
-
-
-
+	}  
 	if (pDoci0 != NULL)
 	{
 		pDoci0->OnCloseDocument();

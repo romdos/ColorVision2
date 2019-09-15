@@ -1,11 +1,10 @@
-/*
- * A strip of an image. Contains all necessary data and methods
- * for building Geometrized Histogram.
- *
- *
- *
- *
- */
+//
+// Class describing one selected strip of an image.
+//
+//
+//
+//
+//
 
 
 
@@ -20,12 +19,12 @@
 
 
 
-/*
-*  Segments of Geometrized Histograms.
-*
-*
-*/
+// Segments of Geometrized Histograms
 #include "Geometry.h"
+
+
+// Max number of bursts
+#define		BURSTS_SIZE		32U
 
 
 
@@ -223,6 +222,34 @@ public:
 
 
 
+class GrayBunch
+{
+public:
+	GrayBunch(); 
+	GrayBunch(sint16 begin, 
+			  sint16 end, 
+			  uint8 stripNum, 
+			  float meanIntensity);
+	
+	~GrayBunch();
+
+public:
+	// bunches coords in one direction
+	sint16 beg, end;
+	// bunches other coordinate
+	uint8 stripNumber;
+	// mean intensity
+	float intens;
+	// flag describing whether this bunch is contained (TRUE) in some section or not (FALSE)
+	bool sectionCrossed;
+	// shows whether this bunch is included to bursts array (TRUE) or not (FALSE)
+	bool isValid;
+public:
+	uint16 length() const { return end - beg + 1; }
+};
+
+
+
 class CStrip
 {
 public:
@@ -230,7 +257,6 @@ public:
 	~CStrip();
 
 public:
-
 	// todo: rename according to camelCase. Remain only 'number'
 	int num_strip; 
 
@@ -241,7 +267,9 @@ public:
 
 	int HorizontalVertical;
 
-	BOOL GGBorGGR;
+	GrayBunch bursts[BURSTS_SIZE];
+	
+	bool GGBorGGR;
 
 	int PressedLength;
 	int NumLevels;   // number of values each pixel can take (e.g. 256)
@@ -380,7 +408,7 @@ public:
 			int* thick_prev_sta, int* thick_break_be, int* thick_break_en,
 			int* thick_break_sta, int Coun, int color_balance,int saturation);
 
-	void StripCharacteristicsFindingGray(std::uint8_t inten, std::uint16_t coord, std::uint16_t* last_pi, int* last_en);
+	void StripCharacteristicsFindingGray(uint8 inten, uint16 coord, uint16* last_pi, int* last_en);
 
 	void FinalCorrectionGray();
 
@@ -397,9 +425,19 @@ public:
 			int bound1, int bound2, unsigned char inten_first, int signif, int coun,
 			int num_opp);
 
+	
+	
 	void Important_interval1(int begin_interval, int end_interval, unsigned char intensi, int signi);
 
-	void Strip_value_painting1(std::uint8_t intens, std::int16_t beg, std::int16_t end, int consistency); 
+	
+	
+	void Strip_value_painting1(uint8 intens, 
+							   sint16 beg, 
+							   sint16 end, 
+							   int consistency);
+
+	sint8 findBursts(uint16 max_length,
+					 uint8 depth);
 };
 
  

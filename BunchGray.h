@@ -1,41 +1,16 @@
-
-
-
-/*  Clusters of grayscale intensity segments.  */
-
-
-
-
+//*************************************************************************************************  
+// Interface for building grayscale bunches. 
+//
+//*************************************************************************************************
 
 #pragma once
-
 
 // To redefine basic types
 #include "std_types.h"
 
-
 // To store for bunches
 #include <vector>
 
-using namespace std;
-
-// created by Roman
-class GrayBunch
-{
-public:
-	GrayBunch(sint16 begin, sint16 end, uint8 stripNum, float meanIntensity);
-	~GrayBunch();
-public:
-	// bunch's coordinates
-	sint16 beg, end;
-	uint8 stripNumber;
-	// mean intensity of segments comprising this bunch
-	float intens;
-	bool sectionCrossed;
-
-public:
-	std::uint16_t length() const { return end - beg + 1; }
-};
 
 
 
@@ -46,11 +21,7 @@ public:
 	CBunchGray();
 	~CBunchGray();
 
-public:
-
-	// candidate bunches
-	vector<GrayBunch> bursts;       
-
+public:     
 	int DimX;
 	int DimY;
 	int HorizontalVertical;
@@ -159,6 +130,6 @@ int* painted_strip_sc,int* intense_consistency_sc);
 	int FindingIntervalsWithAdjacent(int last_member,int first_member,int direc, int* boundary_int);
 
 
-	sint8 clusterize(uint16 max_length,
+	sint8 findBursts(uint16 max_length,
 					uint8 depth);
 };

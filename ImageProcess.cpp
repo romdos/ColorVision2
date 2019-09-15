@@ -1,7 +1,7 @@
 /*
-*  Segmentation routines are here.
-* 
-*/
+ *  Segmentation routines are here.
+ * 
+ */
  
 
 
@@ -46,9 +46,9 @@ static  int imp_dev_mean[8] = { 14, 16, 18, 18, 16, 16, 14, 12 };
  
 
  
-/* 
-* Initializes ImageProcess Class. 
-*/
+// 
+// Initializes ImageProcess Class. 
+//
 CImageProcess::CImageProcess(int TotalNumberofFrames)
 {
 	int i_count;
@@ -1018,10 +1018,10 @@ void CImageProcess::InitialConstructions()
 
 
 
-/**************************************************************************************************
-* @Description:
-*	Segments image.
-**************************************************************************************************/
+//*************************************************************************************************
+// @Description:
+//	Segments image.
+//*************************************************************************************************
 void CImageProcess::SegmentImage(int CurrentFrameNumber)
 {                
 	int number_ordered; // todo: initialize! 
@@ -1103,9 +1103,8 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 		 
 		// Build geometrized histogram
 		CurStrip[i].Loc_stat_geom_double(GGBorGGR);  
-
-		// Cluster segments into bunch
-		GrayBunches[i].clusterize(8 * StripWidth, 5);
+		 
+		CurStrip[i].findBursts(8 * StripWidth, 5);
 		 
 
 		if (VideoCameraIsLoaded && (TotalNumFrame > 1) && (0 != LengthofMotionAnalysisInterval))
@@ -1128,10 +1127,13 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 		ColorInt[i].PressedLength = PressedLength;
 
 		// Builds color bunches
-		ColorInt[i].FindingStructureParametrs(CurStrip[i].num_of_int, ColorInt[i].intensities_with_colored_int, ColorInt[i].OldNumbers,
-			&ColorInt[i].NumInterestingIntensities);
+		ColorInt[i].FindingStructureParametrs(CurStrip[i].num_of_int, 
+										      ColorInt[i].intensities_with_colored_int,
+											  ColorInt[i].OldNumbers,
+											  &ColorInt[i].NumInterestingIntensities);
 		  
 		int covering_number = ColorInt[i].NumberOfIntervalsInCovering;
+
 		TotalDisOrdering += ColorInt[i].Disordering;
 		
 		if (covering_number > MaximumNumberOfCoveringElements)
@@ -1467,8 +1469,8 @@ void CImageProcess::detect_green()
 	UpperGreenBoundaryLeft = 0;
 	UpperGreenBoundaryRight = 0;
 
-	MaximumGreenComp(1);
-	MaximumGreenComp(0);
+	//MaximumGreenComp(1);
+	//MaximumGreenComp(0);
 
 	VerticalPartsofGreenBoundary();
 }

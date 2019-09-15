@@ -204,39 +204,41 @@ CColorIntervalSelect::~CColorIntervalSelect()
 	}*/
 
 }
-//-----------------------------------------------------------------------------
-void
 
-CColorIntervalSelect::FindingStructureParametrs(int* num_of_int,
-	int*intens_with_int, int* OldNumb, int* NumInterestingIntensities)
-{
-	int int_cou;
-	int MaxNumInt;
-	int num_int;
+
+
+//*************************************************************************************************
+// @Description:
+//		
+//*************************************************************************************************
+void CColorIntervalSelect::FindingStructureParametrs(int* num_of_int,
+													 int* intens_with_int, 
+													 int* OldNumb, 
+													 int* NumInterestingIntensities)
+{ 
+	int MaxNumInt; 
 	int coun_ini;
-	int NumInterestIntens;
-
-	/*CColorVisionApp *pApp;
-	pApp= (CColorVisionApp *)AfxGetApp ();*/
+	int NumInterestIntens; 
 
 	NumberOfColoredIntervals = 0;
 	NumberOfColorlessIntervals = 0;
 	NumberOfLabels = 0;
 	NumberOfIntervals1 = 0;
 	StripWidth = StripCurrent->StripWidth;
+	
 	dimX = StripCurrent->DimX;
 	dimY = StripCurrent->DimY;
+	
 	StripLength = StripCurrent->StripLength;
+	
 	MaxNumInt = 0;
 	NumInterestIntens = 0;
 	TotalNumInt = 0;
 
-	for (int_cou = 0; int_cou<NUM_INTEN; int_cou++)
+	for (uint8 int_cou = 0; int_cou < NUM_INTEN; int_cou++)
 	{
-		num_int = num_of_int[int_cou];
-
-
-		if (num_int)
+		int num_int = num_of_int[int_cou]; 
+		if (0 != num_int)
 		{
 			TotalNumInt += num_int;
 			OldNumb[NumInterestIntens] = int_cou;
@@ -262,7 +264,9 @@ CColorIntervalSelect::FindingStructureParametrs(int* num_of_int,
 		return;
 	}
 	MaximalNumber = MaxNumInt;
+	
 	ColorInform = new TIntColor[NumInterestIntens];
+	
 	for (coun_ini = 0; coun_ini<NumInterestIntens; coun_ini++)
 	{
 		ColorInform[coun_ini].num_of_int = MaxNumInt;
@@ -280,9 +284,9 @@ CColorIntervalSelect::FindingStructureParametrs(int* num_of_int,
 	}
 
 	Colored_intervals_findingColorDivision(NumInterestIntens,
-		OldNumbers, num_of_int, StripCurrent->IntAllInform);
-	/*Colored_intervals_finding(NumInterestIntens,
-	OldNumbers,num_of_int,StripCurrent->IntAllInform);*/
+										   OldNumbers, 
+										   num_of_int, 
+										   StripCurrent->IntAllInform); 
 
 }
 

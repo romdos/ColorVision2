@@ -85,12 +85,7 @@ BOOL ColorSectionDialog::OnInitDialog()
 
 void ColorSectionDialog::OnChangeEdit2()
 {
-	// TODO: If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialog::OnInitDialog()
-	// function and call CRichEditCtrl().SetEventMask()
-	// with the ENM_CHANGE flag ORed into the mask.
 
-	// TODO: Add your control notification handler code here
 	int Temp = (int)GetDlgItemInt(IDC_EDIT2);
 
 	if (Temp >= 0 && Temp < 256)

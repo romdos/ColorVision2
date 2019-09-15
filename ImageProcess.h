@@ -1,10 +1,7 @@
-/**
- * Segmentation function.
- * 
- * 
- * 
- */ 
-
+//*************************************************************************************************
+// All information about the image (geometrized histograms, bunches and etc.)
+//
+//*************************************************************************************************
 
 
 
@@ -26,8 +23,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+ 
 
-using namespace std;
 
 class CImageProcess
 {

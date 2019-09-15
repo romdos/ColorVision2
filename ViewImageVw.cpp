@@ -1,5 +1,10 @@
-// ViewImageVw.cpp : implementation file
-//
+/*
+ *
+ *
+ *
+ */
+
+
 
 
 
@@ -36,6 +41,7 @@ static int CoorHuPoints[16] = { 7, 23, 39, 55, 71, 87, 103, 119, 135, 151, 167, 
 CViewImageVw::CViewImageVw()
 {
 	m_Dragging = 0;
+
 	m_HArrow = AfxGetApp()->LoadStandardCursor(IDC_ARROW);
 	m_HCross = AfxGetApp()->LoadStandardCursor(IDC_CROSS);
 	 
@@ -84,9 +90,6 @@ END_MESSAGE_MAP()
 
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CViewImageVw drawing
-
 void CViewImageVw::OnInitialUpdate()
 {
 	CScrollView::OnInitialUpdate();
@@ -100,7 +103,8 @@ void CViewImageVw::OnInitialUpdate()
 	CameraImageLoaded = pApp->m_VideoCameraIsLoaded;
 	HorizVert = pApp->HorizontalVertical;
 
-	CSize sizeTotal;
+	CSize sizeTotal; 
+
 	// TODO: calculate the total size of this view
 	if (ImageLoaded || CameraImageLoaded)
 	{
@@ -164,7 +168,9 @@ void CViewImageVw::OnDraw(CDC* pDC)
 	int NewGrayLev;
 	int Imax;
 	int StripNumber;
-	int BunchNumber;
+
+	int colorBunchNum;
+	int grayBunchNum;
 	
 	int Beg_bunch;
 	int End_bunch;
@@ -230,9 +236,14 @@ void CViewImageVw::OnDraw(CDC* pDC)
  	BOOL VertFind;
 
 	BOOL IdenCard = TRUE;
-	BOOL SkyFind = FALSE;
+	BOOL SkyFind  = FALSE;
 	BOOL GreenFind = FALSE;
+	CPen pen;
+	CPen* pHuePen;
+	CPen* POldPen;
 
+	COLORREF PeakColor1;
+	COLORREF PeakColor2;
 	sky_index = 0;
 	CPoint ShiftDimensions;
 	bunch_occurrence = 0;
@@ -244,13 +255,7 @@ void CViewImageVw::OnDraw(CDC* pDC)
 	
 	ImageIsSegmented       = pApp->m_ImageSegmented;
 	m_Video_ImageSegmented = pApp->m_Video_ImageSegmented;
-
-
-	if (ImageRepresentationType == GRAYSCALE)
-	{
-		ShiftDimensions = GetDeviceScrollPosition();
-	}
-
+	 
 	if (ImageRepresentationType == COLOR)
 	{
 		pDoc = GetDocument();
@@ -674,11 +679,12 @@ void CViewImageVw::OnDraw(CDC* pDC)
 		}
 	}
 
-	if (ImageRepresentationType == GRAYSCALE)
+	else if (ImageRepresentationType == GRAYSCALE)
 	{
+		ShiftDimensions = GetDeviceScrollPosition(); 
+
 		video_limit = pApp->VideoInputLimit;
-		pDoc = GetDocument();
-		// TODO: add draw code here
+		pDoc        = GetDocument();
 
 		if (pDoc)
 		{
@@ -687,350 +693,89 @@ void CViewImageVw::OnDraw(CDC* pDC)
 				pDoc->m_DibGrayScaleDoc->Draw(pDC);
 			}
 
-			CPen HuePen;
-			CPen* pHuePen;
-			CPen *POldPen;
-
-			COLORREF PeakColor1;
-			COLORREF PeakColor2;
 			BOOL hide;//last_cor01.13.19
 			int WhiteYellowMarkingLabel;//last_cor01.13.19
 
-			if (ImageIsSegmented && ((pApp->m_ColorBunchRepresentation) || (pApp->m_GrayScaleOpened)))
-			{
-				BunchNumber = pApp->NumberOfBunch;
-				NumStrips = pApp->ColorImageProcess->NumStrips;
-				old_col_number = pApp->ColorImageProcess->ColorInt[StripNumber].NumberOfColoredIntervals;
+			if (ImageIsSegmented && (pApp->m_ColorBunchRepresentation || pApp->m_GrayScaleOpened))
+			{ 
 				bunch_number = pApp->ColorImageProcess->ColorInt[StripNumber].RefinedNumberOfBunches;
-				
+
 				if (bunch_number == 0)
 				{
 					return;
 				}
-				
+
+				NumStrips = pApp->ColorImageProcess->NumStrips;
+				old_col_number = pApp->ColorImageProcess->ColorInt[StripNumber].NumberOfColoredIntervals;
 				CurrentStrip = pApp->ColorImageProcess->CurStrip;
+				
 				StripWidth = CurrentStrip[StripNumber].StripWidth;
 				StripWidthPrev = CurrentStrip[StripNumber].StripWidthPrev;
 
-				if (BunchNumber == 62)
+				if (1 == pApp->m_pBunchCountDialog->radioBtnColorBunch.GetCheck())
 				{
-					for (coun_bunch = 0; coun_bunch<bunch_number; coun_bunch++) //draw color bunches
+					colorBunchNum = pApp->m_pBunchCountDialog->m_colorBunchNum;
+
+					if (colorBunchNum == 62) // in one strip
 					{
-						WhiteYellowMarkingLabel =
-							pApp->ColorImageProcess->ColorInt[StripNumber].MarkingSignal[coun_bunch];
-						old_col_num = pApp->ColorImageProcess->ColorInt[StripNumber].old_bunch_number[coun_bunch];
-						if ((old_col_num<old_col_number)&&((video_limit==1)||
-							((!video_limit)&&(WhiteYellowMarkingLabel>=2))))
+						for (coun_bunch = 0; coun_bunch < bunch_number; coun_bunch++) //draw color bunches
 						{
-							bunch_average_hue =
-								pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageHue[old_col_num];
-							bunch_average_sat =
-								pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageSat[old_col_num];
-							bunch_average_gray =
-								pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageGray[old_col_num];
-							Beg_bunch =
-								pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->BegInterv[old_col_num];
-							End_bunch =
-								pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->EndInterv[old_col_num];
-							bunch_occurrence = pApp->ColorImageProcess->ColorInt[StripNumber].visible_bunches[old_col_num];
-							left_contrast = pApp->ColorImageProcess->ColorInt[StripNumber].left_continuation[old_col_num];
-							right_contrast = pApp->ColorImageProcess->ColorInt[StripNumber].right_continuation[old_col_num];
-							label_sign = pApp->ColorImageProcess->ColorInt[StripNumber].label_segments[old_col_num];
-							NumSideHues = (NUM_HUES / 3);
-							if (bunch_average_hue>47)
-							{
-								bunch_average_hue -= 48;
-							}
-							SideTriangle = bunch_average_hue / NumSideHues;
-							SideHue = bunch_average_hue - NumSideHues*SideTriangle;
-							if (SideTriangle == 0)
-							{
-								Coor1 = 255 - CoorHuPoints[SideHue];
-								Coor2 = CoorHuPoints[SideHue];
-								Scoor1 = 84 + (bunch_average_sat*(Coor1 - 84)) / 15;
-								Scoor2 = 84 + (bunch_average_sat*(Coor2 - 84)) / 15;
-								Scoor3 = (84 * (15 - bunch_average_sat)) / 15;
-								Imax = max(Scoor1, max(Scoor2, Scoor3));
-								Scoor1 = (Scoor1 * 255) / Imax;
-								Scoor2 = (Scoor2 * 255) / Imax;
-								Scoor3 = (Scoor3 * 255) / Imax;
-								PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
-								GrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
-								GrayLev = GrayLev / 4;
-								if (GrayLev>bunch_average_gray)
-								{
-
-									NScoor1 = (Scoor1*bunch_average_gray) / GrayLev;
-									NScoor2 = (Scoor2*bunch_average_gray) / GrayLev;
-									NScoor3 = (Scoor3*bunch_average_gray) / GrayLev;
-									NewGrayLev = int(0.3*((float)NScoor1) + 0.59*((float)NScoor2) + 0.11*((float)NScoor3));
-									NewGrayLev = NewGrayLev / 4;
-								}
-								else
-								{
-									NScoor1 = Scoor1;
-									NScoor2 = Scoor2;
-									NScoor3 = Scoor3;
-								}
-							}
-							if (SideTriangle == 1)
-							{
-								Coor1 = 255 - CoorHuPoints[SideHue];
-								Coor2 = CoorHuPoints[SideHue];
-								Scoor1 = (84 * (15 - bunch_average_sat)) / 15;
-								Scoor2 = 84 + (bunch_average_sat*(Coor1 - 84)) / 15;
-								Scoor3 = 84 + (bunch_average_sat*(Coor2 - 84)) / 15;
-								Imax = max(Scoor1, max(Scoor2, Scoor3));
-								Scoor1 = (Scoor1 * 255) / Imax;
-								Scoor2 = (Scoor2 * 255) / Imax;
-								Scoor3 = (Scoor3 * 255) / Imax;
-								PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
-								GrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
-								GrayLev = GrayLev / 4;
-								if (GrayLev>bunch_average_gray)
-								{
-									NScoor1 = (Scoor1*bunch_average_gray) / GrayLev;
-									NScoor2 = (Scoor2*bunch_average_gray) / GrayLev;
-									NScoor3 = (Scoor3*bunch_average_gray) / GrayLev;
-									NewGrayLev = int(0.3*((float)NScoor1) + 0.59*((float)NScoor2) + 0.11*((float)NScoor3));
-									NewGrayLev = NewGrayLev / 4;
-								}
-								else
-								{
-									NScoor1 = Scoor1;
-									NScoor2 = Scoor2;
-									NScoor3 = Scoor3;
-								}
-
-							}
-							if (SideTriangle == 2)
-							{
-								Coor1 = CoorHuPoints[SideHue];
-								Coor2 = 255 - CoorHuPoints[SideHue];
-								Scoor1 = 84 + (bunch_average_sat*(Coor1 - 84)) / 15;
-								Scoor2 = (84 * (15 - bunch_average_sat)) / 15;
-								Scoor3 = 84 + (bunch_average_sat*(Coor2 - 84)) / 15;
-								Imax = max(Scoor1, max(Scoor2, Scoor3));
-								Scoor1 = (Scoor1 * 255) / Imax;
-								Scoor2 = (Scoor2 * 255) / Imax;
-								Scoor3 = (Scoor3 * 255) / Imax;
-								PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
-								GrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
-								GrayLev = GrayLev / 4;
-								if (GrayLev>bunch_average_gray)
-								{
-									NScoor1 = (Scoor1*bunch_average_gray) / GrayLev;
-									NScoor2 = (Scoor2*bunch_average_gray) / GrayLev;
-									NScoor3 = (Scoor3*bunch_average_gray) / GrayLev;
-									NewGrayLev = int(0.3*((float)NScoor1) + 0.59*((float)NScoor2) + 0.11*((float)NScoor3));
-									NewGrayLev = NewGrayLev / 4;
-								}
-								else
-								{
-									NScoor1 = Scoor1;
-									NScoor2 = Scoor2;
-									NScoor3 = Scoor3;
-								}
-
-							}
-							NScoor1 = (NScoor1 + Scoor1) / 2;
-							NScoor2 = (NScoor2 + Scoor2) / 2;
-							NScoor3 = (NScoor3 + Scoor3) / 2;
-							if (((bunch_average_gray <= 5) && (NScoor1>NScoor2) && (NScoor1>NScoor3)) ||
-								((bunch_average_gray <= 3) && (bunch_average_sat <= 1)) ||
-								(bunch_average_gray <= 2))
-							{//last_cor13.11.1729.11.17						
-								NScoor1 = 10;
-								NScoor2 = 10;
-								NScoor3 = 10;
-							}
-							else
-							{
-								if ((bunch_average_gray >= 58) && (bunch_average_sat <= 1))
-								{//last_cor13.11.1729.11.17
-									NScoor1 = min(min(NScoor1, NScoor2), NScoor3);
-									NScoor2 = NScoor1;
-									NScoor3 = NScoor1;
-								}
-							}
-							PeakColor1 = RGB(NScoor1, NScoor2, NScoor3);
-							OldNum = pApp->ColorImageProcess->ColorInt[StripNumber].OldNumbers;
-							//pHuePen=new CPen(PS_SOLID, 3, PeakColor2);
-							pHuePen = new CPen(PS_SOLID, 3, PeakColor1);
-							//HuePen1.CreatePen(PS_SOLID, 3, PeakColor2);
-
-							POldPen = pDC->SelectObject(pHuePen);
-							HorizVert = pApp->HorizontalVertical;
-							if (HorizVert)
-							{
-								//OrPoint.y = (WMHeight - Beg_bunch) + WindowShift.y;
-								OrPoint.y = (WMHeight - Beg_bunch);
-								if (bunch_occurrence>0)
-								{
-									OrPoint.x = (StripWidthPrev*StripNumber + StripWidth / 2) - 1;
-								}
-								else
-								{
-									OrPoint.x = (StripWidthPrev*StripNumber + StripWidth / 2) + 3;
-								}
-								pDC->MoveTo(OrPoint);
-								EndPoint.x = OrPoint.x;
-								EndPoint.y = WMHeight - End_bunch;
-								NewEndPoint = EndPoint;
-								pDC->LineTo(EndPoint);
-								if (right_contrast<0)
-								{
-									pDC->MoveTo(EndPoint);
-									NewOrPoint.x = EndPoint.x - min(5, StripWidth / 2);
-									NewOrPoint.y = EndPoint.y;
-									pDC->LineTo(NewOrPoint);
-								}
-								if (left_contrast<0)
-								{
-									pDC->MoveTo(OrPoint);
-									EndPoint.x = OrPoint.x - min(5, StripWidth / 2);
-									EndPoint.y = OrPoint.y;
-									pDC->LineTo(EndPoint);
-								}
-								CnPoint.x = OrPoint.x;
-								CnPoint.y = OrPoint.y + (NewEndPoint.y - OrPoint.y) / 2;
-								New1CnPoint.y = CnPoint.y;
-								New2CnPoint.y = CnPoint.y;
-								New1CnPoint.x = CnPoint.x - min(10, StripWidth / 2);
-								New2CnPoint.x = CnPoint.x + min(10, StripWidth / 2);
-								if ((label_sign >= 3) && (label_sign <= 10) || ((label_sign >= 13) && (label_sign <= 20)))
-								{
-									pDC->MoveTo(New1CnPoint);
-									pDC->LineTo(New2CnPoint);
-								}
-
-							}
-							else
-							{
-								OrPoint.x = Beg_bunch;
-								if (bunch_occurrence>0)
-								{
-									OrPoint.y = WMHeight - (StripWidthPrev*StripNumber + StripWidth / 2) - 1;
-								}
-								else
-								{
-									OrPoint.y = WMHeight - (StripWidthPrev*StripNumber + StripWidth / 2) + 3;
-								}
-								pDC->MoveTo(OrPoint);
-								EndPoint.x = End_bunch;
-								EndPoint.y = OrPoint.y;
-								NewEndPoint = EndPoint;
-								pDC->LineTo(EndPoint);
-								OrPoint.y -= 1;
-								EndPoint.y = OrPoint.y;
-								pDC->MoveTo(OrPoint);
-								pDC->LineTo(EndPoint);
-								OrPoint.y += 2;
-								EndPoint.y = OrPoint.y;
-								pDC->MoveTo(OrPoint);
-								pDC->LineTo(EndPoint);
-								if (right_contrast<0)
-								{
-									pDC->MoveTo(EndPoint);
-									NewOrPoint.x = EndPoint.x;
-									NewOrPoint.y = EndPoint.y - min(5, StripWidth / 2);
-									pDC->LineTo(NewOrPoint);
-								}
-								if (left_contrast<0)
-								{
-									pDC->MoveTo(OrPoint);
-									EndPoint.x = OrPoint.x;
-									EndPoint.y = OrPoint.y - min(5, StripWidth / 2);
-									pDC->LineTo(EndPoint);
-								}
-								CnPoint.y = OrPoint.y;
-								CnPoint.x = OrPoint.x + (NewEndPoint.x - OrPoint.x) / 2;
-								New1CnPoint.x = CnPoint.x;
-								New2CnPoint.x = CnPoint.x;
-								New1CnPoint.y = CnPoint.y - min(10, StripWidth / 2);
-								New2CnPoint.y = CnPoint.y + min(10, StripWidth / 2);
-								if ((label_sign >= 3) && (label_sign <= 10) || ((label_sign >= 13) && (label_sign <= 20)))
-								{
-									pDC->MoveTo(New1CnPoint);
-									pDC->LineTo(New2CnPoint);
-								}
-							}
-
-							pDC->SelectObject(POldPen);
-
-							delete pHuePen;
-						}
-
-					}
-					return;
-				}
-
-				if (BunchNumber == 63)
-				{//BN63
-					CPen* pHuePen1;
-
-					COLORREF PeakColor3;
-					COLORREF PeakColor4;
-					for (int coun_strip = 0; coun_strip < NumStrips; coun_strip++) //draw color bunches
-					{//strip_loop
-						old_col_number = pApp->ColorImageProcess->ColorInt[coun_strip].NumberOfColoredIntervals;
-						bunch_number1 = pApp->ColorImageProcess->ColorInt[coun_strip].RefinedNumberOfBunches;
-						old_col_number = pApp->ColorImageProcess->ColorInt[coun_strip].NumberOfColoredIntervals;
-						StripWidth1 = CurrentStrip[coun_strip].StripWidth;
-						StripWidthPrev1 = CurrentStrip[coun_strip].StripWidthPrev;
-
-						for (int coun_bunch1 = 0; coun_bunch1 < bunch_number1; coun_bunch1++) //draw color bunches
-						{//bunch_loop
-							WhiteYellowMarkingLabel =
-								pApp->ColorImageProcess->ColorInt[coun_strip].MarkingSignal[coun_bunch1];
-							old_col_num = pApp->ColorImageProcess->ColorInt[coun_strip].old_bunch_number[coun_bunch1];
-							if ((old_col_num<old_col_number) && ((video_limit == 1) ||
+							WhiteYellowMarkingLabel = pApp->ColorImageProcess->ColorInt[StripNumber].MarkingSignal[coun_bunch];
+							old_col_num             = pApp->ColorImageProcess->ColorInt[StripNumber].old_bunch_number[coun_bunch];
+							
+							if ((old_col_num < old_col_number) && ((video_limit == 1) ||
 								((!video_limit) && (WhiteYellowMarkingLabel >= 2))))
-							{//restrict_bn
+							{
 								bunch_average_hue =
-									pApp->ColorImageProcess->ColorInt[coun_strip].ColoredIntervalsStructure->AverageHue[old_col_num];
+									pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageHue[old_col_num];
 								bunch_average_sat =
-									pApp->ColorImageProcess->ColorInt[coun_strip].ColoredIntervalsStructure->AverageSat[old_col_num];
+									pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageSat[old_col_num];
 								bunch_average_gray =
-									pApp->ColorImageProcess->ColorInt[coun_strip].ColoredIntervalsStructure->AverageGray[old_col_num];
+									pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageGray[old_col_num];
 								Beg_bunch =
-									pApp->ColorImageProcess->ColorInt[coun_strip].ColoredIntervalsStructure->BegInterv[old_col_num];
+									pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->BegInterv[old_col_num];
 								End_bunch =
-									pApp->ColorImageProcess->ColorInt[coun_strip].ColoredIntervalsStructure->EndInterv[old_col_num];
-								bunch_occurrence = pApp->ColorImageProcess->ColorInt[coun_strip].visible_bunches[old_col_num];
-								left_contrast = pApp->ColorImageProcess->ColorInt[coun_strip].left_continuation[old_col_num];
-								left_edge_point = pApp->ColorImageProcess->SectionTraceLeft[coun_strip*MAX_COL_INT + old_col_num];
-								right_contrast = pApp->ColorImageProcess->ColorInt[coun_strip].right_continuation[old_col_num];
-								right_edge_point = pApp->ColorImageProcess->SectionTraceRight[coun_strip*MAX_COL_INT + old_col_num];
-								label_sign = pApp->ColorImageProcess->ColorInt[coun_strip].label_segments[old_col_num];
+									pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->EndInterv[old_col_num];
+
+								bunch_occurrence = pApp->ColorImageProcess->ColorInt[StripNumber].visible_bunches[old_col_num];
+
+								left_contrast = pApp->ColorImageProcess->ColorInt[StripNumber].left_continuation[old_col_num];
+								right_contrast = pApp->ColorImageProcess->ColorInt[StripNumber].right_continuation[old_col_num];
+
+								label_sign = pApp->ColorImageProcess->ColorInt[StripNumber].label_segments[old_col_num];
+
 								NumSideHues = (NUM_HUES / 3);
-								if (bunch_average_hue>47)
+
+								if (bunch_average_hue > 47)
 								{
 									bunch_average_hue -= 48;
 								}
+
 								SideTriangle = bunch_average_hue / NumSideHues;
-								SideHue = bunch_average_hue - NumSideHues*SideTriangle;
+								SideHue = bunch_average_hue - NumSideHues * SideTriangle;
+
+
 								if (SideTriangle == 0)
 								{
 									Coor1 = 255 - CoorHuPoints[SideHue];
 									Coor2 = CoorHuPoints[SideHue];
-									Scoor1 = 84 + (bunch_average_sat*(Coor1 - 84)) / 15;
-									Scoor2 = 84 + (bunch_average_sat*(Coor2 - 84)) / 15;
+									Scoor1 = 84 + (bunch_average_sat * (Coor1 - 84)) / 15;
+									Scoor2 = 84 + (bunch_average_sat * (Coor2 - 84)) / 15;
 									Scoor3 = (84 * (15 - bunch_average_sat)) / 15;
 									Imax = max(Scoor1, max(Scoor2, Scoor3));
 									Scoor1 = (Scoor1 * 255) / Imax;
 									Scoor2 = (Scoor2 * 255) / Imax;
 									Scoor3 = (Scoor3 * 255) / Imax;
-									PeakColor4 = RGB(Scoor1, Scoor2, Scoor3);
-									GrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
+									PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
+									GrayLev = int(0.3 * ((float)Scoor1) + 0.59 * ((float)Scoor2) + 0.11 * ((float)Scoor3));
 									GrayLev = GrayLev / 4;
-									if (GrayLev>bunch_average_gray)
+									if (GrayLev > bunch_average_gray)
 									{
 
-										NScoor1 = (Scoor1*bunch_average_gray) / GrayLev;
-										NScoor2 = (Scoor2*bunch_average_gray) / GrayLev;
-										NScoor3 = (Scoor3*bunch_average_gray) / GrayLev;
-										NewGrayLev = int(0.3*((float)NScoor1) + 0.59*((float)NScoor2) + 0.11*((float)NScoor3));
+										NScoor1 = (Scoor1 * bunch_average_gray) / GrayLev;
+										NScoor2 = (Scoor2 * bunch_average_gray) / GrayLev;
+										NScoor3 = (Scoor3 * bunch_average_gray) / GrayLev;
+										NewGrayLev = int(0.3 * ((float)NScoor1) + 0.59 * ((float)NScoor2) + 0.11 * ((float)NScoor3));
 										NewGrayLev = NewGrayLev / 4;
 									}
 									else
@@ -1045,21 +790,21 @@ void CViewImageVw::OnDraw(CDC* pDC)
 									Coor1 = 255 - CoorHuPoints[SideHue];
 									Coor2 = CoorHuPoints[SideHue];
 									Scoor1 = (84 * (15 - bunch_average_sat)) / 15;
-									Scoor2 = 84 + (bunch_average_sat*(Coor1 - 84)) / 15;
-									Scoor3 = 84 + (bunch_average_sat*(Coor2 - 84)) / 15;
+									Scoor2 = 84 + (bunch_average_sat * (Coor1 - 84)) / 15;
+									Scoor3 = 84 + (bunch_average_sat * (Coor2 - 84)) / 15;
 									Imax = max(Scoor1, max(Scoor2, Scoor3));
 									Scoor1 = (Scoor1 * 255) / Imax;
 									Scoor2 = (Scoor2 * 255) / Imax;
 									Scoor3 = (Scoor3 * 255) / Imax;
-									PeakColor4 = RGB(Scoor1, Scoor2, Scoor3);
-									GrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
+									PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
+									GrayLev = int(0.3 * ((float)Scoor1) + 0.59 * ((float)Scoor2) + 0.11 * ((float)Scoor3));
 									GrayLev = GrayLev / 4;
-									if (GrayLev>bunch_average_gray)
+									if (GrayLev > bunch_average_gray)
 									{
-										NScoor1 = (Scoor1*bunch_average_gray) / GrayLev;
-										NScoor2 = (Scoor2*bunch_average_gray) / GrayLev;
-										NScoor3 = (Scoor3*bunch_average_gray) / GrayLev;
-										NewGrayLev = int(0.3*((float)NScoor1) + 0.59*((float)NScoor2) + 0.11*((float)NScoor3));
+										NScoor1 = (Scoor1 * bunch_average_gray) / GrayLev;
+										NScoor2 = (Scoor2 * bunch_average_gray) / GrayLev;
+										NScoor3 = (Scoor3 * bunch_average_gray) / GrayLev;
+										NewGrayLev = int(0.3 * ((float)NScoor1) + 0.59 * ((float)NScoor2) + 0.11 * ((float)NScoor3));
 										NewGrayLev = NewGrayLev / 4;
 									}
 									else
@@ -1070,26 +815,27 @@ void CViewImageVw::OnDraw(CDC* pDC)
 									}
 
 								}
+
 								if (SideTriangle == 2)
 								{
 									Coor1 = CoorHuPoints[SideHue];
 									Coor2 = 255 - CoorHuPoints[SideHue];
-									Scoor1 = 84 + (bunch_average_sat*(Coor1 - 84)) / 15;
+									Scoor1 = 84 + (bunch_average_sat * (Coor1 - 84)) / 15;
 									Scoor2 = (84 * (15 - bunch_average_sat)) / 15;
-									Scoor3 = 84 + (bunch_average_sat*(Coor2 - 84)) / 15;
+									Scoor3 = 84 + (bunch_average_sat * (Coor2 - 84)) / 15;
 									Imax = max(Scoor1, max(Scoor2, Scoor3));
 									Scoor1 = (Scoor1 * 255) / Imax;
 									Scoor2 = (Scoor2 * 255) / Imax;
 									Scoor3 = (Scoor3 * 255) / Imax;
-									PeakColor4 = RGB(Scoor1, Scoor2, Scoor3);
-									GrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
+									PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
+									GrayLev = int(0.3 * ((float)Scoor1) + 0.59 * ((float)Scoor2) + 0.11 * ((float)Scoor3));
 									GrayLev = GrayLev / 4;
-									if (GrayLev>bunch_average_gray)
+									if (GrayLev > bunch_average_gray)
 									{
-										NScoor1 = (Scoor1*bunch_average_gray) / GrayLev;
-										NScoor2 = (Scoor2*bunch_average_gray) / GrayLev;
-										NScoor3 = (Scoor3*bunch_average_gray) / GrayLev;
-										NewGrayLev = int(0.3*((float)NScoor1) + 0.59*((float)NScoor2) + 0.11*((float)NScoor3));
+										NScoor1 = (Scoor1 * bunch_average_gray) / GrayLev;
+										NScoor2 = (Scoor2 * bunch_average_gray) / GrayLev;
+										NScoor3 = (Scoor3 * bunch_average_gray) / GrayLev;
+										NewGrayLev = int(0.3 * ((float)NScoor1) + 0.59 * ((float)NScoor2) + 0.11 * ((float)NScoor3));
 										NewGrayLev = NewGrayLev / 4;
 									}
 									else
@@ -1103,9 +849,9 @@ void CViewImageVw::OnDraw(CDC* pDC)
 								NScoor1 = (NScoor1 + Scoor1) / 2;
 								NScoor2 = (NScoor2 + Scoor2) / 2;
 								NScoor3 = (NScoor3 + Scoor3) / 2;
-								//PeakColor3=RGB(NScoor1,NScoor2, NScoor3);
-								if (((bunch_average_gray <= 5) && (NScoor1>NScoor2) && (NScoor1>NScoor3)) ||
-									((bunch_average_gray <= 3) && (bunch_average_sat <= 1)))
+								if (((bunch_average_gray <= 5) && (NScoor1 > NScoor2) && (NScoor1 > NScoor3)) ||
+									((bunch_average_gray <= 3) && (bunch_average_sat <= 1)) ||
+									(bunch_average_gray <= 2))
 								{//last_cor13.11.1729.11.17						
 									NScoor1 = 10;
 									NScoor2 = 10;
@@ -1120,107 +866,103 @@ void CViewImageVw::OnDraw(CDC* pDC)
 										NScoor3 = NScoor1;
 									}
 								}
-								PeakColor3 = RGB(NScoor1, NScoor2, NScoor3);
-								OldNum = pApp->ColorImageProcess->ColorInt[coun_strip].OldNumbers;
-								//pHuePen1=new CPen(PS_SOLID, 3, PeakColor4);
-								pHuePen1 = new CPen(PS_SOLID, 3, PeakColor3);
+								OldNum = pApp->ColorImageProcess->ColorInt[StripNumber].OldNumbers;
 
-								POldPen = pDC->SelectObject(pHuePen1);
+								PeakColor1 = RGB(NScoor1, NScoor2, NScoor3); 
+								pHuePen = new CPen(PS_SOLID, 3, PeakColor1); 
+								POldPen = pDC->SelectObject(pHuePen);
+
 								HorizVert = pApp->HorizontalVertical;
 								if (HorizVert)
-								{//horvert
+								{
 									OrPoint.y = (WMHeight - Beg_bunch);
-									if (bunch_occurrence>0)
+									if (bunch_occurrence > 0)
 									{
-										OrPoint.x = (StripWidthPrev1*coun_strip + StripWidth1 / 2) - 1;
+										OrPoint.x = (StripWidthPrev * StripNumber + StripWidth / 2) - 1;
 									}
 									else
 									{
-										OrPoint.x = (StripWidthPrev1*coun_strip + StripWidth1 / 2) + 3;
+										OrPoint.x = (StripWidthPrev * StripNumber + StripWidth / 2) + 3;
 									}
-									//OrPoint.x=StripWidthPrev1*coun_strip + StripWidth1/2;
+
 									pDC->MoveTo(OrPoint);
+
 									EndPoint.x = OrPoint.x;
 									EndPoint.y = WMHeight - End_bunch;
+
 									NewEndPoint = EndPoint;
+
 									pDC->LineTo(EndPoint);
-									if (right_contrast<0)
+
+									if (right_contrast < 0)
 									{
 										pDC->MoveTo(EndPoint);
 										NewOrPoint.x = EndPoint.x - min(5, StripWidth / 2);
 										NewOrPoint.y = EndPoint.y;
 										pDC->LineTo(NewOrPoint);
-										if (right_edge_point>1000)
-										{
-											pDC->Ellipse(EndPoint.x - min(5, StripWidth / 2), EndPoint.y - min(5, StripWidth / 2),
-												EndPoint.x + min(5, StripWidth / 2), EndPoint.y + min(5, StripWidth / 2));
-										}
 									}
-									if (left_contrast<0)
-									{//lc<
+
+									if (left_contrast < 0)
+									{
 										pDC->MoveTo(OrPoint);
 										EndPoint.x = OrPoint.x - min(5, StripWidth / 2);
 										EndPoint.y = OrPoint.y;
 										pDC->LineTo(EndPoint);
-										if (left_edge_point>1000)
-										{
-											pDC->Ellipse(OrPoint.x - min(5, StripWidth / 2), OrPoint.y - min(5, StripWidth / 2),
-												OrPoint.x + min(5, StripWidth / 2), OrPoint.y + min(5, StripWidth / 2));
-										}
-									}//lc<
+									}
+
 									CnPoint.x = OrPoint.x;
 									CnPoint.y = OrPoint.y + (NewEndPoint.y - OrPoint.y) / 2;
+
 									New1CnPoint.y = CnPoint.y;
 									New2CnPoint.y = CnPoint.y;
 									New1CnPoint.x = CnPoint.x - min(10, StripWidth / 2);
 									New2CnPoint.x = CnPoint.x + min(10, StripWidth / 2);
-									if (label_sign >= 3)
+
+									if ((label_sign >= 3) && (label_sign <= 10) || ((label_sign >= 13) && (label_sign <= 20)))
 									{
 										pDC->MoveTo(New1CnPoint);
 										pDC->LineTo(New2CnPoint);
 									}
-								}//horvert
+
+								}
 								else
-								{//ehorvert
+								{
 									OrPoint.x = Beg_bunch;
-									if (bunch_occurrence>0)
+									if (bunch_occurrence > 0)
 									{
-										OrPoint.y = WMHeight - (StripWidthPrev1*coun_strip + StripWidth1 / 2) - 1;
+										OrPoint.y = WMHeight - (StripWidthPrev * StripNumber + StripWidth / 2) - 1;
 									}
 									else
 									{
-										OrPoint.y = WMHeight - (StripWidthPrev1*coun_strip + StripWidth1 / 2) + 3;
+										OrPoint.y = WMHeight - (StripWidthPrev * StripNumber + StripWidth / 2) + 3;
 									}
-									//OrPoint.y = WMHeight - (StripWidthPrev1*coun_strip + StripWidth1/2);
 									pDC->MoveTo(OrPoint);
 									EndPoint.x = End_bunch;
 									EndPoint.y = OrPoint.y;
 									NewEndPoint = EndPoint;
 									pDC->LineTo(EndPoint);
-									if (right_contrast<0)
-									{//rc<0
+									OrPoint.y -= 1;
+									EndPoint.y = OrPoint.y;
+									pDC->MoveTo(OrPoint);
+									pDC->LineTo(EndPoint);
+									OrPoint.y += 2;
+									EndPoint.y = OrPoint.y;
+									pDC->MoveTo(OrPoint);
+									pDC->LineTo(EndPoint);
+									if (right_contrast < 0)
+									{
 										pDC->MoveTo(EndPoint);
 										NewOrPoint.x = EndPoint.x;
 										NewOrPoint.y = EndPoint.y - min(5, StripWidth / 2);
 										pDC->LineTo(NewOrPoint);
-										if (right_edge_point>1000)
-										{
-											pDC->Ellipse(EndPoint.x - min(5, StripWidth / 2), EndPoint.y - min(5, StripWidth / 2),
-												EndPoint.x + min(5, StripWidth / 2), EndPoint.y + min(5, StripWidth / 2));
-										}
-									}//rc<0
-									if (left_contrast<0)
-									{//lc<
+									}
+									if (left_contrast < 0)
+									{
 										pDC->MoveTo(OrPoint);
 										EndPoint.x = OrPoint.x;
 										EndPoint.y = OrPoint.y - min(5, StripWidth / 2);
 										pDC->LineTo(EndPoint);
-										if (left_edge_point>1000)
-										{
-											pDC->Ellipse(OrPoint.x - min(5, StripWidth / 2), OrPoint.y - min(5, StripWidth / 2),
-												OrPoint.x + min(5, StripWidth / 2), OrPoint.y + min(5, StripWidth / 2));
-										}
-									}//lc<
+									}
 									CnPoint.y = OrPoint.y;
 									CnPoint.x = OrPoint.x + (NewEndPoint.x - OrPoint.x) / 2;
 									New1CnPoint.x = CnPoint.x;
@@ -1232,462 +974,701 @@ void CViewImageVw::OnDraw(CDC* pDC)
 										pDC->MoveTo(New1CnPoint);
 										pDC->LineTo(New2CnPoint);
 									}
-								}//ehorvert
+								}
 
 								pDC->SelectObject(POldPen);
 
-								delete pHuePen1;
-								/*if((left_green_boun_bunch>=0)||(right_green_boun_bunch))
-								{//lgb||rgb
-								PeakColor3=RGB(256,0,0);
-								pHuePen1=new CPen(PS_SOLID, 3, PeakColor3);
-								POldPen = pDC->SelectObject(pHuePen1);
+								delete pHuePen;
+							}
 
-								if((left_green_boun_bunch==old_col_num)&&(left_green_boun_bunch>=0))
-								{//ldb=
-								if(HorizVert)
-								{//horvert
-								OrPoint.y = (WMHeight - Beg_bunch);
-								OrPoint.x= (StripWidthPrev1*coun_strip + StripWidth1/2)-1;
-								pDC->MoveTo(OrPoint);
-								EndPoint.x=OrPoint.x - min(5,StripWidth/2);
-								EndPoint.y = OrPoint.y;
-								pDC->LineTo(EndPoint);
-								}//horvert
-								else
-								{//ehorvert
-								OrPoint.x = Beg_bunch;
-								OrPoint.y = WMHeight - (StripWidthPrev1*coun_strip + StripWidth1/2)-1;
-								pDC->MoveTo(OrPoint);
-								EndPoint.x=OrPoint.x;
-								EndPoint.y = OrPoint.y - min(5,StripWidth/2);
-								pDC->LineTo(EndPoint);
-								}//ehorvert
-								}//ldb=
-								if((right_green_boun_bunch==old_col_num)&&(right_green_boun_bunch>=0))
-								{//rgb=
-								if(HorizVert)
-								{//horvert
+						}
+						return;
+					}
 
-								OrPoint.y = (WMHeight - Beg_bunch);
-								OrPoint.x= (StripWidthPrev1*coun_strip + StripWidth1/2)-1;
-								EndPoint.x = OrPoint.x;
-								EndPoint.y = WMHeight - End_bunch;
-								pDC->MoveTo(EndPoint);
-								NewOrPoint.x=EndPoint.x - min(5,StripWidth/2);
-								NewOrPoint.y=EndPoint.y;
-								pDC->LineTo(NewOrPoint);
-								}//horvert
-								else
-								{//ehorvert
-								OrPoint.x = Beg_bunch;
-								OrPoint.y = WMHeight - (StripWidthPrev1*coun_strip + StripWidth1/2)-1;
-								EndPoint.x = End_bunch;
-								EndPoint.y = OrPoint.y;
-								NewEndPoint=EndPoint;
-								pDC->MoveTo(EndPoint);
-								NewOrPoint.x=EndPoint.x;
-								NewOrPoint.y=EndPoint.y - min(5,StripWidth/2);
-								pDC->LineTo(NewOrPoint);
-								}//ehorvert
-								}//rgb=
-								pDC->SelectObject(POldPen);
-								delete pHuePen1;
-								}//lgb||rgb*/
-							}//restrict_bn
+					// over all strips
+					if (colorBunchNum == 63)
+					{//BN63
+						CPen* pHuePen1;
 
-						}//bunch_loop
-					}//strip_loop
-					
-					HorizVert = pApp->HorizontalVertical;
-					
-					if (!HorizVert)
-					{//horizvert
-						CPen* pHuePen2;
-
-						COLORREF PeakColor5;
-						NScoor1 = 255;
-						NScoor2 = 100;
-						NScoor3 = 100;
-						PeakColor5 = RGB(NScoor1, NScoor2, NScoor3);
-						pHuePen2 = new CPen(PS_SOLID, 4, PeakColor5);
-						POldPen = pDC->SelectObject(pHuePen2);
-						for (int coun_strip1 = 0; coun_strip1 < NumStrips; coun_strip1++) //draw color bunches
+						COLORREF PeakColor3;
+						COLORREF PeakColor4;
+						for (int coun_strip = 0; coun_strip < NumStrips; coun_strip++) //draw color bunches
 						{//strip_loop
-							old_col_number = pApp->ColorImageProcess->ColorInt[coun_strip1].NumberOfColoredIntervals;
-							bunch_number1 = pApp->ColorImageProcess->ColorInt[coun_strip1].RefinedNumberOfBunches;
-							old_col_number = pApp->ColorImageProcess->ColorInt[coun_strip1].NumberOfColoredIntervals;
-							StripWidth1 = CurrentStrip[coun_strip1].StripWidth;
-							StripWidthPrev1 = CurrentStrip[coun_strip1].StripWidthPrev;
-							left_green_boun_bunch = pApp->ColorImageProcess->LeftGreenBoundaryBunch[coun_strip1];
-							right_green_boun_bunch = pApp->ColorImageProcess->RightGreenBoundaryBunch[coun_strip1];
-							
-							if (left_green_boun_bunch > 0)
-							{
-								left_green_boun_bunch--;
-							}
-							else
-							{
-								left_green_boun_bunch = -1;
-							}
-							
-							if (right_green_boun_bunch > 0)
-							{
-								right_green_boun_bunch--;
-							}
-							else
-							{
-								right_green_boun_bunch = -1;
-							}
-							
-							for (int coun_bunch2 = 0; coun_bunch2 < bunch_number1; coun_bunch2++) //draw color bunches
+							old_col_number = pApp->ColorImageProcess->ColorInt[coun_strip].NumberOfColoredIntervals;
+							bunch_number1 = pApp->ColorImageProcess->ColorInt[coun_strip].RefinedNumberOfBunches;
+							old_col_number = pApp->ColorImageProcess->ColorInt[coun_strip].NumberOfColoredIntervals;
+							StripWidth1 = CurrentStrip[coun_strip].StripWidth;
+							StripWidthPrev1 = CurrentStrip[coun_strip].StripWidthPrev;
+
+							for (int coun_bunch1 = 0; coun_bunch1 < bunch_number1; coun_bunch1++) //draw color bunches
 							{//bunch_loop
-								old_col_num = pApp->ColorImageProcess->ColorInt[coun_strip1].old_bunch_number[coun_bunch2];
-								if (old_col_num < old_col_number)
+								WhiteYellowMarkingLabel =
+									pApp->ColorImageProcess->ColorInt[coun_strip].MarkingSignal[coun_bunch1];
+								old_col_num = pApp->ColorImageProcess->ColorInt[coun_strip].old_bunch_number[coun_bunch1];
+								if ((old_col_num < old_col_number) && ((video_limit == 1) ||
+									((!video_limit) && (WhiteYellowMarkingLabel >= 2))))
 								{//restrict_bn
+									bunch_average_hue =
+										pApp->ColorImageProcess->ColorInt[coun_strip].ColoredIntervalsStructure->AverageHue[old_col_num];
+									bunch_average_sat =
+										pApp->ColorImageProcess->ColorInt[coun_strip].ColoredIntervalsStructure->AverageSat[old_col_num];
+									bunch_average_gray =
+										pApp->ColorImageProcess->ColorInt[coun_strip].ColoredIntervalsStructure->AverageGray[old_col_num];
 									Beg_bunch =
-										pApp->ColorImageProcess->ColorInt[coun_strip1].ColoredIntervalsStructure->BegInterv[old_col_num];
+										pApp->ColorImageProcess->ColorInt[coun_strip].ColoredIntervalsStructure->BegInterv[old_col_num];
 									End_bunch =
-										pApp->ColorImageProcess->ColorInt[coun_strip1].ColoredIntervalsStructure->EndInterv[old_col_num];
-									bunch_occurrence = pApp->ColorImageProcess->ColorInt[coun_strip1].visible_bunches[old_col_num];
+										pApp->ColorImageProcess->ColorInt[coun_strip].ColoredIntervalsStructure->EndInterv[old_col_num];
+									bunch_occurrence = pApp->ColorImageProcess->ColorInt[coun_strip].visible_bunches[old_col_num];
+									left_contrast = pApp->ColorImageProcess->ColorInt[coun_strip].left_continuation[old_col_num];
+									left_edge_point = pApp->ColorImageProcess->SectionTraceLeft[coun_strip * MAX_COL_INT + old_col_num];
+									right_contrast = pApp->ColorImageProcess->ColorInt[coun_strip].right_continuation[old_col_num];
+									right_edge_point = pApp->ColorImageProcess->SectionTraceRight[coun_strip * MAX_COL_INT + old_col_num];
+									label_sign = pApp->ColorImageProcess->ColorInt[coun_strip].label_segments[old_col_num];
+									NumSideHues = (NUM_HUES / 3);
+									if (bunch_average_hue > 47)
+									{
+										bunch_average_hue -= 48;
+									}
+									SideTriangle = bunch_average_hue / NumSideHues;
+									SideHue = bunch_average_hue - NumSideHues * SideTriangle;
+									if (SideTriangle == 0)
+									{
+										Coor1 = 255 - CoorHuPoints[SideHue];
+										Coor2 = CoorHuPoints[SideHue];
+										Scoor1 = 84 + (bunch_average_sat * (Coor1 - 84)) / 15;
+										Scoor2 = 84 + (bunch_average_sat * (Coor2 - 84)) / 15;
+										Scoor3 = (84 * (15 - bunch_average_sat)) / 15;
+										Imax = max(Scoor1, max(Scoor2, Scoor3));
+										Scoor1 = (Scoor1 * 255) / Imax;
+										Scoor2 = (Scoor2 * 255) / Imax;
+										Scoor3 = (Scoor3 * 255) / Imax;
+										PeakColor4 = RGB(Scoor1, Scoor2, Scoor3);
+										GrayLev = int(0.3 * ((float)Scoor1) + 0.59 * ((float)Scoor2) + 0.11 * ((float)Scoor3));
+										GrayLev = GrayLev / 4;
+										if (GrayLev > bunch_average_gray)
+										{
 
+											NScoor1 = (Scoor1 * bunch_average_gray) / GrayLev;
+											NScoor2 = (Scoor2 * bunch_average_gray) / GrayLev;
+											NScoor3 = (Scoor3 * bunch_average_gray) / GrayLev;
+											NewGrayLev = int(0.3 * ((float)NScoor1) + 0.59 * ((float)NScoor2) + 0.11 * ((float)NScoor3));
+											NewGrayLev = NewGrayLev / 4;
+										}
+										else
+										{
+											NScoor1 = Scoor1;
+											NScoor2 = Scoor2;
+											NScoor3 = Scoor3;
+										}
+									}
+									if (SideTriangle == 1)
+									{
+										Coor1 = 255 - CoorHuPoints[SideHue];
+										Coor2 = CoorHuPoints[SideHue];
+										Scoor1 = (84 * (15 - bunch_average_sat)) / 15;
+										Scoor2 = 84 + (bunch_average_sat * (Coor1 - 84)) / 15;
+										Scoor3 = 84 + (bunch_average_sat * (Coor2 - 84)) / 15;
+										Imax = max(Scoor1, max(Scoor2, Scoor3));
+										Scoor1 = (Scoor1 * 255) / Imax;
+										Scoor2 = (Scoor2 * 255) / Imax;
+										Scoor3 = (Scoor3 * 255) / Imax;
+										PeakColor4 = RGB(Scoor1, Scoor2, Scoor3);
+										GrayLev = int(0.3 * ((float)Scoor1) + 0.59 * ((float)Scoor2) + 0.11 * ((float)Scoor3));
+										GrayLev = GrayLev / 4;
+										if (GrayLev > bunch_average_gray)
+										{
+											NScoor1 = (Scoor1 * bunch_average_gray) / GrayLev;
+											NScoor2 = (Scoor2 * bunch_average_gray) / GrayLev;
+											NScoor3 = (Scoor3 * bunch_average_gray) / GrayLev;
+											NewGrayLev = int(0.3 * ((float)NScoor1) + 0.59 * ((float)NScoor2) + 0.11 * ((float)NScoor3));
+											NewGrayLev = NewGrayLev / 4;
+										}
+										else
+										{
+											NScoor1 = Scoor1;
+											NScoor2 = Scoor2;
+											NScoor3 = Scoor3;
+										}
+
+									}
+									if (SideTriangle == 2)
+									{
+										Coor1 = CoorHuPoints[SideHue];
+										Coor2 = 255 - CoorHuPoints[SideHue];
+										Scoor1 = 84 + (bunch_average_sat * (Coor1 - 84)) / 15;
+										Scoor2 = (84 * (15 - bunch_average_sat)) / 15;
+										Scoor3 = 84 + (bunch_average_sat * (Coor2 - 84)) / 15;
+										Imax = max(Scoor1, max(Scoor2, Scoor3));
+										Scoor1 = (Scoor1 * 255) / Imax;
+										Scoor2 = (Scoor2 * 255) / Imax;
+										Scoor3 = (Scoor3 * 255) / Imax;
+										PeakColor4 = RGB(Scoor1, Scoor2, Scoor3);
+										GrayLev = int(0.3 * ((float)Scoor1) + 0.59 * ((float)Scoor2) + 0.11 * ((float)Scoor3));
+										GrayLev = GrayLev / 4;
+										if (GrayLev > bunch_average_gray)
+										{
+											NScoor1 = (Scoor1 * bunch_average_gray) / GrayLev;
+											NScoor2 = (Scoor2 * bunch_average_gray) / GrayLev;
+											NScoor3 = (Scoor3 * bunch_average_gray) / GrayLev;
+											NewGrayLev = int(0.3 * ((float)NScoor1) + 0.59 * ((float)NScoor2) + 0.11 * ((float)NScoor3));
+											NewGrayLev = NewGrayLev / 4;
+										}
+										else
+										{
+											NScoor1 = Scoor1;
+											NScoor2 = Scoor2;
+											NScoor3 = Scoor3;
+										}
+
+									}
+									NScoor1 = (NScoor1 + Scoor1) / 2;
+									NScoor2 = (NScoor2 + Scoor2) / 2;
+									NScoor3 = (NScoor3 + Scoor3) / 2;
+									//PeakColor3=RGB(NScoor1,NScoor2, NScoor3);
+									if (((bunch_average_gray <= 5) && (NScoor1 > NScoor2) && (NScoor1 > NScoor3)) ||
+										((bunch_average_gray <= 3) && (bunch_average_sat <= 1)))
+									{//last_cor13.11.1729.11.17						
+										NScoor1 = 10;
+										NScoor2 = 10;
+										NScoor3 = 10;
+									}
+									else
+									{
+										if ((bunch_average_gray >= 58) && (bunch_average_sat <= 1))
+										{//last_cor13.11.1729.11.17
+											NScoor1 = min(min(NScoor1, NScoor2), NScoor3);
+											NScoor2 = NScoor1;
+											NScoor3 = NScoor1;
+										}
+									}
+									OldNum = pApp->ColorImageProcess->ColorInt[coun_strip].OldNumbers;
+									PeakColor3 = RGB(NScoor1, NScoor2, NScoor3);
+
+									pHuePen1 = new CPen(PS_SOLID, 3, PeakColor3);
+
+									POldPen = pDC->SelectObject(pHuePen1);
 									HorizVert = pApp->HorizontalVertical;
+									if (HorizVert)
+									{//horvert
+										OrPoint.y = (WMHeight - Beg_bunch);
+										if (bunch_occurrence > 0)
+										{
+											OrPoint.x = (StripWidthPrev1 * coun_strip + StripWidth1 / 2) - 1;
+										}
+										else
+										{
+											OrPoint.x = (StripWidthPrev1 * coun_strip + StripWidth1 / 2) + 3;
+										}
+										//OrPoint.x=StripWidthPrev1*coun_strip + StripWidth1/2;
+										pDC->MoveTo(OrPoint);
+										EndPoint.x = OrPoint.x;
+										EndPoint.y = WMHeight - End_bunch;
+										NewEndPoint = EndPoint;
+										pDC->LineTo(EndPoint);
+										if (right_contrast < 0)
+										{
+											pDC->MoveTo(EndPoint);
+											NewOrPoint.x = EndPoint.x - min(5, StripWidth / 2);
+											NewOrPoint.y = EndPoint.y;
+											pDC->LineTo(NewOrPoint);
+											if (right_edge_point > 1000)
+											{
+												pDC->Ellipse(EndPoint.x - min(5, StripWidth / 2), EndPoint.y - min(5, StripWidth / 2),
+													EndPoint.x + min(5, StripWidth / 2), EndPoint.y + min(5, StripWidth / 2));
+											}
+										}
+										if (left_contrast < 0)
+										{//lc<
+											pDC->MoveTo(OrPoint);
+											EndPoint.x = OrPoint.x - min(5, StripWidth / 2);
+											EndPoint.y = OrPoint.y;
+											pDC->LineTo(EndPoint);
+											if (left_edge_point > 1000)
+											{
+												pDC->Ellipse(OrPoint.x - min(5, StripWidth / 2), OrPoint.y - min(5, StripWidth / 2),
+													OrPoint.x + min(5, StripWidth / 2), OrPoint.y + min(5, StripWidth / 2));
+											}
+										}//lc<
+										CnPoint.x = OrPoint.x;
+										CnPoint.y = OrPoint.y + (NewEndPoint.y - OrPoint.y) / 2;
+										New1CnPoint.y = CnPoint.y;
+										New2CnPoint.y = CnPoint.y;
+										New1CnPoint.x = CnPoint.x - min(10, StripWidth / 2);
+										New2CnPoint.x = CnPoint.x + min(10, StripWidth / 2);
+										if (label_sign >= 3)
+										{
+											pDC->MoveTo(New1CnPoint);
+											pDC->LineTo(New2CnPoint);
+										}
+									}//horvert
+									else
+									{//ehorvert
+										OrPoint.x = Beg_bunch;
+										if (bunch_occurrence > 0)
+										{
+											OrPoint.y = WMHeight - (StripWidthPrev1 * coun_strip + StripWidth1 / 2) - 1;
+										}
+										else
+										{
+											OrPoint.y = WMHeight - (StripWidthPrev1 * coun_strip + StripWidth1 / 2) + 3;
+										}
+										//OrPoint.y = WMHeight - (StripWidthPrev1*coun_strip + StripWidth1/2);
+										pDC->MoveTo(OrPoint);
+										EndPoint.x = End_bunch;
+										EndPoint.y = OrPoint.y;
+										NewEndPoint = EndPoint;
+										pDC->LineTo(EndPoint);
+										if (right_contrast < 0)
+										{//rc<0
+											pDC->MoveTo(EndPoint);
+											NewOrPoint.x = EndPoint.x;
+											NewOrPoint.y = EndPoint.y - min(5, StripWidth / 2);
+											pDC->LineTo(NewOrPoint);
+											if (right_edge_point > 1000)
+											{
+												pDC->Ellipse(EndPoint.x - min(5, StripWidth / 2), EndPoint.y - min(5, StripWidth / 2),
+													EndPoint.x + min(5, StripWidth / 2), EndPoint.y + min(5, StripWidth / 2));
+											}
+										}//rc<0
+										if (left_contrast < 0)
+										{//lc<
+											pDC->MoveTo(OrPoint);
+											EndPoint.x = OrPoint.x;
+											EndPoint.y = OrPoint.y - min(5, StripWidth / 2);
+											pDC->LineTo(EndPoint);
+											if (left_edge_point > 1000)
+											{
+												pDC->Ellipse(OrPoint.x - min(5, StripWidth / 2), OrPoint.y - min(5, StripWidth / 2),
+													OrPoint.x + min(5, StripWidth / 2), OrPoint.y + min(5, StripWidth / 2));
+											}
+										}//lc<
+										CnPoint.y = OrPoint.y;
+										CnPoint.x = OrPoint.x + (NewEndPoint.x - OrPoint.x) / 2;
+										New1CnPoint.x = CnPoint.x;
+										New2CnPoint.x = CnPoint.x;
+										New1CnPoint.y = CnPoint.y - min(10, StripWidth / 2);
+										New2CnPoint.y = CnPoint.y + min(10, StripWidth / 2);
+										if ((label_sign >= 3) && (label_sign <= 10) || ((label_sign >= 13) && (label_sign <= 20)))
+										{
+											pDC->MoveTo(New1CnPoint);
+											pDC->LineTo(New2CnPoint);
+										}
+									}//ehorvert
 
-									if ((left_green_boun_bunch >= 0) || (right_green_boun_bunch >= 0))
-									{//lgb||rgb
-										if ((left_green_boun_bunch == old_col_num) && (left_green_boun_bunch >= 0))
-										{//ldb=
-											if (HorizVert)
-											{//horvert
-												OrPoint.y = (WMHeight - End_bunch);
-												OrPoint.x = (StripWidthPrev1*coun_strip1 + StripWidth1 / 2) - 1;
-												pDC->MoveTo(OrPoint);
-												EndPoint.x = OrPoint.x - min(5, StripWidth / 2);
-												EndPoint.y = OrPoint.y;
-												pDC->LineTo(EndPoint);
-											}//horvert
-											else
-											{//ehorvert
-												OrPoint.x = End_bunch;
-												OrPoint.y = WMHeight - (StripWidthPrev1*coun_strip1 + StripWidth1 / 2) - 1;
-												pDC->MoveTo(OrPoint);
-												EndPoint.x = OrPoint.x;
-												EndPoint.y = OrPoint.y - min(5, StripWidth / 2);
-												pDC->LineTo(EndPoint);
-											}//ehorvert	
-										}//ldb=
-										if ((right_green_boun_bunch == old_col_num) && (right_green_boun_bunch >= 0))
-										{//rgb=
-											if (HorizVert)
-											{//horvert
+									pDC->SelectObject(POldPen);
 
-												OrPoint.y = (WMHeight - Beg_bunch);
-												OrPoint.x = (StripWidthPrev1*coun_strip1 + StripWidth1 / 2) - 1;
-												EndPoint.x = OrPoint.x;
-												EndPoint.y = WMHeight - Beg_bunch;
-												pDC->MoveTo(EndPoint);
-												NewOrPoint.x = EndPoint.x - min(5, StripWidth / 2);
-												NewOrPoint.y = EndPoint.y;
-												pDC->LineTo(NewOrPoint);
-											}//horvert
-											else
-											{//ehorvert
-												OrPoint.x = Beg_bunch;
-												OrPoint.y = WMHeight - (StripWidthPrev1*coun_strip1 + StripWidth1 / 2) - 1;
-												EndPoint.x = Beg_bunch;
-												EndPoint.y = OrPoint.y;
-												NewEndPoint = EndPoint;
-												pDC->MoveTo(EndPoint);
-												NewOrPoint.x = EndPoint.x;
-												NewOrPoint.y = EndPoint.y - min(5, StripWidth / 2);
-												pDC->LineTo(NewOrPoint);
-											}//ehorvert	
-										}//rgb=
-
-									}//lgb||rgb
+									delete pHuePen1;
+									 
 								}//restrict_bn
 
 							}//bunch_loop
 						}//strip_loop
-						pDC->SelectObject(POldPen);
-						delete pHuePen2;
-					}//horizvert
 
-
-					VertFind = pApp->ColorImageProcess->VertFinding;
-					if (VertFind)
-					{//vertfind
-						CPen* pHuePen4;
-						COLORREF PeakColor6;
-						NScoor1 = 0;
-						NScoor2 = 100;
-						NScoor3 = 255;
-						PeakColor6 = RGB(NScoor1, NScoor2, NScoor3);
-						pHuePen4 = new CPen(PS_SOLID, 4, PeakColor6);
-						POldPen = pDC->SelectObject(pHuePen4);
-						NumberVLines = pApp->ColorImageProcess->NumberOfVertLines;
 						HorizVert = pApp->HorizontalVertical;
 
+						if (!HorizVert)
+						{//horizvert  
+							COLORREF PeakColor5;
+							NScoor1 = 255;
+							NScoor2 = 100;
+							NScoor3 = 100;
+							PeakColor5 = RGB(NScoor1, NScoor2, NScoor3);
+							CPen* pHuePen2 = new CPen(PS_SOLID, 4, PeakColor5);
+							POldPen = pDC->SelectObject(pHuePen2);
+							for (int coun_strip1 = 0; coun_strip1 < NumStrips; coun_strip1++) //draw color bunches
+							{//strip_loop
+								old_col_number = pApp->ColorImageProcess->ColorInt[coun_strip1].NumberOfColoredIntervals;
+								bunch_number1 = pApp->ColorImageProcess->ColorInt[coun_strip1].RefinedNumberOfBunches;
+								old_col_number = pApp->ColorImageProcess->ColorInt[coun_strip1].NumberOfColoredIntervals;
+								StripWidth1 = CurrentStrip[coun_strip1].StripWidth;
+								StripWidthPrev1 = CurrentStrip[coun_strip1].StripWidthPrev;
+								left_green_boun_bunch = pApp->ColorImageProcess->LeftGreenBoundaryBunch[coun_strip1];
+								right_green_boun_bunch = pApp->ColorImageProcess->RightGreenBoundaryBunch[coun_strip1];
 
-						for (int vert_number = 0; vert_number<NumberVLines; vert_number++) //draw vertical lines
-						{//vert_loop
-							length_of_vert_line = pApp->ColorImageProcess->VerticalLinesLength[vert_number];
-							if (!length_of_vert_line)
-							{
-								goto D;
-							}
-							if (length_of_vert_line>0)
-							{//length>
-								first_vert_line_strip = pApp->ColorImageProcess->VertLineFirstStrip[vert_number];
-								if (first_vert_line_strip>0)
+								if (left_green_boun_bunch > 0)
 								{
-									first_vert_line_strip -= 1;
+									left_green_boun_bunch--;
 								}
 								else
 								{
-									goto L;
+									left_green_boun_bunch = -1;
 								}
-								for (int vert_count = 0; vert_count<length_of_vert_line; vert_count++) //draw particular vert line
-								{//line_loop
-									line_member = pApp->ColorImageProcess->VerticalContrastCurves[24 * vert_number + vert_count];
-									if (!line_member)
+
+								if (right_green_boun_bunch > 0)
+								{
+									right_green_boun_bunch--;
+								}
+								else
+								{
+									right_green_boun_bunch = -1;
+								}
+
+								for (int coun_bunch2 = 0; coun_bunch2 < bunch_number1; coun_bunch2++) //draw color bunches
+								{//bunch_loop
+									old_col_num = pApp->ColorImageProcess->ColorInt[coun_strip1].old_bunch_number[coun_bunch2];
+									if (old_col_num < old_col_number)
+									{//restrict_bn
+										Beg_bunch =
+											pApp->ColorImageProcess->ColorInt[coun_strip1].ColoredIntervalsStructure->BegInterv[old_col_num];
+										End_bunch =
+											pApp->ColorImageProcess->ColorInt[coun_strip1].ColoredIntervalsStructure->EndInterv[old_col_num];
+										bunch_occurrence = pApp->ColorImageProcess->ColorInt[coun_strip1].visible_bunches[old_col_num];
+
+										HorizVert = pApp->HorizontalVertical;
+
+										if ((left_green_boun_bunch >= 0) || (right_green_boun_bunch >= 0))
+										{//lgb||rgb
+											if ((left_green_boun_bunch == old_col_num) && (left_green_boun_bunch >= 0))
+											{//ldb=
+												if (HorizVert)
+												{//horvert
+													OrPoint.y = (WMHeight - End_bunch);
+													OrPoint.x = (StripWidthPrev1 * coun_strip1 + StripWidth1 / 2) - 1;
+													pDC->MoveTo(OrPoint);
+													EndPoint.x = OrPoint.x - min(5, StripWidth / 2);
+													EndPoint.y = OrPoint.y;
+													pDC->LineTo(EndPoint);
+												}//horvert
+												else
+												{//ehorvert
+													OrPoint.x = End_bunch;
+													OrPoint.y = WMHeight - (StripWidthPrev1 * coun_strip1 + StripWidth1 / 2) - 1;
+													pDC->MoveTo(OrPoint);
+													EndPoint.x = OrPoint.x;
+													EndPoint.y = OrPoint.y - min(5, StripWidth / 2);
+													pDC->LineTo(EndPoint);
+												}//ehorvert	
+											}//ldb=
+											if ((right_green_boun_bunch == old_col_num) && (right_green_boun_bunch >= 0))
+											{//rgb=
+												if (HorizVert)
+												{//horvert
+
+													OrPoint.y = (WMHeight - Beg_bunch);
+													OrPoint.x = (StripWidthPrev1 * coun_strip1 + StripWidth1 / 2) - 1;
+													EndPoint.x = OrPoint.x;
+													EndPoint.y = WMHeight - Beg_bunch;
+													pDC->MoveTo(EndPoint);
+													NewOrPoint.x = EndPoint.x - min(5, StripWidth / 2);
+													NewOrPoint.y = EndPoint.y;
+													pDC->LineTo(NewOrPoint);
+												}//horvert
+												else
+												{//ehorvert
+													OrPoint.x = Beg_bunch;
+													OrPoint.y = WMHeight - (StripWidthPrev1 * coun_strip1 + StripWidth1 / 2) - 1;
+													EndPoint.x = Beg_bunch;
+													EndPoint.y = OrPoint.y;
+													NewEndPoint = EndPoint;
+													pDC->MoveTo(EndPoint);
+													NewOrPoint.x = EndPoint.x;
+													NewOrPoint.y = EndPoint.y - min(5, StripWidth / 2);
+													pDC->LineTo(NewOrPoint);
+												}//ehorvert	
+											}//rgb=
+
+										}//lgb||rgb
+									}//restrict_bn
+
+								}//bunch_loop
+							}//strip_loop
+							pDC->SelectObject(POldPen);
+							delete pHuePen2;
+						}//horizvert
+
+
+						VertFind = pApp->ColorImageProcess->VertFinding;
+						if (VertFind)
+						{//vertfind
+							CPen* pHuePen4;
+							COLORREF PeakColor6;
+							NScoor1 = 0;
+							NScoor2 = 100;
+							NScoor3 = 255;
+							PeakColor6 = RGB(NScoor1, NScoor2, NScoor3);
+							pHuePen4 = new CPen(PS_SOLID, 4, PeakColor6);
+							POldPen = pDC->SelectObject(pHuePen4);
+							NumberVLines = pApp->ColorImageProcess->NumberOfVertLines;
+							HorizVert = pApp->HorizontalVertical;
+
+
+							for (int vert_number = 0; vert_number < NumberVLines; vert_number++) //draw vertical lines
+							{//vert_loop
+								length_of_vert_line = pApp->ColorImageProcess->VerticalLinesLength[vert_number];
+								if (!length_of_vert_line)
+								{
+									goto D;
+								}
+								if (length_of_vert_line > 0)
+								{//length>
+									first_vert_line_strip = pApp->ColorImageProcess->VertLineFirstStrip[vert_number];
+									if (first_vert_line_strip > 0)
 									{
-										break;
+										first_vert_line_strip -= 1;
 									}
-									if (line_member>0)
-									{//linemember>
-										line_member -= 1;
-										coun_strip_v = first_vert_line_strip + vert_count;
-										StripWidth1 = pApp->ColorImageProcess->CurStrip[coun_strip_v].StripWidth;
-										StripWidthPrev1 = pApp->ColorImageProcess->CurStrip[coun_strip_v].StripWidthPrev;
-										line_member_old =
-											pApp->ColorImageProcess->ColorInt[coun_strip_v].old_ordered_bunch_number[line_member];
-										line_member_old_beg =
-											pApp->ColorImageProcess->ColorInt[coun_strip_v].ColoredIntervalsStructure->BegInterv[line_member_old];
-										line_member_old_end =
-											pApp->ColorImageProcess->ColorInt[coun_strip_v].ColoredIntervalsStructure->EndInterv[line_member_old];
-										if (HorizVert)
-										{//horvert
-											OrPoint.y = (WMHeight - line_member_old_end);
-											OrPoint.x = (StripWidthPrev1*coun_strip_v + StripWidth1 / 2) - 1;
-											pDC->MoveTo(OrPoint);
-											EndPoint.x = OrPoint.x - min(5, StripWidth1 / 2);
-											EndPoint.y = OrPoint.y;
-											pDC->LineTo(EndPoint);
-										}//horvert
-										else
-										{//ehorvert
-											OrPoint.x = line_member_old_end;
-											OrPoint.y = WMHeight - (StripWidthPrev1*coun_strip_v + StripWidth1 / 2) - 1;
-											pDC->MoveTo(OrPoint);
-											EndPoint.x = OrPoint.x;
-											EndPoint.y = OrPoint.y - min(5, StripWidth1 / 2);
-											pDC->LineTo(EndPoint);
-										}//ehorvert	
-									}//linemember>
-								}//line_loop
-							}//length>
-						}//vert_loop
-					D:;
-						pDC->SelectObject(POldPen);
-						delete pHuePen4;
-					}//vertfind
+									else
+									{
+										goto L;
+									}
+									for (int vert_count = 0; vert_count < length_of_vert_line; vert_count++) //draw particular vert line
+									{//line_loop
+										line_member = pApp->ColorImageProcess->VerticalContrastCurves[24 * vert_number + vert_count];
+										if (!line_member)
+										{
+											break;
+										}
+										if (line_member > 0)
+										{//linemember>
+											line_member -= 1;
+											coun_strip_v = first_vert_line_strip + vert_count;
+											StripWidth1 = pApp->ColorImageProcess->CurStrip[coun_strip_v].StripWidth;
+											StripWidthPrev1 = pApp->ColorImageProcess->CurStrip[coun_strip_v].StripWidthPrev;
+											line_member_old =
+												pApp->ColorImageProcess->ColorInt[coun_strip_v].old_ordered_bunch_number[line_member];
+											line_member_old_beg =
+												pApp->ColorImageProcess->ColorInt[coun_strip_v].ColoredIntervalsStructure->BegInterv[line_member_old];
+											line_member_old_end =
+												pApp->ColorImageProcess->ColorInt[coun_strip_v].ColoredIntervalsStructure->EndInterv[line_member_old];
+											if (HorizVert)
+											{//horvert
+												OrPoint.y = (WMHeight - line_member_old_end);
+												OrPoint.x = (StripWidthPrev1 * coun_strip_v + StripWidth1 / 2) - 1;
+												pDC->MoveTo(OrPoint);
+												EndPoint.x = OrPoint.x - min(5, StripWidth1 / 2);
+												EndPoint.y = OrPoint.y;
+												pDC->LineTo(EndPoint);
+											}//horvert
+											else
+											{//ehorvert
+												OrPoint.x = line_member_old_end;
+												OrPoint.y = WMHeight - (StripWidthPrev1 * coun_strip_v + StripWidth1 / 2) - 1;
+												pDC->MoveTo(OrPoint);
+												EndPoint.x = OrPoint.x;
+												EndPoint.y = OrPoint.y - min(5, StripWidth1 / 2);
+												pDC->LineTo(EndPoint);
+											}//ehorvert	
+										}//linemember>
+									}//line_loop
+								}//length>
+							}//vert_loop
+						D:;
+							pDC->SelectObject(POldPen);
+							delete pHuePen4;
+						}//vertfind
 
-					return;
-
-				}
-				 
-				if (BunchNumber >= bunch_number)
-				{
-					BunchNumber = 0;
-				}
-
-				blocking_bunch = pApp->ColorImageProcess->ColorInt[StripNumber].bunch_blocking;
-				old_col_num = pApp->ColorImageProcess->ColorInt[StripNumber].old_bunch_number[BunchNumber];
-				
-				if (old_col_num < old_col_number)
-				{
-					bunch_average_hue = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageHue[old_col_num];
-					bunch_average_sat = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageSat[old_col_num];
-					bunch_average_gray = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageGray[old_col_num];
-					
-					Beg_bunch = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->BegInterv[old_col_num];
-					End_bunch = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->EndInterv[old_col_num];
-					
-					left_contrast = pApp->ColorImageProcess->ColorInt[StripNumber].left_continuation[old_col_num];
-					right_contrast = pApp->ColorImageProcess->ColorInt[StripNumber].right_continuation[old_col_num];
-					
-					NumSideHues = (NUM_HUES / 3);
-					
-					if (bunch_average_hue > 47)
-					{
-						bunch_average_hue -= 48;
-					}
-					
-					SideTriangle = bunch_average_hue / NumSideHues;
-					SideHue      = bunch_average_hue - NumSideHues*SideTriangle;
-					
-					if (SideTriangle == 0)
-					{
-						Coor1 = 255 - CoorHuPoints[SideHue];
-						Coor2 = CoorHuPoints[SideHue];
-						Scoor1 = 84 + (bunch_average_sat*(Coor1 - 84)) / 15;
-						Scoor2 = 84 + (bunch_average_sat*(Coor2 - 84)) / 15;
-						Scoor3 = (84 * (15 - bunch_average_sat)) / 15;
-						Imax = max(Scoor1, max(Scoor2, Scoor3));
-						Scoor1 = (Scoor1 * 255) / Imax;
-						Scoor2 = (Scoor2 * 255) / Imax;
-						Scoor3 = (Scoor3 * 255) / Imax;
-						PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
-						GrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
-						GrayLev = GrayLev / 4;
-						if (GrayLev > bunch_average_gray)
-						{
-
-							NScoor1 = (Scoor1*bunch_average_gray) / GrayLev;
-							NScoor2 = (Scoor2*bunch_average_gray) / GrayLev;
-							NScoor3 = (Scoor3*bunch_average_gray) / GrayLev;
-							NewGrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
-							NewGrayLev = NewGrayLev / 4;
-						}
-						else
-						{
-							NScoor1 = Scoor1;
-							NScoor2 = Scoor2;
-							NScoor3 = Scoor3;
-						}
+						return; 
 					}
 
-					if (SideTriangle == 1)
+					if (colorBunchNum >= bunch_number)
 					{
-						Coor1 = 255 - CoorHuPoints[SideHue];
-						Coor2 = CoorHuPoints[SideHue];
-						Scoor1 = (84 * (15 - bunch_average_sat)) / 15;
-						Scoor2 = 84 + (bunch_average_sat*(Coor1 - 84)) / 15;
-						Scoor3 = 84 + (bunch_average_sat*(Coor2 - 84)) / 15;
-						Imax = max(Scoor1, max(Scoor2, Scoor3));
-						Scoor1 = (Scoor1 * 255) / Imax;
-						Scoor2 = (Scoor2 * 255) / Imax;
-						Scoor3 = (Scoor3 * 255) / Imax;
-						PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
-						GrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
-						GrayLev = GrayLev / 4;
-						if (GrayLev > bunch_average_gray)
-						{
-							NScoor1 = (Scoor1*bunch_average_gray) / GrayLev;
-							NScoor2 = (Scoor2*bunch_average_gray) / GrayLev;
-							NScoor3 = (Scoor3*bunch_average_gray) / GrayLev;
-							NewGrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
-							NewGrayLev = NewGrayLev / 4;
-						}
-						else
-						{
-							NScoor1 = Scoor1;
-							NScoor2 = Scoor2;
-							NScoor3 = Scoor3;
-						}
-
+						colorBunchNum = 0;
 					}
-					if (SideTriangle == 2)
+
+					blocking_bunch = pApp->ColorImageProcess->ColorInt[StripNumber].bunch_blocking;
+					old_col_num    = pApp->ColorImageProcess->ColorInt[StripNumber].old_bunch_number[colorBunchNum];
+
+					if (old_col_num < old_col_number)
 					{
-						Coor1 = CoorHuPoints[SideHue];
-						Coor2 = 255 - CoorHuPoints[SideHue];
-						Scoor1 = 84 + (bunch_average_sat*(Coor1 - 84)) / 15;
-						Scoor2 = (84 * (15 - bunch_average_sat)) / 15;
-						Scoor3 = 84 + (bunch_average_sat*(Coor2 - 84)) / 15;
-						
-						Imax = max(Scoor1, max(Scoor2, Scoor3));
-						
-						Scoor1 = (Scoor1 * 255) / Imax;
-						Scoor2 = (Scoor2 * 255) / Imax;
-						Scoor3 = (Scoor3 * 255) / Imax;
-						
-						PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
-						
-						GrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
-						GrayLev = GrayLev / 4;
-						
-						if (GrayLev > bunch_average_gray)
+						bunch_average_hue = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageHue[old_col_num];
+						bunch_average_sat = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageSat[old_col_num];
+						bunch_average_gray = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->AverageGray[old_col_num];
+
+						Beg_bunch = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->BegInterv[old_col_num];
+						End_bunch = pApp->ColorImageProcess->ColorInt[StripNumber].ColoredIntervalsStructure->EndInterv[old_col_num];
+
+						left_contrast  = pApp->ColorImageProcess->ColorInt[StripNumber].left_continuation[old_col_num];
+						right_contrast = pApp->ColorImageProcess->ColorInt[StripNumber].right_continuation[old_col_num];
+
+						NumSideHues = (NUM_HUES / 3);
+
+						if (bunch_average_hue > 47)
 						{
-							NScoor1 = (Scoor1*bunch_average_gray) / GrayLev;
-							NScoor2 = (Scoor2*bunch_average_gray) / GrayLev;
-							NScoor3 = (Scoor3*bunch_average_gray) / GrayLev;
-							NewGrayLev = int(0.3*((float)Scoor1) + 0.59*((float)Scoor2) + 0.11*((float)Scoor3));
-							NewGrayLev = NewGrayLev / 4;
-						}
-						else
-						{
-							NScoor1 = Scoor1;
-							NScoor2 = Scoor2;
-							NScoor3 = Scoor3;
+							bunch_average_hue -= 48;
 						}
 
-					}
-					NScoor1 = (NScoor1 + Scoor1) / 2;
-					NScoor2 = (NScoor2 + Scoor2) / 2;
-					NScoor3 = (NScoor3 + Scoor3) / 2;
-					PeakColor1 = RGB(NScoor1, NScoor2, NScoor3);
-					OldNum = pApp->ColorImageProcess->ColorInt[StripNumber].OldNumbers;
+						SideTriangle = bunch_average_hue / NumSideHues;
+						SideHue = bunch_average_hue - NumSideHues * SideTriangle;
 
-					HuePen.CreatePen(PS_SOLID, 3, PeakColor1);
-
-					POldPen = pDC->SelectObject(&HuePen);
-					HorizVert = pApp->HorizontalVertical;
-					if (HorizVert)
-					{
-						OrPoint.y = (WMHeight - Beg_bunch);
-
-						OrPoint.x = StripWidthPrev*StripNumber + StripWidth / 2;;
-						pDC->MoveTo(OrPoint);
-						EndPoint.x = OrPoint.x;
-						EndPoint.y = WMHeight - End_bunch;
-						pDC->LineTo(EndPoint);
-						
-						if (right_contrast < 0)
+						if (SideTriangle == 0)
 						{
-							pDC->MoveTo(EndPoint);
-							NewOrPoint.x = EndPoint.x - min(5, StripWidth / 2);
-							NewOrPoint.y = EndPoint.y;
-							pDC->LineTo(NewOrPoint);
-						}
-						if (left_contrast < 0)
-						{
-							pDC->MoveTo(OrPoint);
-							EndPoint.x = OrPoint.x - min(5, StripWidth / 2);
-							EndPoint.y = OrPoint.y;
-							pDC->LineTo(EndPoint);
+							Coor1 = 255 - CoorHuPoints[SideHue];
+							Coor2 = CoorHuPoints[SideHue];
+							Scoor1 = 84 + (bunch_average_sat * (Coor1 - 84)) / 15;
+							Scoor2 = 84 + (bunch_average_sat * (Coor2 - 84)) / 15;
+							Scoor3 = (84 * (15 - bunch_average_sat)) / 15;
+							Imax = max(Scoor1, max(Scoor2, Scoor3));
+							Scoor1 = (Scoor1 * 255) / Imax;
+							Scoor2 = (Scoor2 * 255) / Imax;
+							Scoor3 = (Scoor3 * 255) / Imax;
+							PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
+							GrayLev = int(0.3 * ((float)Scoor1) + 0.59 * ((float)Scoor2) + 0.11 * ((float)Scoor3));
+							GrayLev = GrayLev / 4;
+							if (GrayLev > bunch_average_gray)
+							{
+
+								NScoor1 = (Scoor1 * bunch_average_gray) / GrayLev;
+								NScoor2 = (Scoor2 * bunch_average_gray) / GrayLev;
+								NScoor3 = (Scoor3 * bunch_average_gray) / GrayLev;
+								NewGrayLev = int(0.3 * ((float)Scoor1) + 0.59 * ((float)Scoor2) + 0.11 * ((float)Scoor3));
+								NewGrayLev = NewGrayLev / 4;
+							}
+							else
+							{
+								NScoor1 = Scoor1;
+								NScoor2 = Scoor2;
+								NScoor3 = Scoor3;
+							}
 						}
 
-					}
-					else
-					{
-						OrPoint.x = Beg_bunch;
-						OrPoint.y = WMHeight - (StripWidthPrev*StripNumber + StripWidth / 2);
-						
-						pDC->MoveTo(OrPoint);
-						
-						EndPoint.x = End_bunch;
-						EndPoint.y = OrPoint.y;
-						
-						pDC->LineTo(EndPoint);
-						
-						if (right_contrast < 0)
+						if (SideTriangle == 1)
 						{
-							pDC->MoveTo(EndPoint);
-							NewOrPoint.x = EndPoint.x;
-							NewOrPoint.y = EndPoint.y - min(5, StripWidth / 2);
-							pDC->LineTo(NewOrPoint);
+							Coor1 = 255 - CoorHuPoints[SideHue];
+							Coor2 = CoorHuPoints[SideHue];
+							Scoor1 = (84 * (15 - bunch_average_sat)) / 15;
+							Scoor2 = 84 + (bunch_average_sat * (Coor1 - 84)) / 15;
+							Scoor3 = 84 + (bunch_average_sat * (Coor2 - 84)) / 15;
+							Imax = max(Scoor1, max(Scoor2, Scoor3));
+							Scoor1 = (Scoor1 * 255) / Imax;
+							Scoor2 = (Scoor2 * 255) / Imax;
+							Scoor3 = (Scoor3 * 255) / Imax;
+							PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
+							GrayLev = int(0.3 * ((float)Scoor1) + 0.59 * ((float)Scoor2) + 0.11 * ((float)Scoor3));
+							GrayLev = GrayLev / 4;
+							if (GrayLev > bunch_average_gray)
+							{
+								NScoor1 = (Scoor1 * bunch_average_gray) / GrayLev;
+								NScoor2 = (Scoor2 * bunch_average_gray) / GrayLev;
+								NScoor3 = (Scoor3 * bunch_average_gray) / GrayLev;
+								NewGrayLev = int(0.3 * ((float)Scoor1) + 0.59 * ((float)Scoor2) + 0.11 * ((float)Scoor3));
+								NewGrayLev = NewGrayLev / 4;
+							}
+							else
+							{
+								NScoor1 = Scoor1;
+								NScoor2 = Scoor2;
+								NScoor3 = Scoor3;
+							}
+
 						}
-						if (left_contrast < 0)
+						if (SideTriangle == 2)
 						{
+							Coor1 = CoorHuPoints[SideHue];
+							Coor2 = 255 - CoorHuPoints[SideHue];
+							Scoor1 = 84 + (bunch_average_sat * (Coor1 - 84)) / 15;
+							Scoor2 = (84 * (15 - bunch_average_sat)) / 15;
+							Scoor3 = 84 + (bunch_average_sat * (Coor2 - 84)) / 15;
+
+							Imax = max(Scoor1, max(Scoor2, Scoor3));
+
+							Scoor1 = (Scoor1 * 255) / Imax;
+							Scoor2 = (Scoor2 * 255) / Imax;
+							Scoor3 = (Scoor3 * 255) / Imax;
+
+							PeakColor2 = RGB(Scoor1, Scoor2, Scoor3);
+
+							GrayLev = int(0.3 * ((float)Scoor1) + 0.59 * ((float)Scoor2) + 0.11 * ((float)Scoor3));
+							GrayLev = GrayLev / 4;
+
+							if (GrayLev > bunch_average_gray)
+							{
+								NScoor1 = (Scoor1 * bunch_average_gray) / GrayLev;
+								NScoor2 = (Scoor2 * bunch_average_gray) / GrayLev;
+								NScoor3 = (Scoor3 * bunch_average_gray) / GrayLev;
+								NewGrayLev = int(0.3 * ((float)Scoor1) + 0.59 * ((float)Scoor2) + 0.11 * ((float)Scoor3));
+								NewGrayLev = NewGrayLev / 4;
+							}
+							else
+							{
+								NScoor1 = Scoor1;
+								NScoor2 = Scoor2;
+								NScoor3 = Scoor3;
+							}
+
+						}
+
+						NScoor1 = (NScoor1 + Scoor1) / 2;
+						NScoor2 = (NScoor2 + Scoor2) / 2;
+						NScoor3 = (NScoor3 + Scoor3) / 2;
+
+						PeakColor1 = RGB(NScoor1, NScoor2, NScoor3);
+						OldNum = pApp->ColorImageProcess->ColorInt[StripNumber].OldNumbers;
+
+						pen.CreatePen(PS_SOLID, 3, PeakColor1);
+
+						POldPen = pDC->SelectObject(&pen);
+						HorizVert = pApp->HorizontalVertical;
+						
+						if (HorizVert)
+						{
+							OrPoint.y = (WMHeight - Beg_bunch);
+
+							OrPoint.x = StripWidthPrev * StripNumber + StripWidth / 2;
 							pDC->MoveTo(OrPoint);
 							EndPoint.x = OrPoint.x;
-							EndPoint.y = OrPoint.y - min(5, StripWidth / 2);
+							EndPoint.y = WMHeight - End_bunch;
 							pDC->LineTo(EndPoint);
+
+							if (right_contrast < 0)
+							{
+								pDC->MoveTo(EndPoint);
+								NewOrPoint.x = EndPoint.x - min(5, StripWidth / 2);
+								NewOrPoint.y = EndPoint.y;
+								pDC->LineTo(NewOrPoint);
+							}
+							if (left_contrast < 0)
+							{
+								pDC->MoveTo(OrPoint);
+								EndPoint.x = OrPoint.x - min(5, StripWidth / 2);
+								EndPoint.y = OrPoint.y;
+								pDC->LineTo(EndPoint);
+							}
 						}
+						else
+						{
+							OrPoint.x = Beg_bunch;
+							OrPoint.y = WMHeight - (StripWidthPrev * StripNumber + StripWidth / 2);
+
+							pDC->MoveTo(OrPoint);
+
+							EndPoint.x = End_bunch;
+							EndPoint.y = OrPoint.y;
+
+							pDC->LineTo(EndPoint);
+
+							if (right_contrast < 0)
+							{
+								pDC->MoveTo(EndPoint);
+								NewOrPoint.x = EndPoint.x;
+								NewOrPoint.y = EndPoint.y - min(5, StripWidth / 2);
+								pDC->LineTo(NewOrPoint);
+							}
+							if (left_contrast < 0)
+							{
+								pDC->MoveTo(OrPoint);
+								EndPoint.x = OrPoint.x;
+								EndPoint.y = OrPoint.y - min(5, StripWidth / 2);
+								pDC->LineTo(EndPoint);
+							}
+						}
+						pDC->SelectObject(POldPen);
 					}
-					pDC->SelectObject(POldPen);
 				}
+				else if (1 == pApp->m_pBunchCountDialog->radioBtnGrayBunch.GetCheck())
+				{ 
+					pen.CreatePen(PS_SOLID, 5, RGB(240, 20, 20));
+					pDC->SelectObject(&pen);
+					grayBunchNum = pApp->m_pBunchCountDialog->m_grayBunchNum; 
+					 
+					OrPoint.x = CurrentStrip->bursts[grayBunchNum].beg;
+					OrPoint.y = WMHeight - (StripWidthPrev * StripNumber + StripWidth / 2);
+
+					pDC->MoveTo(OrPoint);
+
+					EndPoint.x = CurrentStrip->bursts[grayBunchNum].end;
+					EndPoint.y = OrPoint.y;
+
+					pDC->LineTo(EndPoint); 
+				} 
 			}
 		}
 	}

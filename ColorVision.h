@@ -8,6 +8,9 @@
 #if !defined(AFX_COLORVISION_H__9489C2BE_B3C4_4822_A972_5786C7918411__INCLUDED_)
 #define AFX_COLORVISION_H__9489C2BE_B3C4_4822_A972_5786C7918411__INCLUDED_
 
+
+
+
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
@@ -28,8 +31,7 @@
 
 #include "ImageProcess.h"
  
-#include "BunchCountDialog.h"
-
+#include "BunchCountDlg.h"
 #include "ColorSectionDialog.h" 
 
 
@@ -80,10 +82,9 @@ public:
 	int VideoInputLimit;
 	int BitsPerPixel;
 	int NumberStripClicked;
-	// todo: add graybunch
 
-	std::uint8_t NumberOfBunch;
-	std::uint8_t grayBunchNumber;
+	uint8 NumberOfBunch; // todo: delete cause it is in Dialog class now
+	uint8 grayBunchNumber;
 
 
 	int NumberOfColorSection;
@@ -92,14 +93,13 @@ public:
 	int StripRepresentationType;
 	int GlobalObjectsRepresentationType;
 
-	BunchCountDialog* pm_BunchCountDialog;
-	  
+	BunchCountDlg* m_pBunchCountDialog;
 	ColorSectionDialog* pm_ColorSectNumDialog;
 	
 	// todo: rename docs (reflect the role of each of them)
 	CDocument* pDoci0;
 
-	CDocument* pDoci1;
+	CDocument* pDoci1; // grayscale image
 	CDocument* pDoci2;
 	CDocument* pDoci3;
 	CDocument* pDocs1;
@@ -108,8 +108,7 @@ public:
 	CDocument* pDocColSec1; 
 
 	CImageProcess *ColorImageProcess;
-	unsigned char* pBuffer;
-	char* pm_inputbuffer;
+	unsigned char* pBuffer; 
 	char* buffer;
 	BYTE* pData;
 	CString strFail;

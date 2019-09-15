@@ -85,3 +85,6 @@ uint8 measure_intersection(Segment& s1, Segment& s2,
 		}
 	}
 }
+
+
+

@@ -9,26 +9,25 @@
 
 
 
-
-
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
 
- // For redefinition basic types(int, char etc.)
-#include <cstdint>
-
-// for abs
-#include <cstdlib>
-
-// Min and Max functions are contained here
-#include <algorithm>
 
 // To redefine basic types
 #include "std_types.h"
-
-#include "Config.h"
+ 
+#include "cv_config.h"
   
+
+#define MAX(x, y) (x) > (y)? (x): (y)
+
+#define MIN(x, y) (x) < (y)? (x): (y)
+
+#define ABS(x) (x) < 0? -(x): (x)
+
+ 
+
 
 class Segment
 {
