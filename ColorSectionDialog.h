@@ -1,3 +1,9 @@
+//
+//
+//
+//
+//
+
 
 
 
@@ -16,22 +22,24 @@
 
 
 
-
-
 class ColorSectionDialog : public CDialog
-{
-	// Construction
+{ 
 public:
 	ColorSectionDialog(CWnd* pParent = NULL);   // standard constructor
+	 
+	enum { IDD = IDD_DIALOG2 };
 
+	CSpinButtonCtrl	m_SpinColorSection;
+	CSpinButtonCtrl	m_SpinMarking;
+	 
+	CButton radioBtnColorSection;
+	CButton radioBtnMarking;
+	 
+	CEdit	m_ColorSectionEdit;
+	CEdit	m_MarkingEdit;
 
-	enum { IDD = IDD_DIALOG3 };
-
-	CSpinButtonCtrl	m_Spin;
-
-	CEdit	m_SectionCtrl;
-
-	int		m_SectionNumber;
+	uint8		m_SectionNumber;
+	uint8		m_MarkingNumber;
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -41,15 +49,15 @@ protected:
 protected:
 
 	virtual BOOL OnInitDialog();
-
-
-
-	afx_msg void OnChangeEdit2();
-
-
-	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+	  
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+public: 
+	afx_msg void OnDeltaposSpinMarkings(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnDeltaposSpinColorSection(NMHDR* pNMHDR, LRESULT* pResult);
+
+	afx_msg void OnBnClickedRadioMarkings();
+	afx_msg void OnBnClickedRadioColorSection();
 };
 
 //{{AFX_INSERT_LOCATION}}

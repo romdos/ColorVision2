@@ -1,16 +1,19 @@
-/* 
- *	Start file. 
- */
+//
+//
+//
+//
+//
+//
 
 
 
 #include "stdafx.h" 
 
-#include "ColorVision.h"
 
+
+#include "ColorVision.h"
 #include "MainFrm.h"
 #include "ChildFrm.h"
-
 
 #include "ViewImageDoc.h"
 #include "ViewImageVw.h"
@@ -69,19 +72,19 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CColorVisionApp construction
 
-CColorVisionApp::CColorVisionApp()
+CColorVisionApp::CColorVisionApp() 
 { 
 	NumberStripClicked = 0;
 
-	m_ImageIsLoaded = FALSE;
+	m_ImageIsLoaded		  = FALSE;
 	m_VideoCameraIsLoaded = FALSE;
-	m_GrayScaleOpened = FALSE;
-	m_ImageSegmented = FALSE;
+	m_GrayScaleOpened	  = FALSE;
+	m_ImageSegmented	  = FALSE;
 	m_Video_ImageSegmented = FALSE;
-	m_ImageIsInverted = TRUE;
-	m_ParamHaveBeenChanged = FALSE; 
+	m_ImageIsInverted	   = TRUE;
+	m_ParamHaveBeenChanged = FALSE;  
 
-	m_FindSky = TRUE;
+	m_FindSky   = TRUE;
 	m_FindGreen = TRUE;
 	
 	ColorNumber1 = 4;
@@ -95,18 +98,19 @@ CColorVisionApp::CColorVisionApp()
 	m_VideoCameraInput = FALSE;
 	m_VideoCameraSequenceProcessing = FALSE;
 	m_NetworkDirectX = FALSE; 
+	
 	pm_BitmapApp = NULL;
 	pm_GrayBitmap = NULL;
+	
 	pBuffer = NULL;
 	buffer = NULL;
 	pData = NULL; 
+	
 	NumberOfStrips = 48;
 	CameraNumber = 0;
-	NumberStripClicked = 0;
-	NumberOfBunch = 0;
+	NumberStripClicked = 0; 
 	VideoImageProcessedNumber = 0;
-	VideoInputLimit = 1;
-	NumberOfColorSection = -1;
+	VideoInputLimit = 1; 
 	HorizontalVertical = FALSE;
 	PermuteRatios = TRUE; 
 	ColorImageProcess = NULL;
@@ -115,13 +119,13 @@ CColorVisionApp::CColorVisionApp()
 	VideoImageRepresentationType = 0;
 	GlobalObjectsRepresentationType = 0;  
 	
-	pDoci0 = NULL;
+	pDocColorImage = NULL;
 	pDoci2 = NULL;
 	pDoci3 = NULL;
 	pDocs1 = NULL;
 	pDocs2 = NULL;
 	pDocs3 = NULL;
-	pDoci1 = NULL; 
+	pDocGrayscaleImage = NULL; 
 	pDocColSec1 = NULL;
 
 	m_BitmapApp.bmBits = 0;
@@ -273,11 +277,11 @@ void CColorVisionApp::OnSegment()
 			ColorImageProcess->SegmentImage(VideoImageProcessedNumber);
 		} 
 
-		if (pm_ColorSectNumDialog != NULL)
+		if (m_pColorSectDialog != NULL)
 		{
-			pm_ColorSectNumDialog->DestroyWindow();
-			delete pm_ColorSectNumDialog;
-			pm_ColorSectNumDialog = NULL;
+			m_pColorSectDialog->DestroyWindow();
+			delete m_pColorSectDialog;
+			m_pColorSectDialog = NULL;
 		}
 
 		if (m_StripColorRepresentation || m_StripGrayRepresentation || m_ColorBunchRepresentation || m_GrayScaleOpened)
@@ -298,10 +302,10 @@ void CColorVisionApp::OnSegment()
 				pDocs3->OnCloseDocument();
 				pDocs3 = NULL;
 			}
-			if (pDoci1 != NULL)
+			if (pDocGrayscaleImage != NULL)
 			{
-				pDoci1->OnCloseDocument();
-				pDoci1 = NULL;
+				pDocGrayscaleImage->OnCloseDocument();
+				pDocGrayscaleImage = NULL;
 			}
 
 			if (pDocColSec1 != NULL)
@@ -463,6 +467,7 @@ void CColorVisionApp::OnBunchDemo()
 			CString str;
 			curTemplate->GetDocString(str, CDocTemplate::docName);
 
+			// TODO: delete magic value
 			StripRepresentationType = 3;
 			
 			curTemplate->OpenDocumentFile(NULL);
@@ -477,7 +482,7 @@ void CColorVisionApp::OnBunchDemo()
 void CColorVisionApp::OnUpdateBunchDemo(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable((m_ImageSegmented) && (!m_ColorBunchRepresentation) && m_StripColorRepresentation);
+	pCmdUI->Enable(m_ImageSegmented && (!m_ColorBunchRepresentation) && m_StripColorRepresentation);
 }
 
 
@@ -487,21 +492,19 @@ void CColorVisionApp::OnColorSections()
 	// TODO: Add your command handler code here
 	if (m_ImageIsLoaded && m_ImageSegmented)
 	{
-		pm_ColorSectNumDialog = new ColorSectionDialog();
-		if (pm_ColorSectNumDialog != NULL)
-		{
-			BOOL ret = pm_ColorSectNumDialog->Create(IDD_DIALOG3, m_pMainWnd);
-			if (!ret)   //Create failed.
+		m_pColorSectDialog = new ColorSectionDialog;
+		if (m_pColorSectDialog != NULL)
+		{ 
+			if (!m_pColorSectDialog->Create(IDD_DIALOG2, m_pMainWnd))   //Create failed.
 			{
 				AfxMessageBox(strFailCrDialog);
 			}
-			pm_ColorSectNumDialog->ShowWindow(SW_SHOW);
+			m_pColorSectDialog->ShowWindow(SW_SHOW);
 		}
 		else
 		{
 			AfxMessageBox(strErCrDiOb);
 		}
-
 		POSITION curTemplatePos = GetFirstDocTemplatePosition();
 
 		int i = 0;
@@ -509,18 +512,21 @@ void CColorVisionApp::OnColorSections()
 		while (curTemplatePos != NULL)
 		{
 
-			CDocTemplate* curTemplate = GetNextDocTemplate(curTemplatePos);
+			CDocTemplate* curTemplate =
+				GetNextDocTemplate(curTemplatePos);
 			CString str;
-			curTemplate->GetDocString(str, CDocTemplate::docName);
+			curTemplate->GetDocString(str, CDocTemplate::docName); 
+
 			if (i == 2)
 			{
 				GlobalObjectsRepresentationType = 1;
 				curTemplate->OpenDocumentFile(NULL);
-				m_ColorSectionsRepresentation = TRUE; 
 				return;
 			}
 			i++;
+
 		}
+		m_ColorSectionsRepresentation = TRUE;
 	}
 }
 
@@ -530,8 +536,8 @@ void CColorVisionApp::OnUpdateColorSections(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 
-	pCmdUI->Enable((m_ImageSegmented) && (!m_ColorSectionsRepresentation) &&
-		(m_StripColorRepresentation));
+	pCmdUI->Enable(m_ImageSegmented && (!m_ColorSectionsRepresentation) &&
+		m_StripColorRepresentation);
 
 }
 
@@ -552,10 +558,10 @@ void CColorVisionApp::OnSegmentInitialize()
 		{
 			delete ColorImageProcess;
 			ColorImageProcess = NULL;
-			if (pDoci0 != NULL)
+			if (pDocColorImage != NULL)
 			{
-				pDoci0->OnCloseDocument();
-				pDoci0 = NULL;
+				pDocColorImage->OnCloseDocument();
+				pDocColorImage = NULL;
 			}
 			ColorImageProcess = new CImageProcess(VideoInputLimit);
 			ColorImageProcess->InitialConstructions();
@@ -636,10 +642,10 @@ void CColorVisionApp::OnAppExit()
 		delete pBuffer;
 		pBuffer = NULL;
 	}  
-	if (pDoci0 != NULL)
+	if (pDocColorImage != NULL)
 	{
-		pDoci0->OnCloseDocument();
-		pDoci0 = NULL;
+		pDocColorImage->OnCloseDocument();
+		pDocColorImage = NULL;
 	}
 	CWinApp::OnAppExit();
 }

@@ -1,6 +1,9 @@
-/*
-	Declares class ColorVisionApp.
-*/
+//
+//
+//
+//
+//
+//
 
 
 
@@ -37,23 +40,35 @@
 
 
 
-/* ColorVisionApp */
- 
-
-
 class CColorVisionApp : public CWinApp
 {
 public:
 	BOOL m_ImageIsLoaded;
-	BOOL m_VideoCameraIsLoaded;
-	BOOL m_GrayScaleOpened;
-	BOOL m_ImageSegmented;
-	BOOL m_Video_ImageSegmented;
-	BOOL m_ParamHaveBeenChanged;
-	BOOL m_FindLabels;
-	BOOL m_FindSky;//last_cor27.05.15
-	BOOL m_FindGreen;//last_cor08.02.16
 	
+	
+	BOOL m_VideoCameraIsLoaded;
+	
+	
+	BOOL m_GrayScaleOpened;
+	
+	
+	BOOL m_ImageSegmented;
+	
+	
+	
+	BOOL m_Video_ImageSegmented;
+	
+	
+	
+	BOOL m_ParamHaveBeenChanged;
+	
+	BOOL m_FindLabels;		// deprecated, used in Amur project
+
+	BOOL m_FindSky;//last_cor27.05.15
+	
+	BOOL m_FindGreen;//last_cor08.02.16
+	 
+
 	int ColorNumber1;
 	int ColorNumber2;
 	int ColorNumber3; 
@@ -69,6 +84,8 @@ public:
 	BOOL m_StripGrayRepresentation;
 	BOOL m_ColorBunchRepresentation;
 	BOOL m_ColorSectionsRepresentation;
+	
+	
 	BOOL m_VideoCameraInput;
 	BOOL m_VideoCameraSequenceProcessing;
 	BOOL m_NetworkDirectX;
@@ -81,25 +98,21 @@ public:
 	int VideoImageProcessedNumber;
 	int VideoInputLimit;
 	int BitsPerPixel;
-	int NumberStripClicked;
-
-	uint8 NumberOfBunch; // todo: delete cause it is in Dialog class now
-	uint8 grayBunchNumber;
-
-
-	int NumberOfColorSection;
+	
+	int NumberStripClicked; 
+	
 	int ImageRepresentationType;
 	int VideoImageRepresentationType;
 	int StripRepresentationType;
 	int GlobalObjectsRepresentationType;
 
 	BunchCountDlg* m_pBunchCountDialog;
-	ColorSectionDialog* pm_ColorSectNumDialog;
+	ColorSectionDialog* m_pColorSectDialog;
 	
 	// todo: rename docs (reflect the role of each of them)
-	CDocument* pDoci0;
+	CDocument* pDocColorImage;
 
-	CDocument* pDoci1; // grayscale image
+	CDocument* pDocGrayscaleImage; // grayscale image
 	CDocument* pDoci2;
 	CDocument* pDoci3;
 	CDocument* pDocs1;
@@ -111,6 +124,7 @@ public:
 	unsigned char* pBuffer; 
 	char* buffer;
 	BYTE* pData;
+	
 	CString strFail;
 	CString strVideo;
 	CString strVideoClose;

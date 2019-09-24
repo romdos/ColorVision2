@@ -87,6 +87,7 @@ public:
 	int NumberOfSignals[16];//last_cor26.10.18
 	int ListOfWhiteMarking[16];//last_cor27.02.19
 	int ListOfYellowMarking[16];//last_cor27.02.19
+	int DependencesOfYellowMarking[16];//last_cor18.04.19
 	//int dev_mean[8];
 
 	void
@@ -316,6 +317,10 @@ public:
 
 CColorIntervalSelect::ComparisonWithTheSurroundings(int beg_search,int end_search, 
 	int bunch_number, int lattice_feature);
+
+	int
+
+CColorIntervalSelect::JoiningYellowBunches(void);
 };
 
 

@@ -78,7 +78,7 @@ CViewImageDoc::~CViewImageDoc()
 
 	if(ImageRepresentationType==0)
 	{
-		pApp->pDoci0 = NULL; 
+		pApp->pDocColorImage = NULL; 
 		if (m_DibDoc != NULL)
 		{
 			delete m_DibDoc;
@@ -90,11 +90,11 @@ CViewImageDoc::~CViewImageDoc()
 			m_DibTgaDoc = NULL;
 		} 
 
-		if (pApp->pm_ColorSectNumDialog!=NULL)
+		if (pApp->m_pColorSectDialog!=NULL)
 		{
-			pApp->pm_ColorSectNumDialog->DestroyWindow();
-			delete pApp->pm_ColorSectNumDialog;
-			pApp->pm_ColorSectNumDialog = NULL;
+			pApp->m_pColorSectDialog->DestroyWindow();
+			delete pApp->m_pColorSectDialog;
+			pApp->m_pColorSectDialog = NULL;
 		}
 	// maxser
 	
@@ -119,10 +119,10 @@ CViewImageDoc::~CViewImageDoc()
 		pApp->pDocs3->OnCloseDocument();
 		pApp->pDocs3 = NULL;
 	}
-	if(pApp->pDoci1 != NULL)
+	if(pApp->pDocGrayscaleImage != NULL)
 	{
-		pApp->pDoci1->OnCloseDocument();
-		pApp->pDoci1 = NULL;
+		pApp->pDocGrayscaleImage->OnCloseDocument();
+		pApp->pDocGrayscaleImage = NULL;
 	}
 	if(pApp->pDocColSec1 != NULL)
 	{
@@ -148,7 +148,7 @@ CViewImageDoc::~CViewImageDoc()
 			m_DibGrayScaleDoc=NULL;
 		}
 		pApp->m_GrayScaleOpened=FALSE;
-		pApp->pDoci1=NULL;
+		pApp->pDocGrayscaleImage=NULL;
 	}
 							
 }

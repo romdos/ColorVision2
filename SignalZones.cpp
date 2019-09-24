@@ -75,6 +75,8 @@ CImageProcess::FindSignalZones(void)
 	int strip_ratio;
 	int left_right_max_dist;//last_cor19.09.18
 
+	right_sect_max = -1;//last_cor11.09.19
+	left_sect_max = -1;//last_cor11.09.19
 	prior = -1;
 	left_right_max_dist = -1;//last_cor19.09.18
 	last_numbered_strip = -1;
@@ -576,6 +578,7 @@ CImageProcess::VerticalLinesConstruct(int first_strip, int last_strip, int first
 	{
 		DimG = DimX;
 	}
+	n_end_int = 100000;
 	bunch_section_cur_sk_gr_comp = 0;
 	right_bound_bunch_lim = -1;
 	left_bound_bunch_lim = -1;
@@ -2278,10 +2281,10 @@ CImageProcess::ConnectedVerticalLines(void)
 			{
 				number_of_covering_bunches = ColorInt[count_strip].NumberOfIntervalsInCovering;
 			}
-			/*else
+			else
 			{
-			goto L;
-			}*/
+				number_of_covering_bunches=-1;
+			}
 			first_bunch = VerticalContrastCurves[24 * (count_line)+strip_count];
 			shift_bun = count_strip*MAX_COL_INT;
 			if (first_bunch>0)
@@ -4174,5 +4177,300 @@ CImageProcess::LineSigConnnectedCorrection(void)
 			}
 		}
 	}//lines_loop1
+	return(prior);
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+int
+
+CImageProcess::RoadMarkingRecognition(void)
+{
+	int success_of_searching;
+	int number_of_marking;
+	int number_of_white_marking;
+	int number_of_yellow_marking;
+	int number_of_white_marking_left;
+	int number_of_white_marking_right;
+	int number_of_yellow_marking_left;
+	int number_of_yellow_marking_right;
+	int marking_start;
+	int marking_finish;
+	int marking_length;
+	int loop_step;
+	int current_bunch;
+	int bunch_old_number;
+	int beg_int;
+	int end_int;
+	int marking_step;
+	int sucess_of_procedure;
+	int* array_of_ends;
+
+	sucess_of_procedure = -1;
+	array_of_ends = new int[NumStrips];
+	success_of_searching = 0;
+	number_of_marking = ColorSection->Number_of_markings;
+	number_of_yellow_marking = ColorSection->Number_of_yellow_markings;
+	number_of_white_marking_left = ColorSection->Number_of_white_markings_left;
+	number_of_white_marking_right = ColorSection->Number_of_white_markings_right;
+	for (int count_sec = number_of_yellow_marking; count_sec < number_of_marking; count_sec++)
+	{//loop_white_marking_finding
+		marking_start = MarkingDescr[count_sec].base_first;
+		marking_finish = MarkingDescr[count_sec].base_last;
+		marking_length = marking_finish - marking_start + 1;
+		loop_step = count_sec - number_of_yellow_marking;
+		for (int count_bunch = marking_start; count_bunch <= marking_finish; count_bunch++)
+		{//moving_along_marking
+			marking_step = count_bunch - marking_start;
+			current_bunch = MarkingDescr[count_sec].location_of_section[count_bunch];
+			if (current_bunch > 0)
+			{
+				current_bunch -= 1;
+				bunch_old_number = ColorInt[count_bunch].old_bunch_number[current_bunch];
+				beg_int = ColorInt[count_bunch].ColoredIntervalsStructure->BegInterv[bunch_old_number];
+				end_int = ColorInt[count_bunch].ColoredIntervalsStructure->EndInterv[bunch_old_number];
+				if (loop_step < number_of_white_marking_left)
+				{
+					array_of_ends[marking_step] = beg_int;
+				}
+				else
+				{
+					array_of_ends[marking_step] = end_int;
+				}
+			}
+		}//moving_along_marking
+		if (marking_length >= 3)
+		{
+			sucess_of_procedure = FindingRoadMarkingSegments(marking_length, count_sec, array_of_ends);
+		}
+	}//loop_white_marking_finding
+	delete[] array_of_ends;
+	return(success_of_searching);
+}
+///////////////////////////////////////////////////////////////////////////////
+int
+
+CImageProcess::FindingRoadMarkingSegments(int marking_length, int marking_num, int* node_coordinates)
+{
+	int scale[16];
+	int paint[128];
+	int first_count_step;
+	int max_count_angle;
+	int prior;
+	int success_ord;//last_cor29.08.17
+	int success_ord1;//last_cor31.08.17
+	int number_of_chains_plus;//last_cor06.09.17
+	int number_of_chains_minus;
+	int longest_chain_number_plus;
+	int longest_chain_number_minus;//last_cor06.09.17
+	int chain_first_number;
+	int chain_last_number;
+	int chain_length;
+	int marking_incline;
+	int reliability;
+	int* next_member_appropriate_plus;//last_cor31.08.17
+	int* chains_appropriate_plus;
+	int* chain_first_member_plus;
+	int* next_member_appropriate_minus;
+	int* chains_appropriate_minus;
+	int* chain_first_member_minus;
+
+	reliability = -100;
+	marking_incline = 0;
+	number_of_chains_minus = -1;
+	number_of_chains_plus = -1;
+	success_ord = -1;
+	prior = 0;
+	scale[0] = 0;
+	scale[1] = StripWidth / 6;
+	scale[2] = StripWidth / 4;
+	scale[3] = StripWidth / 2;
+	scale[4] = 3 * StripWidth / 4;
+	scale[5] = min(StripWidth, 127);
+	scale[6] = min(4*StripWidth/3, 127);
+	scale[7] = min(3 * StripWidth / 2, 127);
+	scale[8] = min(2 * StripWidth, 127);
+	scale[9] = min(3 * StripWidth, 127);
+	scale[10] = min(4 * StripWidth, 127);
+	scale[11] = min(5 * StripWidth, 127);
+	scale[12] = min(6 * StripWidth, 127);
+	scale[13] = min(7 * StripWidth, 127);
+	scale[14] = min(8 * StripWidth, 127);
+	scale[15] = 127;
+	//think of small images!
+	paint[0] = 0;
+	for (int count_angle = 0; count_angle < 16; count_angle++)
+	{//cycle angle_values
+		first_count_step = scale[count_angle];
+		if (first_count_step < 127)
+		{
+			for (int count_step = scale[count_angle] + 1; count_step <= scale[count_angle + 1]; count_step++)
+			{
+				paint[count_step] = count_angle;
+			}
+		}
+		else
+		{
+			max_count_angle = count_angle;
+			break;
+		}
+	}
+	next_member_appropriate_plus = new int[marking_length];//last_cor31.08.17
+	chains_appropriate_plus = new int[marking_length];
+	chain_first_member_plus = new int[marking_length];
+	memset(next_member_appropriate_plus, (int) '\0', sizeof(int) * (marking_length));
+	memset(chains_appropriate_plus, (int) '\0', sizeof(int) * (marking_length));
+	memset(chain_first_member_plus, (int) '\0', sizeof(int) * (marking_length));
+	next_member_appropriate_minus = new int[marking_length];//last_cor31.08.17
+	chains_appropriate_minus = new int[marking_length];
+	chain_first_member_minus = new int[marking_length];
+	memset(next_member_appropriate_minus, (int) '\0', sizeof(int) * (marking_length));
+	memset(chains_appropriate_minus, (int) '\0', sizeof(int) * (marking_length));
+	memset(chain_first_member_minus, (int) '\0', sizeof(int) * (marking_length));
+	success_ord = LongestPlusMinusChain(marking_num, marking_length, node_coordinates,
+		next_member_appropriate_plus, chains_appropriate_plus, chain_first_member_plus,
+		&number_of_chains_plus, 1);
+	success_ord1 = LongestPlusMinusChain(marking_num, marking_length, node_coordinates,
+		next_member_appropriate_minus, chains_appropriate_minus, chain_first_member_minus,
+		&number_of_chains_minus, -1);
+	if ((!number_of_chains_plus) && (number_of_chains_minus == 1))
+	{//ncp0ncm1>
+		chain_first_number = chain_first_member_minus[0];
+		chain_first_number--;
+		chain_last_number = chains_appropriate_minus[chain_first_number];
+		chain_length = chain_last_number - chain_first_number + 1;
+		if (chain_length == marking_length)
+		{
+			marking_incline =
+				StraightApproximation(node_coordinates, paint, chain_first_number,
+					chain_last_number, &reliability, 1);
+			if (reliability > 0)
+			{
+				;
+			}
+		}
+	}//ncp0ncm1>
+	if ((!number_of_chains_minus) && (number_of_chains_plus == 1))
+	{//ncp1ncm0>
+		chain_first_number = chain_first_member_plus[0];
+		chain_first_number--;
+		chain_last_number = chains_appropriate_plus[chain_first_number];
+		chain_length = chain_last_number - chain_first_number + 1;
+		if (chain_length == marking_length)
+		{
+			marking_incline =
+				StraightApproximation(node_coordinates, paint, chain_first_number,
+					chain_last_number, &reliability, 0);
+			if (reliability > 0)
+			{
+				;
+			}
+		}
+	}//ncp0ncm1>
+	delete[] next_member_appropriate_plus;
+	delete[] chains_appropriate_plus;
+	delete[] chain_first_member_plus;
+	delete[] next_member_appropriate_minus;
+	delete[] chains_appropriate_minus;
+	delete[] chain_first_member_minus;
+	return(prior);
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+int
+
+CImageProcess::LongestPlusMinusChainNew(int section_number, int section_length, int* section_ends,
+	int* next_member_appropriate, int* chains_appropriate, int* chain_first_member,
+	int* number_of_ch, int sign)
+{
+	int prior;
+	int curr_member;
+	int next_member;
+	int first_end;
+	int differ;
+	//int aver_differ;
+	int first_strip;
+	int first_strip_ratio;
+	int last_strip;
+	int last_strip_ratio;
+	int next_appropriate;
+	int number_of_chains;
+	int chain_test;
+	//int shift_len;
+	int close_excessive;
+	int current_strip;
+
+	close_excessive = -1;
+	prior = -1;
+	chain_test = -1;
+	number_of_chains = 0;
+
+	first_strip = MarkingDescr[section_number].base_first;
+	first_strip_ratio = (16 * first_strip) / NumStrips;
+	last_strip = MarkingDescr[section_number].base_last;
+	last_strip_ratio = (16 * last_strip) / NumStrips;
+	first_end = section_length - 1;
+	for (int count_end = 0; count_end < first_end; count_end++)
+	{//secloop
+		curr_member = *(section_ends + count_end);
+		for (int count_shift = count_end + 1; count_shift < section_length; count_shift++)
+		{//sec1loop
+			next_member = *(section_ends + count_shift);
+			differ = next_member - curr_member;
+
+			if (sign > 0)
+			{
+				if (differ > 0)
+				{
+					*(next_member_appropriate + count_end) = count_shift;
+					prior = 1;
+					break;
+				}
+			}
+			if (sign < 0)
+			{
+				if (differ < 0)
+				{
+					*(next_member_appropriate + count_end) = count_shift;
+					prior = 1;
+					break;
+				}
+			}
+		}//sec1loop
+	}//secloop
+	for (int count_chain = 0; count_chain < first_end; count_chain++)
+	{//chain_loop
+		next_appropriate = *(next_member_appropriate + count_chain);
+		if (count_chain > close_excessive)
+		{
+			curr_member = *(section_ends + count_chain);
+			if (next_appropriate == (count_chain + 1))
+			{
+				next_member = *(section_ends + count_chain + 1);
+				differ = abs(next_member - curr_member);
+				current_strip = first_strip + count_chain;
+				if ((differ <= 7 * StripWidth) || ((current_strip < NumStrips / 3) && (differ <= 9 * StripWidth)))
+				{//last_cor10.04.19
+					//shift_len=first_end-count_chain;
+					chain_test = AppropriateChain(count_chain, first_end, next_member_appropriate,
+						chains_appropriate, chain_first_member, section_ends, current_strip, number_of_chains);
+				}
+				else
+				{
+					chain_test = count_chain;
+				}
+				if (chain_test > count_chain)
+				{
+					number_of_chains++;
+					close_excessive = chain_test;
+				}
+			}
+		}
+		else
+		{
+			if (close_excessive > 0)
+			{
+				*(chains_appropriate + count_chain) = close_excessive;
+			}
+		}
+	}//chain_loop
+	*number_of_ch = number_of_chains;
 	return(prior);
 }

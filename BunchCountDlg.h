@@ -46,5 +46,8 @@ protected:
 	afx_msg void OnDeltaposColorBunchSpin(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnDeltaposGrayBunchSpin(NMHDR* pNMHDR, LRESULT* pResult);
 
+	afx_msg void OnRadioBtnClicked();
+
 	DECLARE_MESSAGE_MAP()
+
 };

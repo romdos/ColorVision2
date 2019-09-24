@@ -1,4 +1,8 @@
-
+//
+//
+//
+//
+//
 
 
 
@@ -10,9 +14,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
-// ViewImageVw.h : header file
-//
+#endif 
 
 
 
@@ -30,6 +32,17 @@ protected:
 	CViewImageVw();           // protected constructor used by dynamic creation
 	DECLARE_DYNCREATE(CViewImageVw)
 protected:
+	CPen whiteRoadMarkingPen;
+
+
+
+
+
+
+
+
+
+
 	int m_Dragging;
 
 	HCURSOR m_HArrow;
@@ -73,7 +86,7 @@ public:
 	// Operations
 public:
 
-	CViewImageDoc* CViewImageVw::GetDocument();
+	CViewImageDoc* GetDocument();
 
 	// Overrides
 	// ClassWizard generated virtual function overrides

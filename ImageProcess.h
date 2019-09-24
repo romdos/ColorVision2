@@ -1,18 +1,16 @@
-//*************************************************************************************************
-// All information about the image (geometrized histograms, bunches and etc.)
 //
-//*************************************************************************************************
+//
+//
+//
+//
 
-
+ 
 
 
 #include "Strip.h"
 #include "BunchGray.h"
 #include "ColorIntervalSelect.h"
-#include "ColorSection.h"
-
-
-
+#include "RoadMarking.h"
 
 
 
@@ -23,7 +21,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
- 
+
 
 
 class CImageProcess
@@ -31,15 +29,43 @@ class CImageProcess
 public:
 	CImageProcess(int TotalNumberofFrames);
 	~CImageProcess();
-	 
-	int DimX;        // width  of the image in pixels
-	int DimY;        // height of the image in pixels
 
-	int TotalNumFrame;
-	int LengthofMotionAnalysisInterval;
-	int TotalDisOrdering;
+public:
+	int        DimX;        // width  of the image in pixels
+	int        DimY;        // height of the image in pixels
 	
- 
+	int       TotalNumFrame;
+	int       LengthofMotionAnalysisInterval;
+
+	// Each element of this array is a road marking line (retrieved from grayscale image)
+	Marking markings[MARKINGS_NUM];
+
+
+
+	int TotalDisOrdering;
+	bool   FindLabels;
+	int    LabelCenterCoordinate;
+	int    LabelLeftCoordinate;
+	int    LabelRightCoordinate;
+	int    LabelCenterHue;
+	int    LabelHueZone;
+	int    LabelCenterSaturation;
+	int    LabelFirstStrip;
+	int    LabelLastStrip;
+	int    LabelCenterGray;
+	int    LabelCenterOXTrajectory[16];
+	int    LabelCenterOYTrajectory[16];
+	int    LabelOXPermutation[16];
+	int    LabelDeviation;
+	int    LabelVelocity;
+	int    LabelIsFound;
+	int    LabelPresence;
+	int    LabelFoundNumberOfFrame;
+	int    FirstLabelCoordinate;
+	int    LastLabelFoundNumberOfFrame;
+	int    LastLabelCoordinate;
+	int    NumberOflabels;
+	int    LabelCost;
 	int NumberOfCurrentFrame;
 	int RedNumberOfCurrentFrame;
 	int RedNumberOfPreviousFrame;
@@ -149,7 +175,9 @@ public:
 	int RightClosestLineIntersecting[64];
 	int UpperClosestLine[64];
 	int LowerClosestLine[64];
-	 
+	int* MarkingRecogniton; //last_cor29.08.19
+
+
 protected:
 	int    Dimension;
 	int    PressedLength;
@@ -166,7 +194,7 @@ public:
 
 	int  GetHeight() { return DimY; }
 	int  GetWidth() { return DimX; }
-	uint8* GetBits() { return Im; }
+	unsigned char *GetBits() { return Im; }
 
 	int        NumStrips;      // number of vertical (horizontal) strips
 	int        StripWidth;     // width of a strip (except for the last one) = DimX/NumStrips
@@ -195,114 +223,243 @@ public:
 	TIntColoredCharacteristics* IntegratedColorBunchesCharacteristics;
 	TIntColorLessBack* IntegratedColorlessBackIntervals;
 	ColorSectionDescr* ColorDescrSect;
+	ColorSectionDescr* MarkingDescr;
 	CColorSection*   ColorSection;
 	int* SectionTraceLeft;
 	int* SectionTraceRight;
+	int* MarkingTraceLeft;
+	int* MarkingTraceRight;
+	int* WhiteMarkingTraceLeft;
+	int* WhiteMarkingTraceRight;
 	int* LineVertTrace;
 	int* SectionStraightSegments;//last_cor20.11.14
 	int* NumberOfConnectionsLeftRight;
 	int* SectionNeighborsLeftRight;
 	int* SectionNeighborsLeftRightIteration;
+	
 	int number_of_section_left;
 	int number_of_section_right;
 	int number_of_sections;
 	int maximum_number_of_ordered_bunches;
 
+public:
+
+	uint8 findMarking(uint8 lowSkyBoundary);
+
 	void InitialConstructions();//memory allocation and object construction
 
-	void SegmentImage(int CurrentNumofFrame);      // segments the image
-	
-	void detect_sky();
-	
-	void detect_green();
+	void
 
-	void DeleteTemporal();      // delete intermediate arrays;
-	
-	void ContrastBunchesMotion(int num_strips, int* bunches_location);
+		CImageProcess::SegmentImage(int CurrentNumofFrame);      // segments the image
+	void
+
+		CImageProcess::DeleteTemporal();      // delete intermediate arrays;
+	void
+
+		CImageProcess::ContrastBunchesMotion(int num_strips, int* bunches_location);
 	// calculate contrasts motion
-	int ExtensionOfLeftContrast(int number_of_strip, int bunch_number, int bunch_beg, int bunch_end, int bunch_hue, int bunch_lower_hue,
+	int
+
+		CImageProcess::ExtensionOfLeftContrast(int number_of_strip, int bunch_number, int bunch_beg, int bunch_end, int bunch_hue, int bunch_lower_hue,
 			int bunch_upper_hue, int bunch_gray, int bunch_lower_gray, int bunch_upper_gray, int bunch_saturation,
 			int bunch_lower_saturation, int bunch_upper_saturation);
-	int Test_Junction_Different_Strips(int next_bunch, int previous_bunch, int Intersection_Measure,
+	int
+		CImageProcess::Test_Junction_Different_Strips(int next_bunch, int previous_bunch, int Intersection_Measure,
 			int indic_length, int ratio_length, int ratio_length1, int strip_number, int previous_strip_number);
-	int ExtensionOfRightContrast(int number_of_strip, int bunch_number, int bunch_beg, int bunch_end, int bunch_hue, int bunch_lower_hue,
+	int
+
+		CImageProcess::ExtensionOfRightContrast(int number_of_strip, int bunch_number, int bunch_beg, int bunch_end, int bunch_hue, int bunch_lower_hue,
 			int bunch_upper_hue, int bunch_gray, int bunch_lower_gray, int bunch_upper_gray, int bunch_saturation,
 			int bunch_lower_saturation, int bunch_upper_saturation);
-	 
-	int FindingRightConectedSection(void);
 
-	void PermutationFinding(int FrameNumber);
+	int
 
-	void AnalyzingArray();
-	 
-	int StraightLineHighObjectsTesting(void);
+		CImageProcess::LabelCoordinatesFinding(void);
 
-	int ConnectedSections(int* initial_matrix);
+	int
 
-	int FindingConnectedLeftSections(int coun_row, int coun_column, int mat_entry);
+		CImageProcess::FindingRightConectedSection(void);
 
-	int FindingLineSegments(int sect_length, int section_num,
+	void
+
+		CImageProcess::PermutationFinding(int FrameNumber);
+
+	void
+
+		CImageProcess::AnalyzingArray();
+
+	int
+
+		CImageProcess::Finding_Best_Label(void);
+
+	int
+
+		CImageProcess::LabelFiltering(void);
+
+	int
+
+		CImageProcess::StraightLineHighObjectsTesting(void);
+
+	int
+
+		CImageProcess::ConnectedSections(int* initial_matrix);
+
+	int
+
+		CImageProcess::FindingConnectedLeftSections(int coun_row, int coun_column, int mat_entry);
+
+	int
+
+		CImageProcess::FindingLineSegments(int sect_length, int section_num,
 			int* node_coordinates, int* opp_nodes_coor, int* differ_array);
 
-	int MaximumTripleMaximum(int* main_array, int* compl_array, int dimen, int* triple_max,
+	int
+
+		CImageProcess::MaximumTripleMaximum(int* main_array, int* compl_array, int dimen, int* triple_max,
 			int* max_value, int* triple_max_value, int* one_pix_max_neighb, int* two_pix_max_neighb,
 			int* zero_two_pix);
 
-	int CenterOfMass(int* main_array, int dimen, int* mass_center, int* mass_deviation, int* left_number,
+	int
+
+		CImageProcess::CenterOfMass(int* main_array, int dimen, int* mass_center, int* mass_deviation, int* left_number,
 			int* right_number, int* small_angle, int* big_angle, int* painting, int* new_array, int new_dim);
 
-	int MaximumTripleMaximumReduced(int* main_array, int dimen, int* triple_max,
+	int
+
+		CImageProcess::MaximumTripleMaximumReduced(int* main_array, int dimen, int* triple_max,
 			int* max_value, int* triple_max_value, int* one_pix_max_neighb, int* two_pix_max_neighb,
 			int* zero_two_pix, int* loc_max_positions, int* num_loc_maxim, int* second_maxim_pos,
 			int* second_max_val, int* first_noticable, int* last_noticable, int* noticable_sum);
-	
-	int Longest_Straight_Comp(int* difference_components, int num_point, int start_point,
+	int
+
+		CImageProcess::Longest_Straight_Comp(int* difference_components, int num_point, int start_point,
 			int last_point, int scale, int* first_segment, int* last_segment, int* number_of_segments,
 			int* dev_reduced, int* glob_dev, int* glob_dev_plus, int* end_coordinates);
 
-	int InclineRefinement(int section_number, int* incl_right);
+	int
 
-	int InclineHistogram(int* main_array, int* hust_plus, int* hist_minus,
+		CImageProcess::InclineRefinement(int section_number, int* incl_right);
+
+	int
+
+		CImageProcess::InclineHistogram(int* main_array, int* hust_plus, int* hist_minus,
 			int first_incl, int last_incl, int* neg_count);
 
-	int FindingMaxPosNegSegments(int sect_length, int* chain_array, int* max_start);
+	int
+
+		CImageProcess::FindingMaxPosNegSegments(int sect_length, int* chain_array, int* max_start);
 
 
-	void SkyIntencitiesDistributionFinding(int* sky_gray, int* section_weight,
+	void
+
+		CImageProcess::SkyIntencitiesDistributionFinding(int* sky_gray, int* section_weight,
 			int left_right);
 
-	int MaximumSky(int* sk_gray, int* sec_weight, int* intensity_last, int* max_saturated);
+	int
 
-	void BelongsSkyTo(int* sky_gr, int first_section, int last_section);
-	 
+		CImageProcess::MaximumSky(int* sk_gray, int* sec_weight, int* intensity_last, int* max_saturated);
 
-	void LabelingSkyBunches(int* bunch_matrix, int* sky_components, int comp_number);
+	void
 
-	void LeftRightSkyAddition(void);
-	 
+		CImageProcess::BelongsSkyTo(int* sky_gr, int first_section, int last_section);
 
-	void FindingBoundaryChains(void);
+	/*void
 
-	void PaintingBoundaryChains(int left_end, int right_end, int fiber_num, int bunch_num);
+	CImageProcess::BoundaryConstruction(int* bound_point,int left_right);
 
-	void TranslationIntoBigDimension(void);
+	void
 
-	int TestSection(int sect_candidate_number, int left_right_sec,
+	CImageProcess::WriteInArray(int fiber_number,int beg,int end,int left_right);
+
+
+
+	void
+
+	CImageProcess::WriteBunchArray(int first_fiber,int last_fiber);
+
+
+
+	int
+
+	CImageProcess::FindingBoundaryChainsLeft(int upper_bound,int lower_bound,int count_points,
+	int limit_length,int* sky_bunch_points,int* final_r_involvement,int* last_left_section);*/
+
+	void
+
+		CImageProcess::LabelingSkyBunches(int* bunch_matrix, int* sky_components, int comp_number);
+
+	void
+
+		CImageProcess::LeftRightSkyAddition(void);
+
+	/*int
+
+	CImageProcess::MaximumSkyInterval(int bunch_number,int fiber_number,int* last_sky_interval);
+
+	int
+
+	CImageProcess::FindingRightInvolved(int bunch_number,int fiber_number,int* right_bunch);
+
+	int
+
+	CImageProcess::TransitionToRightSection(int fiber_number,int last_left_sec,
+	int last_right_section);
+
+	int
+
+	CImageProcess::FindingRightBeg(int sect_number);
+
+	int
+
+	CImageProcess::FindingBoundaryChainsRight(int upper_bound,int count_points,int right_section,
+	int limit_length,int* sky_bunch_points,int* final_r_involvement,int* last_right_section);*/
+
+	void
+
+		CImageProcess::FindingBoundaryChains(void);
+
+	void
+
+		CImageProcess::PaintingBoundaryChains(int left_end, int right_end, int fiber_num, int bunch_num);
+
+	void
+
+		CImageProcess::TranslationIntoBigDimension(void);
+
+	int
+
+		CImageProcess::TestSection(int sect_candidate_number, int left_right_sec,
 			int min_left, int min_right);
 
-	int GreenSeparation(int sect_max_number, int sect_sat_number,
+	int
+
+		CImageProcess::GreenSeparation(int sect_max_number, int sect_sat_number,
 			int min_left, int max_right, int min_left_sat, int max_right_sat);
 
-	int LocateOn(int sect_number, int* sect_under_number, int* sect_under_number_r);
+	int
 
-	int LocateUnder(int sect_number, int* sect_over_number, int* sect_over_number_r, int opt_fiber);
+		CImageProcess::LocateOn(int sect_number, int* sect_under_number, int* sect_under_number_r);
 
-	int MaximumGreenComp(int left_right);
+	int
 
-	int OpposGreenComponents(int left_right, int section_number);
-	 
+		CImageProcess::LocateUnder(int sect_number, int* sect_over_number, int* sect_over_number_r, int opt_fiber);
 
-	int NextGreenComponents(int left_right, int oppos_bunch_number, int strip_number,
+	int
+
+		CImageProcess::MaximumGreenComp(int left_right);
+
+	int
+
+		CImageProcess::OpposGreenComponents(int left_right, int section_number);
+
+	/*int
+	CImageProcess::Test_Junction_Sections(int sect,int adj_sect,int Intersection_Measure,
+	int indic_length,int ratio_length,int ratio_length1,int *hue_close_r,
+	int *sat_close_r,int* gray_close_r);*/
+
+	int
+
+		CImageProcess::NextGreenComponents(int left_right, int oppos_bunch_number, int strip_number,
 			int start_bunch_old_num, int sec_num, int left_side_boun, int right_side_boun, int* first_green_neighbor, int* last_green_neighbor,
 			int* maximum_non_green, int* non_gr_length, int* first_non_green, int* last_non_green,
 			int* last_green_in_chain, int* first_green_length, int* max_green_section,
@@ -311,6 +468,11 @@ public:
 			int* max_weight_n_green_section_bunch, int* max_weight_n_green_section_oppos,
 			int* max_weight_n_green_section_oppos_bunch, int* gr_length_before, int shift_to_next);
 
+	void detect_sky();
+	void detect_green();
+	
+	
+	
 	int
 
 		CImageProcess::NonGreenSummation(int left_right, int first_bunch, int last_bunch, int strip_number);
@@ -347,7 +509,7 @@ public:
 	int
 
 		CImageProcess::AppropriateChain(int first_appropriate, int shift_length, int* appropriate_numbers,
-			int* chains_appropriate, int* chain_first, int* sect_ends, int sign, int chain_number);
+			int* chains_appropriate, int* chain_first, int* sect_ends, int first_position, int chain_number);
 
 	int
 
@@ -415,8 +577,27 @@ public:
 		CImageProcess::VerticalComponentsInBoundary(int section_number, int* ends_coordinates,
 			int* verticl_parts, int sign);
 
-	int NextSection(int bunch_number, int strip_number, int* next_beg, int* next_end);
-	int LineSigConnnectedCorrection(void);
+	int
+
+		CImageProcess::NextSection(int bunch_number, int strip_number, int* next_beg, int* next_end);
+
+	int
+
+		CImageProcess::LineSigConnnectedCorrection(void);
+
+	int
+
+		CImageProcess::RoadMarkingRecognition(void);
+
+	int
+
+		CImageProcess::FindingRoadMarkingSegments(int marking_length, int marking_num, int* node_coordinates);
+
+	int
+
+		CImageProcess::LongestPlusMinusChainNew(int section_number, int section_length, int* section_ends,
+			int* next_member_appropriate, int* chains_appropriate, int* chain_first_member,
+			int* number_of_ch, int sign);
 };
 
 

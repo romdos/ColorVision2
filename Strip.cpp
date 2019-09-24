@@ -243,8 +243,8 @@ GrayBunch::GrayBunch()
 	stripNumber = 0; 
 	intens = 0.0f;
 
-	sectionCrossed = FALSE;
-	isValid = FALSE;
+	inSection = false;
+	isValid   = false;
 }
 
 
@@ -261,7 +261,7 @@ GrayBunch::GrayBunch(sint16 begin,
 
 	intens = meanIntensity;
 
-	sectionCrossed = FALSE;
+	inSection = FALSE;
 	isValid = FALSE;
 }
 
@@ -3464,7 +3464,6 @@ sint8 CStrip::findBursts(uint16 max_length,
 		pickedSegments[i] = FALSE;
 	}
 
-	// todo: investigate
 	uint8 lastIntens  = 11U; // <---   todo: affects out of range
 	uint8 bunchesNum = 0U;
 
@@ -3472,13 +3471,11 @@ sint8 CStrip::findBursts(uint16 max_length,
 	{
 		segmentsNum = IntAllInformGray[intens].num_of_int;
 		for (uint8 segment = 0U; segment < segmentsNum; segment++)
-		{
-			BOOL segmentPicked = pickedSegments[intens * MAX_INT_NUMBER + segment];
-
-			if (segmentPicked == TRUE)
+		{ 
+			if (true == pickedSegments[intens * MAX_INT_NUMBER + segment])
 				continue;
 
-			pickedSegments[intens * MAX_INT_NUMBER + segment] = TRUE;
+			pickedSegments[intens * MAX_INT_NUMBER + segment] = true;
 
 			sint16 beg = IntAllInformGray[intens].BegInt[segment];
 			sint16 end = IntAllInformGray[intens].EndInt[segment];
@@ -3489,7 +3486,7 @@ sint8 CStrip::findBursts(uint16 max_length,
 				continue;
 
 			// Grow a bunch 
-			float mean_intens = intens;
+			float averageIntens = intens;
 			uint8 pickedSegmentsNum = 1U;
 
 			for (uint8 nextIntens = intens - 1U, dist = intens - nextIntens; 
@@ -3499,9 +3496,8 @@ sint8 CStrip::findBursts(uint16 max_length,
 				for (uint8 next_segment = 0U; 
 					 next_segment < IntAllInformGray[nextIntens].num_of_int; 
 					 next_segment++)
-				{
-					segmentPicked = pickedSegments[nextIntens * MAX_INT_NUMBER + next_segment];
-					if (TRUE == segmentPicked)
+				{ 
+					if (true == pickedSegments[nextIntens * MAX_INT_NUMBER + next_segment])
 						continue;
 					// Candidate segment
 					sint16 candBeg = IntAllInformGray[nextIntens].BegInt[next_segment];
@@ -3511,27 +3507,26 @@ sint8 CStrip::findBursts(uint16 max_length,
 					if (segmentCandidate.length() > max_length)
 						continue;
 
-					uint16 r1, r2; // useless, only for measure_intersection
-					BOOL segmentsIntersected = measure_intersection(seed, segmentCandidate, &r1, &r2) <= 2;
-					if (true == segmentsIntersected)
+					uint16 r1, r2; // useless, only for measure_intersection 
+					if (measure_intersection(seed, segmentCandidate, &r1, &r2) <= 2)
 					{
 						candBeg = min(beg, candBeg);
 						candEnd = max(end, candEnd);
 						// if new length is not big
 						if ((candEnd - candBeg + 1) < max_length)
 						{
-							pickedSegments[nextIntens * MAX_INT_NUMBER + next_segment] = TRUE;
+							pickedSegments[nextIntens * MAX_INT_NUMBER + next_segment] = true;
 							beg = candBeg;
 							end = candEnd;
-							mean_intens += nextIntens;
-							++pickedSegmentsNum;
+							averageIntens += nextIntens;
+							pickedSegmentsNum += 1U;
 						}
 					}
 				}  
 			} 
-			mean_intens /= pickedSegmentsNum;
+			averageIntens /= pickedSegmentsNum;
 			
-			GrayBunch bunch(beg, end, num_strip, mean_intens);
+			GrayBunch bunch(beg, end, num_strip, averageIntens);
 			if (bunchesNum < BURSTS_SIZE)
 				bursts[bunchesNum++] = bunch; 
 		}

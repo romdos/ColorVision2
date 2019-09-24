@@ -90,6 +90,9 @@
     <ClCompile Include="BunchCountDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RoadMarking.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ColorVision.rc">
@@ -163,13 +166,16 @@
     <ClInclude Include="ColorSectionDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="std_types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cv_config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BunchCountDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RoadMarking.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StdTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

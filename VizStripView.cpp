@@ -405,7 +405,7 @@ void CVizStripView::OnDraw(CDC* pDC)
 
 	if (StripRepresentationType == 3)
 	{
-		BunchNumber = pApp->NumberOfBunch;
+		BunchNumber = pApp->m_pBunchCountDialog->m_colorBunchNum;
 		old_col_number = pApp->ColorImageProcess->ColorInt[StripNumber].NumberOfColoredIntervals;
 		bunch_number = pApp->ColorImageProcess->ColorInt[StripNumber].RefinedNumberOfBunches;
 

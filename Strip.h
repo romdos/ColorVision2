@@ -241,7 +241,7 @@ public:
 	// mean intensity
 	float intens;
 	// flag describing whether this bunch is contained (TRUE) in some section or not (FALSE)
-	bool sectionCrossed;
+	bool inSection;
 	// shows whether this bunch is included to bursts array (TRUE) or not (FALSE)
 	bool isValid;
 public:

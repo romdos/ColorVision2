@@ -219,6 +219,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="RoadGrSky.cpp" />
+    <ClCompile Include="RoadMarking.cpp" />
     <ClCompile Include="SignalZones.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -286,8 +287,9 @@
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="ColorSectionDialog.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="RoadMarking.h" />
     <ClInclude Include="StdAfx.h" />
-    <ClInclude Include="std_types.h" />
+    <ClInclude Include="StdTypes.h" />
     <ClInclude Include="Strip.h" />
     <ClInclude Include="ViewImageDoc.h" />
     <ClInclude Include="ViewImageVw.h" />

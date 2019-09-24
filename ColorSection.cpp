@@ -2,13 +2,12 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-
-
-
-
 #include "stdafx.h"
+
 #include "ColorVision.h"
 #include "ColorSection.h"
+
+
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -16,9 +15,13 @@ static char THIS_FILE[] = __FILE__;
 #define new DEBUG_NEW
 #endif
 
+
+
 #define HORIZONT1 0
 //#define LENGTH 16
 #define TRUE 1
+
+
 
 static  int hue_zones[NUM_HUES] = { 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3,
 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5,
@@ -41,22 +44,36 @@ static  int dev_mean[8] = { 5, 8, 8, 8, 8, 10, 12, 8 };
 static  int imp_dev_mean[8] = { 12, 12, 12, 12, 12, 12, 12, 12 };//last_cor03.12.14
 																 //=====================================================
 
-ColorSectionDescr::ColorSectionDescr(void)
+
+GraySection::GraySection()
+{
+	begStrip = 0U;
+	endStrip = 0U;
+
+	for (uint8 i = 0U; i < STRIPS_NUM; i++)
+		bunchNumbers[i] = 0xFFU;
+}
+
+
+GraySection::~GraySection()
+{}
+
+
+
+ColorSectionDescr::ColorSectionDescr()
 {
 	length_of_section = 0;
 }
+
+
+
 //----------------------------------------------------------------------------
-ColorSectionDescr::~ColorSectionDescr(void)
+ColorSectionDescr::~ColorSectionDescr()
 {
 	//delete[] location_of_section;
 }
 
 
-//----------------------------------------------------------------------------
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 CColorSection::CColorSection(int NumStrips, ColorSectionDescr* CurrentSecDes,
 	CStrip* CurrentStrip, CColorIntervalSelect* ColorInterv)
@@ -75,6 +92,8 @@ CColorSection::CColorSection(int NumStrips, ColorSectionDescr* CurrentSecDes,
 	//section_point_cross=new int[NumMaxSection];
 
 }
+
+
 
 CColorSection::~CColorSection()
 {
@@ -107,7 +126,6 @@ CColorSection::~CColorSection()
 							//delete[] SectionVisibility;
 
 }
-
 
 
 
@@ -395,8 +413,7 @@ void CColorSection::SectionTracking(int left_right_boundary, int* section_trace)
 					beg_int = ColoredIntervalsStructure->BegInterv[new_beginning];
 					end_int = ColoredIntervalsStructure->EndInterv[new_beginning];
 					bunch_signif = (2 * bunch_signif) / (end_int - beg_int + 1);
-					if ((++nex_fibre >= Num_Strips) || (++count_of_displacement>HORIZONT1) ||
-						(bunch_signif)<(Strwidth / 2))
+					if ((++nex_fibre >= Num_Strips) || (++count_of_displacement>HORIZONT1))
 					{
 						if (counting_of_fibres >= 2)
 						{//cf
@@ -837,6 +854,7 @@ CColorSection::Continuation_of_section(int prev_corn, int *prolongation_grain,
 	int end_jump;//last_cor10.09.18
 	int prev_end_jump;//last_cor10.09.18
 	int total_abs_ratio;//last_cor10.09.18
+	int previous_end_jump;//last_cor05.06.19
 
 	/*if((previous_sec>(2*Num_Strips)/3)&&(FirstDensity<StripWidth))
 	{
@@ -845,6 +863,7 @@ CColorSection::Continuation_of_section(int prev_corn, int *prolongation_grain,
 	}*/
 	TIntColored* ColoredIntervalsStructure;
 	TIntColored* ColoredIntervalsStructure1;
+	previous_end_jump = 0;
 	total_abs_ratio = -1;//last_cor10.09.18
 	prev_end_jump = 0;//last_cor10.09.18
 	end_jump = 0;//last_cor10.09.18
@@ -1010,7 +1029,7 @@ CColorSection::Continuation_of_section(int prev_corn, int *prolongation_grain,
 				{
 					previous_bunch = ColorInterval[previous_fiber].old_bunch_number[previous_bunch];
 				}
-				ColorInterval[previous_fiber].ColoredIntervalsStructure;
+				//ColorInterval[previous_fiber].ColoredIntervalsStructure;
 				previous_bunch_beg =
 					ColorInterval[previous_fiber].ColoredIntervalsStructure->BegInterv[previous_bunch];
 				previous_bunch_end =
@@ -1318,18 +1337,36 @@ CColorSection::Continuation_of_section(int prev_corn, int *prolongation_grain,
 			if (!LeftRightBoundary)
 			{//last_cor10.09.18
 				end_jump = abs(beg_int_new - beg_int);//last_cor10.09.18
+				if (previous_bunch >= 0)
+				{//last_cor05.06.19
+					previous_end_jump = abs(previous_bunch_end - end_int_new);
+				}
+				else
+				{
+					previous_end_jump = 0;
+				}//last_cor05.06.19
 			}
 			else
 			{
 				end_jump = abs(end_int_new - end_int);//last_cor10.09.18
+				if (previous_bunch >= 0)
+				{//last_cor05.06.19
+					previous_end_jump = abs(previous_bunch_end - end_int_new);
+				}
+				else
+				{
+					previous_end_jump = 0;
+				}
 			}//last_cor10.09.18
-			if ((end_jump > 7 * StripWidth) && (end_jump > MeanSectionJump * 6) &&
+			if ((end_jump > 7 * StripWidth) &&(previous_end_jump > 7 * StripWidth)
+				&&(end_jump > MeanSectionJump * 6) &&
 				(total_abs_ratio >= 7) && (total_abs_ratio <= 9))
 			{
 				*(bunch_investigated + bunch_new) = -1;
 				goto L;
 			}
-			if ((end_jump > ((NumStrips / 4)*StripWidth)) && (previous_sec>NumStrips/4))
+			if ((end_jump > ((NumStrips / 4)*StripWidth)) && (previous_end_jump > ((NumStrips / 4)*StripWidth))
+				&& (previous_sec>NumStrips/4))
 			{//last_cor13.11.18
 				*(bunch_investigated + bunch_new) = -1;
 				goto L;
@@ -3236,7 +3273,7 @@ M:;
 		}//last_cor21.02.18
 		if (((((distance_proximity >= 14) && (distance_proximity1 >= 8)) ||
 			((distance_proximity1 >= 14) && (distance_proximity >= 8)) ||
-			((distance_proximity >= 10) && (distance_proximity1 >= 10))) && (hue_closeness % 10 == 1)) ||
+			((distance_proximity >= 9) && (distance_proximity1 >= 9))) && (hue_closeness % 10 == 1)) ||
 			((hue_closeness % 10 == 2) && (distance_proximity >= 13) && (distance_proximity1 >= 13)) ||
 			((hue_closeness == 11) && (distance_proximity >= 6) && (distance_proximity1 >= 6)))
 		{//last_cor19.01.16

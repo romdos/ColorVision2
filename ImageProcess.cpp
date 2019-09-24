@@ -1,7 +1,9 @@
-/*
- *  Segmentation routines are here.
- * 
- */
+//
+// @Description:
+//		Segmentation routines.
+//
+//
+//
  
 
 
@@ -46,9 +48,7 @@ static  int imp_dev_mean[8] = { 14, 16, 18, 18, 16, 16, 14, 12 };
  
 
  
-// 
-// Initializes ImageProcess Class. 
-//
+
 CImageProcess::CImageProcess(int TotalNumberofFrames)
 {
 	int i_count;
@@ -345,6 +345,8 @@ CImageProcess::CImageProcess(int TotalNumberofFrames)
 	 
 	ColorInt = new CColorIntervalSelect[NumStrips];
 	ColorDescrSect = new ColorSectionDescr[NUM_SECT1];
+	MarkingDescr = new ColorSectionDescr[NUM_YELLOW_WHITE_MARKING];
+	MarkingRecogniton = new int[NUM_YELLOW_WHITE_MARKING];//last_cor29.08.19
 	ColorSection = new CColorSection(NumStrips, ColorDescrSect, CurStrip, ColorInt);
 	
 	if (!HorizontalVertical)
@@ -441,6 +443,27 @@ CImageProcess::~CImageProcess()
 		delete[] SectionTraceRight;
 		SectionTraceRight = NULL;
 	} 
+	if (MarkingTraceLeft != NULL)//last_cor26.04.19
+	{
+		delete[] MarkingTraceLeft;
+		MarkingTraceLeft = NULL;
+	}
+	if (MarkingTraceRight != NULL)
+	{
+		delete[] MarkingTraceRight;
+		MarkingTraceRight = NULL;
+	}
+	if (WhiteMarkingTraceLeft != NULL)//last_cor26.04.19
+	{
+		delete[] WhiteMarkingTraceLeft;
+		WhiteMarkingTraceLeft = NULL;
+	}
+	if (WhiteMarkingTraceRight != NULL)
+	{
+		delete[] WhiteMarkingTraceRight;
+		WhiteMarkingTraceRight = NULL;
+	}
+
 	if (StripSignals != NULL)
 	{
 		delete[] StripSignals;
@@ -665,6 +688,16 @@ CImageProcess::~CImageProcess()
 		}
 		delete[] ColorDescrSect;
 		ColorDescrSect = NULL;
+	}
+	if (MarkingDescr != NULL)
+	{
+		for (int zero_sec = 0; zero_sec < NUM_YELLOW_WHITE_MARKING; zero_sec++)
+		{
+			delete[] MarkingDescr[zero_sec].location_of_section;
+			MarkingDescr[zero_sec].location_of_section = NULL;
+		}
+		delete[] MarkingDescr;
+		MarkingDescr = NULL;
 	}
 	if (ColorSection != NULL)
 	{
@@ -957,6 +990,10 @@ void CImageProcess::InitialConstructions()
 
 	SectionTraceLeft = new int[MAX_COL_INT*NumStrips];
 	SectionTraceRight = new int[MAX_COL_INT*NumStrips];
+	MarkingTraceLeft = new int[16 * NumStrips];//last_cor26.04.19
+	MarkingTraceRight = new int[16 * NumStrips];
+	WhiteMarkingTraceLeft = new int[16 * NumStrips];//last_cor26.04.19
+	WhiteMarkingTraceRight = new int[16 * NumStrips];
 	SkyGreenComponents = new int[NUM_SECT1];//last_cor26.05.15
 	ColorSection->section_fibre_first = new int[NUM_SECT1];
 	ColorSection->section_fibre_last = new int[NUM_SECT1];
@@ -1013,6 +1050,10 @@ void CImageProcess::InitialConstructions()
 	{
 		ColorDescrSect[zero_sec].location_of_section = new int[NumStrips];
 	}  
+	for (int zero_sec = 0; zero_sec < NUM_YELLOW_WHITE_MARKING; zero_sec++)
+	{
+		MarkingDescr[zero_sec].location_of_section = new int[NumStrips];
+	}
 }
 
 
@@ -1020,7 +1061,7 @@ void CImageProcess::InitialConstructions()
 
 //*************************************************************************************************
 // @Description:
-//	Segments image.
+//		Segments image.
 //*************************************************************************************************
 void CImageProcess::SegmentImage(int CurrentFrameNumber)
 {                
@@ -1055,7 +1096,7 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
  
 	MaximumNumberOfCoveringElements = 0;
 
-	for (size_t i = 0; i < NumStrips; i++)
+	for (uint8 i = 0U; i < NumStrips; i++)
 	{ 
 		CurStrip[i].intensi = Im;
 
@@ -1160,15 +1201,13 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 	
 	maximum_number_of_ordered_bunches = 0;
 	
-	for (int i = 0; i < NumStrips; i++)
-	{
-		int strip_disordering = ColorInt[i].Disordering;
-		if (0 == strip_disordering)
+	for (uint8 i = 0U; i < NumStrips; i++)
+	{ 
+		if (0 == ColorInt[i].Disordering)
 			number_ordered = ColorInt[i].NumberOfIntervalsInCovering;
+		
 		if (number_ordered > maximum_number_of_ordered_bunches)
-		{
 			maximum_number_of_ordered_bunches = number_ordered;
-		}
 	} 
 	
 	memset(InclineCurve, (int) '\0', sizeof(int)*NUM_SECT1);
@@ -1182,6 +1221,26 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 	number_of_section_right = ColorSection->Number_of_sections_right;
 	number_of_sections      = ColorSection->Number_of_sections;
 	
+	for (int zero_sec = 0; zero_sec < NUM_YELLOW_WHITE_MARKING; zero_sec++)
+	{
+		memset(MarkingDescr[zero_sec].location_of_section, (int) '\0', sizeof(int) * NumStrips);
+	}
+	
+	ColorSection->DescrMarking = MarkingDescr;
+	ColorSection->Number_of_markings = 0;
+	ColorSection->Number_of_yellow_markings = 0;
+	ColorSection->Number_of_yellow_markings_left = 0;
+	//ColorSection->RoadMarkingSequences(0, MarkingTraceLeft,0);
+	ColorSection->Number_of_yellow_markings_right = 0;
+	//ColorSection->RoadMarkingSequences(1, MarkingTraceRight, 0);
+	ColorSection->Number_of_white_markings = 0;
+	ColorSection->Number_of_white_markings_left = 0;
+	ColorSection->RoadMarkingSequences(0, WhiteMarkingTraceLeft, 1);
+	ColorSection->Number_of_white_markings_right = 0;
+	ColorSection->RoadMarkingSequences(1, WhiteMarkingTraceRight, 1);
+
+	memset(MarkingRecogniton, (int) '\0', sizeof(int)* (NUM_YELLOW_WHITE_MARKING));
+	RoadMarkingRecognition();
 	
 	if ((number_of_section_left > 0) && (number_of_section_right > 0))
 	{ 
@@ -1223,6 +1282,9 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 	if (!HorizontalVertical)
 		detect_green();
 	 
+	findMarking(LowerSkyFiber);
+
+
 	memset(VerticalContrastCurves, (int) '\0', sizeof(int)*(1536));
 	memset(VerticalLinesLength, (int) '\0', sizeof(int)*(64));
 	memset(VertLineFirstStrip, (int) '\0', sizeof(int)*(64));
@@ -1281,6 +1343,94 @@ void CImageProcess::SegmentImage(int CurrentFrameNumber)
 	}
 	 
 	RealColorNumSect = ColorSection->Number_of_sections; 
+}
+
+
+
+//*************************************************************************************************
+// @Description:
+//		
+//
+//*************************************************************************************************
+uint8 CImageProcess::findMarking(uint8 lowSkyBoundary)
+{
+	if (lowSkyBoundary >= STRIPS_NUM)
+	{
+		return 0U;
+	}
+
+	uint8 markingsNum = 0U; 
+
+	for (uint8 originStrip = 0U; originStrip < lowSkyBoundary; ++originStrip)
+	{
+		if (markingsNum == 2U)
+			break;
+
+		for (uint8 burstNum = 0U; 
+			CurStrip[originStrip].bursts[burstNum].isValid; 
+			burstNum++)
+		{
+			if (markingsNum == 2U)
+				break;
+
+			GrayBunch burst = CurStrip[originStrip].bursts[burstNum];
+			if (burst.inSection)
+				continue;
+
+
+			Marking	marking;
+
+			uint8 stripNum = originStrip;
+			marking.begStrip = originStrip;
+			marking.bunchNumbers[originStrip] = burstNum;
+			bool isBunchFound = true;
+
+			while (isBunchFound)
+			{
+				if ((++stripNum) >= lowSkyBoundary)
+					break;
+
+				for (uint8 i = 0U; CurStrip[stripNum].bursts[i].isValid; i++)
+				{
+					GrayBunch nextBurst = CurStrip[stripNum].bursts[i];
+					if (nextBurst.inSection && (nextBurst.length() < 2U))
+						continue;
+
+					Segment s1(burst.beg, burst.end);
+					Segment s2(nextBurst.beg, nextBurst.end);
+					uint16 r1;
+					uint16 r2;
+
+					bool bunchesIntersect = measure_intersection(s1, s2, &r1, &r2) <= 2;
+					bool theirIntensClose = std::abs(nextBurst.intens - nextBurst.intens) <= 3.0f;
+
+					if (bunchesIntersect && theirIntensClose)
+					{
+						isBunchFound = true;
+						nextBurst.inSection = true;
+
+						burst = nextBurst;
+
+						marking.bunchNumbers[stripNum] = i;
+
+						break;
+					}
+					isBunchFound = false;
+				}
+			}
+
+			//bool straightLeft = marking.left_curvature() < 16.0f;
+			//bool straightRight = marking.right_curvature() < 16.0f;
+			
+			if (marking.length() > 5U)// && straightLeft && straightRight)
+			{
+				marking.isValid = true;
+				markings[markingsNum++] = marking;
+			}
+		}
+	}
+
+	return markingsNum;
 }
 
 

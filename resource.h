@@ -8,14 +8,12 @@
 #define IDD_DIALOG1                     130
 #define IDS_GRAYSTRIP                   130
 #define IDD_DIALOG3                     143
-#define IDD_DIALOG2                     156
-#define IDD_DIALOG4                     159
 #define IDD_DIALOG_BUNCH_SELECT         159
-#define IDC_CHECK1                      1000 
-#define IDC_SPIN_COLORBUNCH             1005 
+#define IDD_DIALOG2                     162
+#define IDC_CHECK1                      1000
+#define IDC_SPIN_COLORBUNCH             1005
 #define IDC_EDIT2                       1007
-#define IDC_SPIN5                       1008
-#define IDC_SPIN2                       1009
+#define IDC_SPIN_COLOR_SECTION          1009
 #define IDC_CHECK2                      1010
 #define IDC_EDIT3                       1011
 #define IDC_EDIT4                       1012
@@ -26,6 +24,12 @@
 #define IDC_EDIT_COLOR_BUNCH            1019
 #define IDC_EDIT_GRAY_BUNCH             1020
 #define IDC_SPIN_GRAY_BUNCH             1021
+#define IDC_RADIO_COLOR_SECTION         1022 
+#define IDC_EDIT_COLOR_SECTION          1024
+#define IDC_RADIO_MARKING               1028
+#define IDC_EDIT_MARKING                1031
+#define IDC_SPIN2                       1032
+#define IDC_SPIN_MARKING                1032
 #define ID_SEGMENT                      32771
 #define ID_CHANGE_PARAM                 32772
 #define ID_VIZ_STRIPS                   32773
@@ -42,9 +46,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        161
+#define _APS_NEXT_RESOURCE_VALUE        164
 #define _APS_NEXT_COMMAND_VALUE         32783
-#define _APS_NEXT_CONTROL_VALUE         1022
+#define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
